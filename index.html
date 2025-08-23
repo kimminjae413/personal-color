@@ -111,6 +111,46 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
+        /* 추가 CSS 스타일 - PC 레이아웃 개선 */
+        .step-content {
+            transition: all 0.3s ease-in-out;
+            width: 100%;
+            max-width: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* PC 화면에서 중앙 정렬 보장 */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            body {
+                overflow-x: hidden;
+            }
+            
+            .grid-cols-1.lg\\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            
+            .grid-cols-1.lg\\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        /* 전체 레이아웃 수정 */
+        #app {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-pink-50 via-white to-blue-50 min-h-screen">
@@ -123,40 +163,43 @@
     </div>
 
     <!-- 메인 앱 -->
-    <div id="app" class="min-h-screen" style="display: none;">
+    <div id="app" class="min-h-screen w-full" style="display: none;">
         <!-- 헤더 -->
-        <header class="container mx-auto px-4 py-8 max-w-6xl">
-            <div class="text-center mb-12">
-                <div class="flex justify-center items-center gap-4 mb-4">
-                    <h1 class="text-4xl font-bold text-gray-800">
-                        과학적 퍼스널컬러 진단
-                    </h1>
-                    <button id="manual-btn" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-2 text-sm font-medium">
-                        📖 설명서 보기
-                    </button>
-                </div>
-                <p class="text-lg text-gray-600 mb-4">
-                    Munsell 색체계 • Sci\ART 방법론 • Von Kries 이론 기반
-                </p>
-                <div class="bg-blue-50 rounded-xl p-4 max-w-4xl mx-auto">
-                    <p class="text-gray-700 text-sm">
-                        🔬 과학적 근거: CRI 90+ 조명, 5000K 색온도 | 🎨 전문 시스템: Munsell 색체계 | 🇰🇷 한국형 특화
+        <header class="w-full">
+            <div class="container mx-auto px-4 py-8">
+                <div class="text-center mb-12">
+                    <div class="flex justify-center items-center gap-4 mb-4">
+                        <h1 class="text-4xl font-bold text-gray-800">
+                            과학적 퍼스널컬러 진단
+                        </h1>
+                        <button id="manual-btn" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-2 text-sm font-medium">
+                            📖 설명서 보기
+                        </button>
+                    </div>
+                    <p class="text-lg text-gray-600 mb-4">
+                        Munsell 색체계 • Sci\ART 방법론 • Von Kries 이론 기반
                     </p>
+                    <div class="bg-blue-50 rounded-xl p-4 max-w-4xl mx-auto">
+                        <p class="text-gray-700 text-sm">
+                            🔬 과학적 근거: CRI 90+ 조명, 5000K 색온도 | 🎨 전문 시스템: Munsell 색체계 | 🇰🇷 한국형 특화
+                        </p>
+                    </div>
                 </div>
             </div>
         </header>
 
         <!-- 메인 콘텐츠 -->
-        <main class="container mx-auto px-4 max-w-6xl">
+        <main class="flex-1 w-full">
+            <div class="container mx-auto px-4">
             <!-- 단계 0: 메인 화면 -->
-            <div id="step-0" class="step-content">
+            <div id="step-0" class="step-content w-full">
                 <div class="max-w-4xl mx-auto">
                     <h2 class="text-3xl font-bold text-center mb-6">진단 방식 선택</h2>
                     <p class="text-gray-600 text-center mb-8">과학적 이론에 기반한 두 가지 방법론</p>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
                         <!-- 사진 기반 진단 -->
-                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1 w-full"
                              onclick="selectMode('photo')">
                             <div class="text-center">
                                 <div class="bg-blue-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
@@ -190,7 +233,7 @@
                         </div>
 
                         <!-- 전문가 드래이핑 진단 -->
-                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1 w-full"
                              onclick="selectMode('expert')">
                             <div class="text-center">
                                 <div class="bg-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
@@ -226,7 +269,7 @@
             </div>
 
             <!-- 단계 1: 사진 업로드 -->
-            <div id="step-1" class="step-content" style="display: none;">
+            <div id="step-1" class="step-content w-full" style="display: none;">
                 <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
                     <div class="text-center mb-8">
                         <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
@@ -255,8 +298,8 @@
             </div>
 
             <!-- 단계 2: 분석 -->
-            <div id="step-2" class="step-content" style="display: none;">
-                <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div id="step-2" class="step-content w-full" style="display: none;">
+                <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-none">
                     <div id="step2-header" class="text-center mb-8">
                         <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,14 +308,99 @@
                             뒤로가기
                         </button>
                     </div>
-                    <div id="step2-content">
+                    <div id="step2-content" class="w-full">
                         <!-- 동적으로 생성될 내용 -->
                     </div>
                 </div>
             </div>
 
             <!-- 단계 3: 결과 -->
-            <div id="step-3" class="step-content" style="display: none;">
+            <div id="step-3" class="step-content w-full" style="display: none;">
+                <div class="w-full max-w-none">
+                <!-- 결과 헤더 -->
+                <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold mb-4">🎉 퍼스널컬러 진단 완료!</h2>
+                        <div class="text-7xl font-bold mb-4" id="result-season">Spring Light</div>
+                        <p class="text-2xl mb-6 opacity-90" id="result-description">밝고 따뜻한 톤, 부드러운 채도</p>
+                        
+                        <div class="flex justify-center space-x-12 mb-6">
+                            <div class="text-center">
+                                <div class="text-4xl font-bold">92%</div>
+                                <div class="text-lg opacity-80">신뢰도</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold">전문가급</div>
+                                <div class="text-lg opacity-80">분석 방법</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold" id="analysis-date"></div>
+                                <div class="text-lg opacity-80">진단 일시</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 종합 보고서 -->
+                <div class="space-y-8 w-full">
+                    <!-- 진단 요약 -->
+                    <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                            📋 진단 요약 (Executive Summary)
+                        </h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 border-l-4 border-orange-500">
+                                    <h4 class="font-bold text-orange-800 mb-3">🎨 색상 특성 분석</h4>
+                                    <div id="color-analysis" class="text-gray-700 space-y-2">
+                                        <p><strong>온도감:</strong> 따뜻한 톤 (Warm Undertone)</p>
+                                        <p><strong>명도:</strong> 밝은 색상 선호 (High Value)</p>
+                                        <p><strong>채도:</strong> 부드러운 색상 조화 (Medium Chroma)</p>
+                                        <p><strong>주요 언더톤:</strong> 골든-옐로우 베이스</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border-l-4 border-green-500">
+                                    <h4 class="font-bold text-green-800 mb-3">✨ 개인 매력 포인트</h4>
+                                    <div id="charm-points" class="text-gray-700 space-y-2">
+                                        <p>• 자연스럽고 친근한 인상을 주는 따뜻한 아우라</p>
+                                        <p>• 밝고 생기 넘치는 에너지로 활력적인 매력</p>
+                                        <p>• 부드럽고 우아한 색감으로 세련된 느낌 연출</p>
+                                        <p>• 봄날의 신선함과 같은 상쾌한 이미지</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border-l-4 border-blue-500">
+                                    <h4 class="font-bold text-blue-800 mb-3">🔬 과학적 분석 결과</h4>
+                                    <div id="scientific-analysis" class="text-gray-700 space-y-2 text-sm">
+                                        <p><strong>Von Kries 적응:</strong> 황색 스펙트럼 최적 반응</p>
+                                        <p><strong>Munsell 분류:</strong> 5YR-5Y 색상군 조화</p>
+                                        <p><strong>SPD 분석:</strong> 570-620nm 파장대 선호</p>
+                                        <p><strong>색채 조화:</strong> 중-고명도 + 중간채도 조합</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 border-l-4 border-purple-500">
+                                    <h4 class="font-bold text-purple-800 mb-3">👥 유사 연예인</h4>
+                                    <div id="celebrity-matches" class="text-gray-700 space-y-2">
+                                        <p><strong>국내:</strong> 아이유, 태연, 박보영, 김태희</p>
+                                        <p><strong>해외:</strong> Emma Stone, Blake Lively, Scarlett Johansson</p>
+                                        <p><strong>공통점:</strong> 밝고 따뜻한 인상, 자연스러운 매력</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 나머지 섹션들은 원래대로... -->
+                </div>
+                </div>
+            </div>
+            </div>
+        </main>
+    </div>>
                 <!-- 결과 헤더 -->
                 <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 mb-8">
                     <div class="text-center">
