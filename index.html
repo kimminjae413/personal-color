@@ -1,52 +1,4 @@
-<!-- 헤어컬러 가이드 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            💇‍♀️ 헤어컬러 완벽 가이드
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <!-- 추천 헤어컬러 -->
-                            <div class="space-y-6">
-                                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6 border-l-4 border-yellow-500">
-                                    <h4 class="font-bold text-yellow-800 mb-4 text-xl">✨ 최적 헤어컬러</h4>
-                                    <div class="space-y-4">
-                                        <div class="bg-white rounded-lg p-4">
-                                            <div class="flex items-center gap-4 mb-3">
-                                                <h5 class="font-semibold text-gray-800">🥇 1순위: 골든 브라운 계열</h5>
-                                            </div>
-                                            <div class="space-y-3">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-8 h-8 rounded-full border-2 border-gray-300" style="background: linear-gradient(135deg, #D4A574, #B8956A);" title="허니 브라운"></div>
-                                                    <div class="text-sm text-gray-600">
-                                                        <p class="font-medium">허니 브라운 (7-8레벨)</p>
-                                                        <p class="text-xs text-gray-500">따뜻한 꿀색 브라운</p>
-                                                    </div>
-                                                </div>
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-8 h-8 rounded-full border-2 border-gray-300" style="background: linear-gradient(135deg, #C4915C, #A67C52);" title="카라멜 브라운"></div>
-                                                    <div class="text-sm text-gray-600">
-                                                        <p class="font-medium">카라멜 브라운 (6-7레벨)</p>
-                                                        <p class="text-xs text-gray-500">달콤한 카라멜색</p>
-                                                    </div>
-                                                </div>
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-8 h-8 rounded-full border-2 border-gray-300" style="background: linear-gradient(135deg, #E6D0A3, #D4BD94);" title="골든 베이지"></div>
-                                                    <div class="text-sm text-gray-600">
-                                                        <p class="font-medium">골든 베이지 (9레벨)</p>
-                                                        <p class="text-xs text-gray-500">밝은 황금빛 베이지</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <p class="text-sm text-green-600 mt-3 font-medium">✨ 효과: 피부에 생기와 따뜻함 부여</p>
-                                        </div>
-                                        
-                                        <div class="bg-white rounded-lg p-4">
-                                            <div class="flex items-center gap-4 mb-3">
-                                                <h5 class="font-semibold text-gray-800">🥈 2순위: 따뜻한 블론드</h5>
-                                            </div>
-                                            <div class="space-y-3">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-8 h-8 rounded-full border<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -111,11 +63,23 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
-        /* 추가 CSS 스타일 - PC 레이아웃 개선 */
+
+        /* PC 레이아웃 개선 */
         .step-content {
             transition: all 0.3s ease-in-out;
             width: 100%;
             max-width: none;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        #app {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
@@ -123,38 +87,10 @@
             margin: 0 auto;
             padding: 0 2rem;
         }
-
-        /* PC 화면에서 중앙 정렬 보장 */
-        @media (min-width: 1024px) {
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-            
-            body {
-                overflow-x: hidden;
-            }
-            
-            .grid-cols-1.lg\\:grid-cols-2 {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-            
-            .grid-cols-1.lg\\:grid-cols-3 {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
-
-        /* 전체 레이아웃 수정 */
-        #app {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-pink-50 via-white to-blue-50 min-h-screen">
-    <!-- 로딩 확인 -->
+    <!-- 로딩 화면 -->
     <div id="loading" class="fixed inset-0 bg-white flex items-center justify-center z-50">
         <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
@@ -191,74 +127,75 @@
         <!-- 메인 콘텐츠 -->
         <main class="flex-1 w-full">
             <div class="container mx-auto px-4">
-            <!-- 단계 0: 메인 화면 -->
-            <div id="step-0" class="step-content w-full">
-                <div class="max-w-4xl mx-auto">
-                    <h2 class="text-3xl font-bold text-center mb-6">진단 방식 선택</h2>
-                    <p class="text-gray-600 text-center mb-8">과학적 이론에 기반한 두 가지 방법론</p>
+                <!-- 단계 0: 메인 화면 -->
+                <div id="step-0" class="step-content w-full">
+                    <div class="max-w-4xl mx-auto">
+                        <h2 class="text-3xl font-bold text-center mb-6">진단 방식 선택</h2>
+                        <p class="text-gray-600 text-center mb-8">과학적 이론에 기반한 두 가지 방법론</p>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-                        <!-- 사진 기반 진단 -->
-                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1 w-full"
-                             onclick="selectMode('photo')">
-                            <div class="text-center">
-                                <div class="bg-blue-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                                    <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-2xl font-bold text-gray-800 mb-4">사진 기반 간편 진단</h3>
-                                <p class="text-gray-600 mb-6">
-                                    업로드한 사진을 분석하여 색상 특성을 추출합니다.
-                                </p>
-                                
-                                <div class="bg-blue-50 rounded-lg p-4">
-                                    <div class="grid grid-cols-3 gap-4 text-center">
-                                        <div>
-                                            <div class="text-2xl font-bold text-blue-600">5분</div>
-                                            <div class="text-xs text-blue-700">소요시간</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-2xl font-bold text-blue-600">85%</div>
-                                            <div class="text-xs text-blue-700">정확도</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-2xl font-bold text-blue-600">⭐⭐</div>
-                                            <div class="text-xs text-blue-700">난이도</div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+                            <!-- 사진 기반 진단 -->
+                            <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                                 onclick="selectMode('photo')">
+                                <div class="text-center">
+                                    <div class="bg-blue-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-4">사진 기반 간편 진단</h3>
+                                    <p class="text-gray-600 mb-6">
+                                        업로드한 사진을 분석하여 색상 특성을 추출합니다.
+                                    </p>
+                                    
+                                    <div class="bg-blue-50 rounded-lg p-4">
+                                        <div class="grid grid-cols-3 gap-4 text-center">
+                                            <div>
+                                                <div class="text-2xl font-bold text-blue-600">5분</div>
+                                                <div class="text-xs text-blue-700">소요시간</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-2xl font-bold text-blue-600">85%</div>
+                                                <div class="text-xs text-blue-700">정확도</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-2xl font-bold text-blue-600">⭐⭐</div>
+                                                <div class="text-xs text-blue-700">난이도</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- 전문가 드래이핑 진단 -->
-                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1 w-full"
-                             onclick="selectMode('expert')">
-                            <div class="text-center">
-                                <div class="bg-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                                    <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-2xl font-bold text-gray-800 mb-4">전문가급 드래이핑 진단</h3>
-                                <p class="text-gray-600 mb-6">
-                                    Sci\ART 방법론으로 3단계 체계적 분석을 진행합니다.
-                                </p>
-                                
-                                <div class="bg-purple-50 rounded-lg p-4">
-                                    <div class="grid grid-cols-3 gap-4 text-center">
-                                        <div>
-                                            <div class="text-2xl font-bold text-purple-600">15분</div>
-                                            <div class="text-xs text-purple-700">소요시간</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-2xl font-bold text-purple-600">92%</div>
-                                            <div class="text-xs text-purple-700">정확도</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-2xl font-bold text-purple-600">⭐⭐⭐</div>
-                                            <div class="text-xs text-purple-700">난이도</div>
+                            <!-- 전문가 드래이핑 진단 -->
+                            <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                                 onclick="selectMode('expert')">
+                                <div class="text-center">
+                                    <div class="bg-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-4">전문가급 드래이핑 진단</h3>
+                                    <p class="text-gray-600 mb-6">
+                                        Sci\ART 방법론으로 3단계 체계적 분석을 진행합니다.
+                                    </p>
+                                    
+                                    <div class="bg-purple-50 rounded-lg p-4">
+                                        <div class="grid grid-cols-3 gap-4 text-center">
+                                            <div>
+                                                <div class="text-2xl font-bold text-purple-600">15분</div>
+                                                <div class="text-xs text-purple-700">소요시간</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-2xl font-bold text-purple-600">92%</div>
+                                                <div class="text-xs text-purple-700">정확도</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-2xl font-bold text-purple-600">⭐⭐⭐</div>
+                                                <div class="text-xs text-purple-700">난이도</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -266,943 +203,260 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 단계 1: 사진 업로드 -->
-            <div id="step-1" class="step-content w-full" style="display: none;">
-                <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
-                    <div class="text-center mb-8">
-                        <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                <!-- 단계 1: 사진 업로드 -->
+                <div id="step-1" class="step-content w-full" style="display: none;">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
+                        <div class="text-center mb-8">
+                            <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                                뒤로가기
+                            </button>
+                            <h2 class="text-3xl font-bold mb-4">📸 사진 업로드</h2>
+                            <p class="text-gray-600">정확한 분석을 위해 고품질 사진을 업로드해주세요</p>
+                        </div>
+
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center">
+                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                             </svg>
-                            뒤로가기
-                        </button>
-                        <h2 class="text-3xl font-bold mb-4">📸 사진 업로드</h2>
-                        <p class="text-gray-600">정확한 분석을 위해 고품질 사진을 업로드해주세요</p>
-                    </div>
-
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center">
-                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <h3 class="text-xl font-semibold mb-2">사진 업로드</h3>
-                        <p class="text-gray-500 mb-6">자연광에서 촬영한 정면 사진을 선택해주세요</p>
-                        <input type="file" id="photo-input" accept="image/*" class="hidden">
-                        <button onclick="document.getElementById('photo-input').click()" 
-                                class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 font-semibold transition-colors">
-                            파일 선택하기
-                        </button>
+                            <h3 class="text-xl font-semibold mb-2">사진 업로드</h3>
+                            <p class="text-gray-500 mb-6">자연광에서 촬영한 정면 사진을 선택해주세요</p>
+                            <input type="file" id="photo-input" accept="image/*" class="hidden">
+                            <button onclick="document.getElementById('photo-input').click()" 
+                                    class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 font-semibold transition-colors">
+                                파일 선택하기
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 단계 2: 분석 -->
-            <div id="step-2" class="step-content w-full" style="display: none;">
-                <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-none">
-                    <div id="step2-header" class="text-center mb-8">
-                        <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                            뒤로가기
-                        </button>
-                    </div>
-                    <div id="step2-content" class="w-full">
+                <!-- 단계 2: 분석 -->
+                <div id="step-2" class="step-content w-full" style="display: none;">
+                    <div id="step2-content">
                         <!-- 동적으로 생성될 내용 -->
                     </div>
                 </div>
-            </div>
 
-            <!-- 단계 3: 결과 -->
-            <div id="step-3" class="step-content w-full" style="display: none;">
-                <div class="w-full max-w-none">
-                <!-- 결과 헤더 -->
-                <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div class="text-center">
-                        <h2 class="text-4xl font-bold mb-4">🎉 퍼스널컬러 진단 완료!</h2>
-                        <div class="text-7xl font-bold mb-4" id="result-season">Spring Light</div>
-                        <p class="text-2xl mb-6 opacity-90" id="result-description">밝고 따뜻한 톤, 부드러운 채도</p>
-                        
-                        <div class="flex justify-center space-x-12 mb-6">
+                <!-- 단계 3: 결과 -->
+                <div id="step-3" class="step-content w-full" style="display: none;">
+                    <div class="w-full max-w-none">
+                        <!-- 결과 헤더 -->
+                        <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 mb-8">
                             <div class="text-center">
-                                <div class="text-4xl font-bold">92%</div>
-                                <div class="text-lg opacity-80">신뢰도</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold">전문가급</div>
-                                <div class="text-lg opacity-80">분석 방법</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold" id="analysis-date"></div>
-                                <div class="text-lg opacity-80">진단 일시</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 종합 보고서 -->
-                <div class="space-y-8 w-full">
-                    <!-- 진단 요약 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            📋 진단 요약 (Executive Summary)
-                        </h3>
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="space-y-4">
-                                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 border-l-4 border-orange-500">
-                                    <h4 class="font-bold text-orange-800 mb-3">🎨 색상 특성 분석</h4>
-                                    <div id="color-analysis" class="text-gray-700 space-y-2">
-                                        <p><strong>온도감:</strong> 따뜻한 톤 (Warm Undertone)</p>
-                                        <p><strong>명도:</strong> 밝은 색상 선호 (High Value)</p>
-                                        <p><strong>채도:</strong> 부드러운 색상 조화 (Medium Chroma)</p>
-                                        <p><strong>주요 언더톤:</strong> 골든-옐로우 베이스</p>
-                                    </div>
-                                </div>
+                                <h2 class="text-4xl font-bold mb-4">🎉 퍼스널컬러 진단 완료!</h2>
+                                <div class="text-7xl font-bold mb-4" id="result-season">Spring Light</div>
+                                <p class="text-2xl mb-6 opacity-90" id="result-description">밝고 따뜻한 톤, 부드러운 채도</p>
                                 
-                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border-l-4 border-green-500">
-                                    <h4 class="font-bold text-green-800 mb-3">✨ 개인 매력 포인트</h4>
-                                    <div id="charm-points" class="text-gray-700 space-y-2">
-                                        <p>• 자연스럽고 친근한 인상을 주는 따뜻한 아우라</p>
-                                        <p>• 밝고 생기 넘치는 에너지로 활력적인 매력</p>
-                                        <p>• 부드럽고 우아한 색감으로 세련된 느낌 연출</p>
-                                        <p>• 봄날의 신선함과 같은 상쾌한 이미지</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-4">
-                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border-l-4 border-blue-500">
-                                    <h4 class="font-bold text-blue-800 mb-3">🔬 과학적 분석 결과</h4>
-                                    <div id="scientific-analysis" class="text-gray-700 space-y-2 text-sm">
-                                        <p><strong>Von Kries 적응:</strong> 황색 스펙트럼 최적 반응</p>
-                                        <p><strong>Munsell 분류:</strong> 5YR-5Y 색상군 조화</p>
-                                        <p><strong>SPD 분석:</strong> 570-620nm 파장대 선호</p>
-                                        <p><strong>색채 조화:</strong> 중-고명도 + 중간채도 조합</p>
-                                    </div>
-                                </div>
-
-                                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 border-l-4 border-purple-500">
-                                    <h4 class="font-bold text-purple-800 mb-3">👥 유사 연예인</h4>
-                                    <div id="celebrity-matches" class="text-gray-700 space-y-2">
-                                        <p><strong>국내:</strong> 아이유, 태연, 박보영, 김태희</p>
-                                        <p><strong>해외:</strong> Emma Stone, Blake Lively, Scarlett Johansson</p>
-                                        <p><strong>공통점:</strong> 밝고 따뜻한 인상, 자연스러운 매력</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 메이크업 가이드 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            💄 메이크업 완벽 가이드
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- 베이스 메이크업 -->
-                            <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-6">
-                                <h4 class="font-bold text-orange-800 mb-4 text-xl">🎨 베이스 메이크업</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">파운데이션</h5>
-                                        <p class="text-gray-600">• 따뜻한 베이지, 아이보리 톤</p>
-                                        <p class="text-gray-600">• 21-23호 (골든 언더톤)</p>
-                                        <p class="text-gray-600">• 자연스러운 커버리지 추천</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">컨실러</h5>
-                                        <p class="text-gray-600">• 살구빛, 피치 톤</p>
-                                        <p class="text-gray-600">• 파운데이션보다 한 톤 밝게</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">파우더</h5>
-                                        <p class="text-gray-600">• 투명 또는 라이트 베이지</p>
-                                        <p class="text-gray-600">• 너무 핑크하지 않은 톤</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 포인트 메이크업 -->
-                            <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg p-6">
-                                <h4 class="font-bold text-pink-800 mb-4 text-xl">✨ 포인트 메이크업</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">아이섀도</h5>
-                                        <p class="text-gray-600">• 코랄, 피치, 골드 계열</p>
-                                        <p class="text-gray-600">• 따뜻한 브라운 (초콜릿X, 카라멜O)</p>
-                                        <p class="text-gray-600">• 크림, 샴페인 하이라이터</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">아이라이너</h5>
-                                        <p class="text-gray-600">• 브라운, 다크 브라운</p>
-                                        <p class="text-gray-600">• 검정보다는 부드러운 톤</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">마스카라</h5>
-                                        <p class="text-gray-600">• 브라운, 다크 브라운</p>
-                                        <p class="text-gray-600">• 자연스러운 컬링 효과</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 입술 & 볼 -->
-                            <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6">
-                                <h4 class="font-bold text-purple-800 mb-4 text-xl">💋 입술 & 볼터치</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">립스틱</h5>
-                                        <p class="text-gray-600">• 코랄 핑크, 피치 핑크</p>
-                                        <p class="text-gray-600">• 따뜻한 레드 (오렌지 베이스)</p>
-                                        <p class="text-gray-600">• MLBB: 자연스러운 장미빛</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">립글로스</h5>
-                                        <p class="text-gray-600">• 투명, 피치, 코랄</p>
-                                        <p class="text-gray-600">• 자연스러운 윤기 연출</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">블러셔</h5>
-                                        <p class="text-gray-600">• 복숭아, 코랄, 살구</p>
-                                        <p class="text-gray-600">• 자연스러운 혈색 표현</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 메이크업 피해야 할 색상 -->
-                        <div class="mt-6 bg-red-50 rounded-lg p-6 border border-red-200">
-                            <h4 class="font-bold text-red-800 mb-3">❌ 피해야 할 메이크업 색상</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <h5 class="font-semibold text-gray-800 mb-2">차가운 톤 계열</h5>
-                                    <p class="text-gray-600">• 실버, 아이시 핑크, 퍼플 계열</p>
-                                    <p class="text-gray-600">• 차가운 레드 (블루 베이스)</p>
-                                    <p class="text-gray-600">• 회색빛 브라운 (애쉬 계열)</p>
-                                </div>
-                                <div>
-                                    <h5 class="font-semibold text-gray-800 mb-2">너무 진한 색상</h5>
-                                    <p class="text-gray-600">• 진한 스모키, 검은색 아이라이너</p>
-                                    <p class="text-gray-600">• 와인, 버건디 계열 (너무 진할 때)</p>
-                                    <p class="text-gray-600">• 형광 색상, 네온 계열</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 액션 버튼 -->
-                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 text-center">
-                        <h3 class="text-2xl font-bold mb-4">🎯 다음 단계 제안</h3>
-                        <p class="text-lg mb-6 opacity-90">전문가 수준의 퍼스널컬러 진단이 완료되었습니다!</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                            <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
-                                <div class="text-2xl mb-2">📊</div>
-                                <div class="font-bold">결과 저장</div>
-                                <div class="text-sm opacity-80">PDF 리포트 다운로드</div>
-                            </button>
-                            
-                            <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
-                                <div class="text-2xl mb-2">📱</div>
-                                <div class="font-bold">SNS 공유</div>
-                                <div class="text-sm opacity-80">결과 친구들과 공유</div>
-                            </button>
-                            
-                            <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
-                                <div class="text-2xl mb-2">🛍️</div>
-                                <div class="font-bold">쇼핑 가이드</div>
-                                <div class="text-sm opacity-80">추천 제품 보기</div>
-                            </button>
-                        </div>
-
-                        <button onclick="resetApp()" 
-                                class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-xl hover:bg-gray-100 transition-all mr-4">
-                            🔄 새로운 진단 시작
-                        </button>
-                        
-                        <button onclick="window.print()" 
-                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-4 rounded-xl font-bold text-xl transition-all">
-                            🖨️ 보고서 출력
-                        </button>
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- 전체화면 드래이핑 모달 -->
-    <div id="fullscreen-modal" class="fixed inset-0 z-50 hidden">
-        <!-- 전체화면 내용이 여기에 동적으로 생성됩니다 -->
-    </div>
-
-    <!-- 전문가 매뉴얼 모달 -->
-    <div id="expert-manual-modal" class="fixed inset-0 z-50 hidden">
-        <!-- 매뉴얼 내용이 여기에 동적으로 생성됩니다 -->
-    </div>>
-                <!-- 결과 헤더 -->
-                <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div class="text-center">
-                        <h2 class="text-4xl font-bold mb-4">🎉 퍼스널컬러 진단 완료!</h2>
-                        <div class="text-7xl font-bold mb-4" id="result-season">Spring Light</div>
-                        <p class="text-2xl mb-6 opacity-90" id="result-description">밝고 따뜻한 톤, 부드러운 채도</p>
-                        
-                        <div class="flex justify-center space-x-12 mb-6">
-                            <div class="text-center">
-                                <div class="text-4xl font-bold">92%</div>
-                                <div class="text-lg opacity-80">신뢰도</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold">전문가급</div>
-                                <div class="text-lg opacity-80">분석 방법</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold" id="analysis-date"></div>
-                                <div class="text-lg opacity-80">진단 일시</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 종합 보고서 -->
-                <div class="space-y-8">
-                    <!-- 진단 요약 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            📋 진단 요약 (Executive Summary)
-                        </h3>
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="space-y-4">
-                                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 border-l-4 border-orange-500">
-                                    <h4 class="font-bold text-orange-800 mb-3">🎨 색상 특성 분석</h4>
-                                    <div id="color-analysis" class="text-gray-700 space-y-2">
-                                        <p><strong>온도감:</strong> 따뜻한 톤 (Warm Undertone)</p>
-                                        <p><strong>명도:</strong> 밝은 색상 선호 (High Value)</p>
-                                        <p><strong>채도:</strong> 부드러운 색상 조화 (Medium Chroma)</p>
-                                        <p><strong>주요 언더톤:</strong> 골든-옐로우 베이스</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border-l-4 border-green-500">
-                                    <h4 class="font-bold text-green-800 mb-3">✨ 개인 매력 포인트</h4>
-                                    <div id="charm-points" class="text-gray-700 space-y-2">
-                                        <p>• 자연스럽고 친근한 인상을 주는 따뜻한 아우라</p>
-                                        <p>• 밝고 생기 넘치는 에너지로 활력적인 매력</p>
-                                        <p>• 부드럽고 우아한 색감으로 세련된 느낌 연출</p>
-                                        <p>• 봄날의 신선함과 같은 상쾌한 이미지</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-4">
-                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border-l-4 border-blue-500">
-                                    <h4 class="font-bold text-blue-800 mb-3">🔬 과학적 분석 결과</h4>
-                                    <div id="scientific-analysis" class="text-gray-700 space-y-2 text-sm">
-                                        <p><strong>Von Kries 적응:</strong> 황색 스펙트럼 최적 반응</p>
-                                        <p><strong>Munsell 분류:</strong> 5YR-5Y 색상군 조화</p>
-                                        <p><strong>SPD 분석:</strong> 570-620nm 파장대 선호</p>
-                                        <p><strong>색채 조화:</strong> 중-고명도 + 중간채도 조합</p>
-                                    </div>
-                                </div>
-
-                                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 border-l-4 border-purple-500">
-                                    <h4 class="font-bold text-purple-800 mb-3">👥 유사 연예인</h4>
-                                    <div id="celebrity-matches" class="text-gray-700 space-y-2">
-                                        <p><strong>국내:</strong> 아이유, 태연, 박보영, 김태희</p>
-                                        <p><strong>해외:</strong> Emma Stone, Blake Lively, Scarlett Johansson</p>
-                                        <p><strong>공통점:</strong> 밝고 따뜻한 인상, 자연스러운 매력</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 메이크업 가이드 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            💄 메이크업 완벽 가이드
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- 베이스 메이크업 -->
-                            <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-6">
-                                <h4 class="font-bold text-orange-800 mb-4 text-xl">🎨 베이스 메이크업</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">파운데이션</h5>
-                                        <p class="text-gray-600">• 따뜻한 베이지, 아이보리 톤</p>
-                                        <p class="text-gray-600">• 21-23호 (골든 언더톤)</p>
-                                        <p class="text-gray-600">• 자연스러운 커버리지 추천</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">컨실러</h5>
-                                        <p class="text-gray-600">• 살구빛, 피치 톤</p>
-                                        <p class="text-gray-600">• 파운데이션보다 한 톤 밝게</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">파우더</h5>
-                                        <p class="text-gray-600">• 투명 또는 라이트 베이지</p>
-                                        <p class="text-gray-600">• 너무 핑크하지 않은 톤</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 포인트 메이크업 -->
-                            <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg p-6">
-                                <h4 class="font-bold text-pink-800 mb-4 text-xl">✨ 포인트 메이크업</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">아이섀도</h5>
-                                        <p class="text-gray-600">• 코랄, 피치, 골드 계열</p>
-                                        <p class="text-gray-600">• 따뜻한 브라운 (초콜릿X, 카라멜O)</p>
-                                        <p class="text-gray-600">• 크림, 샴페인 하이라이터</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">아이라이너</h5>
-                                        <p class="text-gray-600">• 브라운, 다크 브라운</p>
-                                        <p class="text-gray-600">• 검정보다는 부드러운 톤</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">마스카라</h5>
-                                        <p class="text-gray-600">• 브라운, 다크 브라운</p>
-                                        <p class="text-gray-600">• 자연스러운 컬링 효과</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 입술 & 볼 -->
-                            <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6">
-                                <h4 class="font-bold text-purple-800 mb-4 text-xl">💋 입술 & 볼터치</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">립스틱</h5>
-                                        <p class="text-gray-600">• 코랄 핑크, 피치 핑크</p>
-                                        <p class="text-gray-600">• 따뜻한 레드 (오렌지 베이스)</p>
-                                        <p class="text-gray-600">• MLBB: 자연스러운 장미빛</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">립글로스</h5>
-                                        <p class="text-gray-600">• 투명, 피치, 코랄</p>
-                                        <p class="text-gray-600">• 자연스러운 윤기 연출</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">블러셔</h5>
-                                        <p class="text-gray-600">• 복숭아, 코랄, 살구</p>
-                                        <p class="text-gray-600">• 자연스러운 혈색 표현</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 메이크업 피해야 할 색상 -->
-                        <div class="mt-6 bg-red-50 rounded-lg p-6 border border-red-200">
-                            <h4 class="font-bold text-red-800 mb-3">❌ 피해야 할 메이크업 색상</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <h5 class="font-semibold text-gray-800 mb-2">차가운 톤 계열</h5>
-                                    <p class="text-gray-600">• 실버, 아이시 핑크, 퍼플 계열</p>
-                                    <p class="text-gray-600">• 차가운 레드 (블루 베이스)</p>
-                                    <p class="text-gray-600">• 회색빛 브라운 (애쉬 계열)</p>
-                                </div>
-                                <div>
-                                    <h5 class="font-semibold text-gray-800 mb-2">너무 진한 색상</h5>
-                                    <p class="text-gray-600">• 진한 스모키, 검은색 아이라이너</p>
-                                    <p class="text-gray-600">• 와인, 버건디 계열 (너무 진할 때)</p>
-                                    <p class="text-gray-600">• 형광 색상, 네온 계열</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 헤어컬러 가이드 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            💇‍♀️ 헤어컬러 완벽 가이드
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <!-- 추천 헤어컬러 -->
-                            <div class="space-y-6">
-                                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6 border-l-4 border-yellow-500">
-                                    <h4 class="font-bold text-yellow-800 mb-4 text-xl">✨ 최적 헤어컬러</h4>
-                                    <div id="recommended-hair-colors" class="space-y-4">
-                                        <!-- 동적으로 생성될 추천 컬러들 -->
-                                    </div>
-                                </div>
-
-                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border-l-4 border-blue-500">
-                                    <h4 class="font-bold text-blue-800 mb-4 text-xl">💡 염색 팁</h4>
-                                    <div class="space-y-3 text-sm">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">브리칭 주의사항</h5>
-                                            <p class="text-gray-600">• 과도한 탈색보다는 자연스러운 톤업</p>
-                                            <p class="text-gray-600">• 개인 언더톤을 살리는 것이 중요</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">관리 방법</h5>
-                                            <p class="text-gray-600">• 컬러 전용 샴푸 사용</p>
-                                            <p class="text-gray-600">• 열 보호제 필수 사용</p>
-                                            <p class="text-gray-600">• 4-6주마다 리터치 권장</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 피해야 할 컬러 -->
-                            <div class="space-y-6">
-                                <div class="bg-red-50 rounded-lg p-6 border-l-4 border-red-500">
-                                    <h4 class="font-bold text-red-800 mb-4 text-xl">❌ 피해야 할 컬러</h4>
-                                    <div id="avoid-hair-colors" class="space-y-4">
-                                        <!-- 동적으로 생성될 피해야 할 컬러들 -->
-                                    </div>
-                                </div>
-
-                                <div class="bg-green-50 rounded-lg p-6 border-l-4 border-green-500">
-                                    <h4 class="font-bold text-green-800 mb-4 text-xl">🎨 컬러 시뮬레이션</h4>
+                                <div class="flex justify-center space-x-12 mb-6">
                                     <div class="text-center">
-                                        <p class="text-sm text-gray-600 mb-4">미용실에서 이 색상들을 보여주세요!</p>
-                                        <button onclick="generateColorPalette()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all">
-                                            📱 컬러 팔레트 생성
-                                        </button>
-                                        <div id="color-palette" class="mt-4 hidden">
-                                            <!-- 컬러 팔레트가 여기에 생성됨 -->
-                                        </div>
+                                        <div class="text-4xl font-bold">92%</div>
+                                        <div class="text-lg opacity-80">신뢰도</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold">전문가급</div>
+                                        <div class="text-lg opacity-80">분석 방법</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold" id="analysis-date"></div>
+                                        <div class="text-lg opacity-80">진단 일시</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 패션 가이드 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            👗 패션 스타일링 가이드
-                        </h3>
-                        
-                        <div class="space-y-8">
-                            <!-- 베이직 컬러 -->
-                            <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6">
-                                <h4 class="font-bold text-orange-800 mb-4 text-xl">🎨 베이직 컬러 (기본 옷장)</h4>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #FFF8DC;"></div>
-                                        <p class="text-sm font-semibold">아이보리</p>
-                                        <p class="text-xs text-gray-600">기본 상의</p>
-                                    </div>
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #F5DEB3;"></div>
-                                        <p class="text-sm font-semibold">베이지</p>
-                                        <p class="text-xs text-gray-600">코트, 바지</p>
-                                    </div>
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #DEB887;"></div>
-                                        <p class="text-sm font-semibold">카멜</p>
-                                        <p class="text-xs text-gray-600">아우터</p>
-                                    </div>
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #D2B48C;"></div>
-                                        <p class="text-sm font-semibold">모카</p>
-                                        <p class="text-xs text-gray-600">가방, 신발</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 포인트 컬러 -->
-                            <div class="bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg p-6">
-                                <h4 class="font-bold text-pink-800 mb-4 text-xl">✨ 포인트 컬러 (액센트)</h4>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #FF7F50;"></div>
-                                        <p class="text-sm font-semibold">코랄</p>
-                                        <p class="text-xs text-gray-600">블라우스, 원피스</p>
-                                    </div>
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #FFCCCB;"></div>
-                                        <p class="text-sm font-semibold">피치</p>
-                                        <p class="text-xs text-gray-600">니트, 스카프</p>
-                                    </div>
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #FFD700;"></div>
-                                        <p class="text-sm font-semibold">골드</p>
-                                        <p class="text-xs text-gray-600">액세서리</p>
-                                    </div>
-                                    <div class="bg-white rounded-lg p-4 text-center">
-                                        <div class="w-full h-16 rounded-lg mb-2" style="background-color: #98FB98;"></div>
-                                        <p class="text-sm font-semibold">민트</p>
-                                        <p class="text-xs text-gray-600">여름 상의</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 상황별 스타일링 -->
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <div class="bg-blue-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-blue-800 mb-4">💼 비즈니스 룩</h4>
-                                    <div class="space-y-3 text-sm">
-                                        <div>
-                                            <h5 class="font-semibold">정장</h5>
-                                            <p class="text-gray-600">• 베이지, 카멜 계열 수트</p>
-                                            <p class="text-gray-600">• 아이보리 셔츠 조합</p>
-                                        </div>
-                                        <div>
-                                            <h5 class="font-semibold">액세서리</h5>
-                                            <p class="text-gray-600">• 골드 톤 시계, 가방</p>
-                                            <p class="text-gray-600">• 따뜻한 브라운 구두</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-green-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-green-800 mb-4">👗 데이트 룩</h4>
-                                    <div class="space-y-3 text-sm">
-                                        <div>
-                                            <h5 class="font-semibold">원피스</h5>
-                                            <p class="text-gray-600">• 코랄, 피치 컬러 원피스</p>
-                                            <p class="text-gray-600">• 플로럴 패턴 (따뜻한 톤)</p>
-                                        </div>
-                                        <div>
-                                            <h5 class="font-semibold">포인트</h5>
-                                            <p class="text-gray-600">• 골드 액세서리</p>
-                                            <p class="text-gray-600">• 누드 베이지 힐</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-purple-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-purple-800 mb-4">👕 캐주얼 룩</h4>
-                                    <div class="space-y-3 text-sm">
-                                        <div>
-                                            <h5 class="font-semibold">상의</h5>
-                                            <p class="text-gray-600">• 코랄 니트, 베이지 가디건</p>
-                                            <p class="text-gray-600">• 아이보리 티셔츠</p>
-                                        </div>
-                                        <div>
-                                            <h5 class="font-semibold">하의</h5>
-                                            <p class="text-gray-600">• 카멜 팬츠, 베이지 스커트</p>
-                                            <p class="text-gray-600">• 따뜻한 데님</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 피해야 할 패션 -->
-                            <div class="bg-red-50 rounded-lg p-6 border border-red-200">
-                                <h4 class="font-bold text-red-800 mb-4">❌ 피해야 할 패션 아이템</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800 mb-2">색상</h5>
-                                        <p class="text-gray-600 mb-2">• 순백색, 순검정색 (너무 강한 대비)</p>
-                                        <p class="text-gray-600 mb-2">• 차가운 그레이, 네이비</p>
-                                        <p class="text-gray-600">• 형광색, 네온 계열</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800 mb-2">액세서리</h5>
-                                        <p class="text-gray-600 mb-2">• 실버 톤 액세서리</p>
-                                        <p class="text-gray-600 mb-2">• 차가운 톤의 주얼리</p>
-                                        <p class="text-gray-600">• 블랙 가죽 제품 (단독 사용시)</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 네일 & 액세서리 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            💍 네일 & 액세서리 가이드
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="space-y-6">
-                                <div class="bg-pink-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-pink-800 mb-4 text-xl">💅 네일 컬러</h4>
+                        <!-- 종합 보고서 -->
+                        <div class="space-y-8 w-full">
+                            <!-- 진단 요약 -->
+                            <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                                    📋 진단 요약 (Executive Summary)
+                                </h3>
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     <div class="space-y-4">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800 mb-2">데일리 컬러</h5>
-                                            <div class="flex space-x-3 mb-2">
-                                                <div class="w-8 h-8 rounded-full" style="background-color: #FFCCCB;" title="코랄 핑크"></div>
-                                                <div class="w-8 h-8 rounded-full" style="background-color: #FFDAB9;" title="피치"></div>
-                                                <div class="w-8 h-8 rounded-full" style="background-color: #F5DEB3;" title="베이지"></div>
-                                                <div class="w-8 h-8 rounded-full" style="background-color: #FFF8DC;" title="크림"></div>
+                                        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 border-l-4 border-orange-500">
+                                            <h4 class="font-bold text-orange-800 mb-3">🎨 색상 특성 분석</h4>
+                                            <div id="color-analysis" class="text-gray-700 space-y-2">
+                                                <p><strong>온도감:</strong> 따뜻한 톤 (Warm Undertone)</p>
+                                                <p><strong>명도:</strong> 밝은 색상 선호 (High Value)</p>
+                                                <p><strong>채도:</strong> 부드러운 색상 조화 (Medium Chroma)</p>
+                                                <p><strong>주요 언더톤:</strong> 골든-옐로우 베이스</p>
                                             </div>
-                                            <p class="text-sm text-gray-600">코랄 핑크, 피치, 베이지, 크림</p>
                                         </div>
                                         
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800 mb-2">포인트 컬러</h5>
-                                            <div class="flex space-x-3 mb-2">
-                                                <div class="w-8 h-8 rounded-full" style="background-color: #FF6B47;" title="코랄 레드"></div>
-                                                <div class="w-8 h-8 rounded-full" style="background-color: #FFD700;" title="골드"></div>
-                                                <div class="w-8 h-8 rounded-full" style="background-color: #DEB887;" title="카멜"></div>
+                                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border-l-4 border-green-500">
+                                            <h4 class="font-bold text-green-800 mb-3">✨ 개인 매력 포인트</h4>
+                                            <div id="charm-points" class="text-gray-700 space-y-2">
+                                                <p>• 자연스럽고 친근한 인상을 주는 따뜻한 아우라</p>
+                                                <p>• 밝고 생기 넘치는 에너지로 활력적인 매력</p>
+                                                <p>• 부드럽고 우아한 색감으로 세련된 느낌 연출</p>
+                                                <p>• 봄날의 신선함과 같은 상쾌한 이미지</p>
                                             </div>
-                                            <p class="text-sm text-gray-600">코랄 레드, 골드, 카멜 (특별한 날)</p>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="bg-yellow-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-yellow-800 mb-4 text-xl">💎 주얼리</h4>
-                                    <div class="space-y-3">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">금속</h5>
-                                            <p class="text-sm text-gray-600">• 골드 (18k, 14k)</p>
-                                            <p class="text-sm text-gray-600">• 로즈골드</p>
-                                            <p class="text-sm text-gray-600">• 옐로우골드 (가장 추천)</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">보석</h5>
-                                            <p class="text-sm text-gray-600">• 따뜻한 톤 보석 (시트린, 페리돗)</p>
-                                            <p class="text-sm text-gray-600">• 진주 (크림, 골든 펄)</p>
-                                            <p class="text-sm text-gray-600">• 산호, 호박 등 유기보석</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-6">
-                                <div class="bg-blue-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-blue-800 mb-4 text-xl">👜 가방 & 신발</h4>
+                                    
                                     <div class="space-y-4">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800 mb-2">가방 컬러</h5>
-                                            <p class="text-sm text-gray-600 mb-2">• 베이지, 카멜, 코냑 브라운</p>
-                                            <p class="text-sm text-gray-600 mb-2">• 따뜻한 브라운 계열</p>
-                                            <p class="text-sm text-gray-600">• 골드 하드웨어 포인트</p>
+                                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border-l-4 border-blue-500">
+                                            <h4 class="font-bold text-blue-800 mb-3">🔬 과학적 분석 결과</h4>
+                                            <div id="scientific-analysis" class="text-gray-700 space-y-2 text-sm">
+                                                <p><strong>Von Kries 적응:</strong> 황색 스펙트럼 최적 반응</p>
+                                                <p><strong>Munsell 분류:</strong> 5YR-5Y 색상군 조화</p>
+                                                <p><strong>SPD 분석:</strong> 570-620nm 파장대 선호</p>
+                                                <p><strong>색채 조화:</strong> 중-고명도 + 중간채도 조합</p>
+                                            </div>
                                         </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800 mb-2">신발 컬러</h5>
-                                            <p class="text-sm text-gray-600 mb-2">• 누드 베이지, 카멜</p>
-                                            <p class="text-sm text-gray-600 mb-2">• 따뜻한 브라운</p>
-                                            <p class="text-sm text-gray-600">• 코랄, 피치 (포인트용)</p>
+
+                                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 border-l-4 border-purple-500">
+                                            <h4 class="font-bold text-purple-800 mb-3">👥 유사 연예인</h4>
+                                            <div id="celebrity-matches" class="text-gray-700 space-y-2">
+                                                <p><strong>국내:</strong> 아이유, 태연, 박보영, 김태희</p>
+                                                <p><strong>해외:</strong> Emma Stone, Blake Lively, Scarlett Johansson</p>
+                                                <p><strong>공통점:</strong> 밝고 따뜻한 인상, 자연스러운 매력</p>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- 메이크업 가이드 -->
+                            <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                                    💄 메이크업 완벽 가이드
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <!-- 베이스 메이크업 -->
+                                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-6">
+                                        <h4 class="font-bold text-orange-800 mb-4 text-xl">🎨 베이스 메이크업</h4>
+                                        <div class="space-y-3 text-sm">
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800">파운데이션</h5>
+                                                <p class="text-gray-600">• 따뜻한 베이지, 아이보리 톤</p>
+                                                <p class="text-gray-600">• 21-23호 (골든 언더톤)</p>
+                                                <p class="text-gray-600">• 자연스러운 커버리지 추천</p>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800">컨실러</h5>
+                                                <p class="text-gray-600">• 살구빛, 피치 톤</p>
+                                                <p class="text-gray-600">• 파운데이션보다 한 톤 밝게</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 포인트 메이크업 -->
+                                    <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg p-6">
+                                        <h4 class="font-bold text-pink-800 mb-4 text-xl">✨ 포인트 메이크업</h4>
+                                        <div class="space-y-3 text-sm">
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800">아이섀도</h5>
+                                                <p class="text-gray-600">• 코랄, 피치, 골드 계열</p>
+                                                <p class="text-gray-600">• 따뜻한 브라운</p>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800">아이라이너</h5>
+                                                <p class="text-gray-600">• 브라운, 다크 브라운</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 입술 & 볼 -->
+                                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6">
+                                        <h4 class="font-bold text-purple-800 mb-4 text-xl">💋 입술 & 볼터치</h4>
+                                        <div class="space-y-3 text-sm">
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800">립스틱</h5>
+                                                <p class="text-gray-600">• 코랄 핑크, 피치 핑크</p>
+                                                <p class="text-gray-600">• 따뜻한 레드</p>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-semibold text-gray-800">블러셔</h5>
+                                                <p class="text-gray-600">• 복숭아, 코랄, 살구</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 헤어컬러 가이드 -->
+                            <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                                    💇‍♀️ 헤어컬러 완벽 가이드
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <!-- 추천 헤어컬러 -->
+                                    <div class="space-y-6">
+                                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6 border-l-4 border-yellow-500">
+                                            <h4 class="font-bold text-yellow-800 mb-4 text-xl">✨ 최적 헤어컬러</h4>
+                                            <div id="recommended-hair-colors" class="space-y-4">
+                                                <!-- 동적으로 생성될 추천 컬러들 -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 피해야 할 컬러 -->
+                                    <div class="space-y-6">
+                                        <div class="bg-red-50 rounded-lg p-6 border-l-4 border-red-500">
+                                            <h4 class="font-bold text-red-800 mb-4 text-xl">❌ 피해야 할 컬러</h4>
+                                            <div id="avoid-hair-colors" class="space-y-4">
+                                                <!-- 동적으로 생성될 피해야 할 컬러들 -->
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-green-50 rounded-lg p-6 border-l-4 border-green-500">
+                                            <h4 class="font-bold text-green-800 mb-4 text-xl">🎨 컬러 시뮬레이션</h4>
+                                            <div class="text-center">
+                                                <p class="text-sm text-gray-600 mb-4">미용실에서 이 색상들을 보여주세요!</p>
+                                                <button onclick="generateColorPalette()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all">
+                                                    📱 컬러 팔레트 생성
+                                                </button>
+                                                <div id="color-palette" class="mt-4 hidden">
+                                                    <!-- 컬러 팔레트가 여기에 생성됨 -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 액션 버튼 -->
+                            <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 text-center">
+                                <h3 class="text-2xl font-bold mb-4">🎯 다음 단계 제안</h3>
+                                <p class="text-lg mb-6 opacity-90">전문가 수준의 퍼스널컬러 진단이 완료되었습니다!</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                    <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
+                                        <div class="text-2xl mb-2">📊</div>
+                                        <div class="font-bold">결과 저장</div>
+                                        <div class="text-sm opacity-80">PDF 리포트 다운로드</div>
+                                    </button>
+                                    
+                                    <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
+                                        <div class="text-2xl mb-2">📱</div>
+                                        <div class="font-bold">SNS 공유</div>
+                                        <div class="text-sm opacity-80">결과 친구들과 공유</div>
+                                    </button>
+                                    
+                                    <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
+                                        <div class="text-2xl mb-2">🛍️</div>
+                                        <div class="font-bold">쇼핑 가이드</div>
+                                        <div class="text-sm opacity-80">추천 제품 보기</div>
+                                    </button>
                                 </div>
 
-                                <div class="bg-green-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-green-800 mb-4 text-xl">🕶️ 기타 액세서리</h4>
-                                    <div class="space-y-3">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">선글라스</h5>
-                                            <p class="text-sm text-gray-600">• 거북이 무늬, 브라운 계열</p>
-                                            <p class="text-sm text-gray-600">• 골드 프레임</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">시계</h5>
-                                            <p class="text-sm text-gray-600">• 골드, 로즈골드 케이스</p>
-                                            <p class="text-sm text-gray-600">• 베이지, 브라운 가죽 스트랩</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">스카프</h5>
-                                            <p class="text-sm text-gray-600">• 따뜻한 패턴, 코랄 포인트</p>
-                                            <p class="text-sm text-gray-600">• 실크, 따뜻한 색조</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                <button onclick="resetApp()" 
+                                        class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-xl hover:bg-gray-100 transition-all mr-4">
+                                    🔄 새로운 진단 시작
+                                </button>
+                                
+                                <button onclick="window.print()" 
+                                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-4 rounded-xl font-bold text-xl transition-all">
+                                    🖨️ 보고서 출력
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- 라이프스타일 제안 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            🏠 라이프스타일 컬러 제안
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="space-y-6">
-                                <div class="bg-orange-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-orange-800 mb-4 text-xl">🏡 홈 인테리어</h4>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">메인 컬러</h5>
-                                            <p class="text-sm text-gray-600">• 아이보리, 베이지 벽면</p>
-                                            <p class="text-sm text-gray-600">• 따뜻한 우드톤 가구</p>
-                                            <p class="text-sm text-gray-600">• 자연 소재 위주</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">포인트 컬러</h5>
-                                            <p class="text-sm text-gray-600">• 코랄, 피치 쿠션</p>
-                                            <p class="text-sm text-gray-600">• 골드 액세서리</p>
-                                            <p class="text-sm text-gray-600">• 그린 식물로 생동감</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-pink-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-pink-800 mb-4 text-xl">🍽️ 테이블웨어</h4>
-                                    <div class="space-y-3">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">그릇</h5>
-                                            <p class="text-sm text-gray-600">• 아이보리, 베이지 도자기</p>
-                                            <p class="text-sm text-gray-600">• 따뜻한 톤 스톤웨어</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">커트러리</h5>
-                                            <p class="text-sm text-gray-600">• 골드, 브러시드 골드</p>
-                                            <p class="text-sm text-gray-600">• 따뜻한 우드 핸들</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-6">
-                                <div class="bg-green-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-green-800 mb-4 text-xl">📱 디지털 액세서리</h4>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">핸드폰 케이스</h5>
-                                            <p class="text-sm text-gray-600">• 베이지, 카멜 가죽 케이스</p>
-                                            <p class="text-sm text-gray-600">• 골드 메탈 프레임</p>
-                                            <p class="text-sm text-gray-600">• 코랄 포인트 스트랩</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">워치 밴드</h5>
-                                            <p class="text-sm text-gray-600">• 브라운, 캐멀 가죽</p>
-                                            <p class="text-sm text-gray-600">• 골드 메탈 체인</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-purple-50 rounded-lg p-6">
-                                    <h4 class="font-bold text-purple-800 mb-4 text-xl">🎨 취미 활동</h4>
-                                    <div class="space-y-3">
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">플라워 아레인지먼트</h5>
-                                            <p class="text-sm text-gray-600">• 코랄, 피치 계열 꽃</p>
-                                            <p class="text-sm text-gray-600">• 따뜻한 그린 잎사귀</p>
-                                        </div>
-                                        
-                                        <div>
-                                            <h5 class="font-semibold text-gray-800">DIY 공예</h5>
-                                            <p class="text-sm text-gray-600">• 베이지, 브라운 원단</p>
-                                            <p class="text-sm text-gray-600">• 골드 실, 비즈 활용</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 계절별 가이드 -->
-                    <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h3 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                            🌸 계절별 스타일링 가이드
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div class="bg-pink-50 rounded-lg p-6">
-                                <h4 class="font-bold text-pink-800 mb-4 text-xl">🌸 봄</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">메인 컬러</h5>
-                                        <p class="text-gray-600">• 파스텔 코랄</p>
-                                        <p class="text-gray-600">• 소프트 피치</p>
-                                        <p class="text-gray-600">• 라이트 베이지</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">스타일</h5>
-                                        <p class="text-gray-600">• 플로럴 원피스</p>
-                                        <p class="text-gray-600">• 라이트 카디건</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-yellow-50 rounded-lg p-6">
-                                <h4 class="font-bold text-yellow-800 mb-4 text-xl">☀️ 여름</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">메인 컬러</h5>
-                                        <p class="text-gray-600">• 밝은 코랄</p>
-                                        <p class="text-gray-600">• 프레시 민트</p>
-                                        <p class="text-gray-600">• 썬셋 오렌지</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">스타일</h5>
-                                        <p class="text-gray-600">• 코랄 블라우스</p>
-                                        <p class="text-gray-600">• 린넨 와이드 팬츠</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-orange-50 rounded-lg p-6">
-                                <h4 class="font-bold text-orange-800 mb-4 text-xl">🍂 가을</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">메인 컬러</h5>
-                                        <p class="text-gray-600">• 딥 카멜</p>
-                                        <p class="text-gray-600">• 리치 코랄</p>
-                                        <p class="text-gray-600">• 웜 브라운</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">스타일</h5>
-                                        <p class="text-gray-600">• 카멜 코트</p>
-                                        <p class="text-gray-600">• 니트 원피스</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-blue-50 rounded-lg p-6">
-                                <h4 class="font-bold text-blue-800 mb-4 text-xl">❄️ 겨울</h4>
-                                <div class="space-y-3 text-sm">
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">메인 컬러</h5>
-                                        <p class="text-gray-600">• 딥 베이지</p>
-                                        <p class="text-gray-600">• 카멜 브라운</p>
-                                        <p class="text-gray-600">• 크림 화이트</p>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold text-gray-800">스타일</h5>
-                                        <p class="text-gray-600">• 울 코트</p>
-                                        <p class="text-gray-600">• 터틀넥 니트</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 액션 버튼 -->
-                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-xl p-8 text-center">
-                        <h3 class="text-2xl font-bold mb-4">🎯 다음 단계 제안</h3>
-                        <p class="text-lg mb-6 opacity-90">전문가 수준의 퍼스널컬러 진단이 완료되었습니다!</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                            <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
-                                <div class="text-2xl mb-2">📊</div>
-                                <div class="font-bold">결과 저장</div>
-                                <div class="text-sm opacity-80">PDF 리포트 다운로드</div>
-                            </button>
-                            
-                            <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
-                                <div class="text-2xl mb-2">📱</div>
-                                <div class="font-bold">SNS 공유</div>
-                                <div class="text-sm opacity-80">결과 친구들과 공유</div>
-                            </button>
-                            
-                            <button class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-4 transition-all">
-                                <div class="text-2xl mb-2">🛍️</div>
-                                <div class="font-bold">쇼핑 가이드</div>
-                                <div class="text-sm opacity-80">추천 제품 보기</div>
-                            </button>
-                        </div>
-
-                        <button onclick="resetApp()" 
-                                class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-xl hover:bg-gray-100 transition-all mr-4">
-                            🔄 새로운 진단 시작
-                        </button>
-                        
-                        <button onclick="window.print()" 
-                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-4 rounded-xl font-bold text-xl transition-all">
-                            🖨️ 보고서 출력
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1210,14 +464,10 @@
     </div>
 
     <!-- 전체화면 드래이핑 모달 -->
-    <div id="fullscreen-modal" class="fixed inset-0 z-50 hidden">
-        <!-- 전체화면 내용이 여기에 동적으로 생성됩니다 -->
-    </div>
+    <div id="fullscreen-modal" class="fixed inset-0 z-50 hidden"></div>
 
     <!-- 전문가 매뉴얼 모달 -->
-    <div id="expert-manual-modal" class="fixed inset-0 z-50 hidden">
-        <!-- 매뉴얼 내용이 여기에 동적으로 생성됩니다 -->
-    </div>
+    <div id="expert-manual-modal" class="fixed inset-0 z-50 hidden"></div>
 
     <script>
         console.log('페이지 로딩 시작');
@@ -1225,13 +475,13 @@
         // 전역 변수
         let currentStep = 0;
         let analysisMode = null;
-        let currentDrapingStep = 'temperature'; // temperature, brightness, saturation
+        let currentDrapingStep = 'temperature';
         let drapingResults = { temperature: null, brightness: null, saturation: null };
         let fullscreenActive = false;
         let drapingTimer = 0;
         let timerInterval = null;
 
-        // 드래이핑 데이터 - 실제 연구 보고서의 데이터 활용
+        // 드래이핑 데이터
         const DRAPING_DATA = {
             temperature: {
                 title: '온도감 분석 (Temperature)',
@@ -1242,16 +492,16 @@
                 scientificBasis: 'SPD(Spectral Power Distribution) 분석을 통한 언더톤 매칭',
                 colors: {
                     warm: [
-                        { name: '골든 옐로우', color: '#FFD700', munsell: '5Y 8/12', spd: '따뜻한 황색 스펙트럼', description: '황금빛이 도는 따뜻한 노란색으로 웜톤의 대표 색상', wavelength: '570-590nm 주도' },
-                        { name: '코랄 오렌지', color: '#FF7F50', munsell: '5YR 7/12', spd: '복숭아 언더톤 강조', description: '산호색과 오렌지가 섞인 생기 넘치는 색상', wavelength: '590-620nm 주도' },
-                        { name: '러스트 레드', color: '#B7410E', munsell: '5YR 4/14', spd: '웜톤 적색 성분', description: '녹이 슨 듯한 깊은 주황빛 빨강', wavelength: '620-750nm, 황색 성분 포함' },
-                        { name: '올리브 그린', color: '#8FBC8F', munsell: '5GY 6/8', spd: '황록 혼합 스펙트럼', description: '황색이 가미된 따뜻한 녹색', wavelength: '520-570nm, 황색 성분 강함' }
+                        { name: '골든 옐로우', color: '#FFD700', munsell: '5Y 8/12', spd: '따뜻한 황색 스펙트럼' },
+                        { name: '코랄 오렌지', color: '#FF7F50', munsell: '5YR 7/12', spd: '복숭아 언더톤 강조' },
+                        { name: '러스트 레드', color: '#B7410E', munsell: '5YR 4/14', spd: '웜톤 적색 성분' },
+                        { name: '올리브 그린', color: '#8FBC8F', munsell: '5GY 6/8', spd: '황록 혼합 스펙트럼' }
                     ],
                     cool: [
-                        { name: '아이시 핑크', color: '#FF1493', munsell: '5RP 6/14', spd: '차가운 마젠타 스펙트럼', description: '얼음처럼 차가운 느낌의 선명한 핑크', wavelength: '380-450nm + 620-750nm' },
-                        { name: '로얄 블루', color: '#4169E1', munsell: '5PB 4/12', spd: '순수 청색 성분', description: '왕실을 상징하는 깊고 차가운 파란색', wavelength: '450-495nm 주도' },
-                        { name: '에메랄드', color: '#50C878', munsell: '5G 6/12', spd: '청록 혼합 스펙트럼', description: '보석 에메랄드와 같은 청록색', wavelength: '495-520nm, 청색 성분 포함' },
-                        { name: '라벤더', color: '#E6E6FA', munsell: '5P 8/4', spd: '보라 언더톤', description: '라벤더 꽃과 같은 부드러운 보라색', wavelength: '380-450nm, 고명도' }
+                        { name: '아이시 핑크', color: '#FF1493', munsell: '5RP 6/14', spd: '차가운 마젠타 스펙트럼' },
+                        { name: '로얄 블루', color: '#4169E1', munsell: '5PB 4/12', spd: '순수 청색 성분' },
+                        { name: '에메랄드', color: '#50C878', munsell: '5G 6/12', spd: '청록 혼합 스펙트럼' },
+                        { name: '라벤더', color: '#E6E6FA', munsell: '5P 8/4', spd: '보라 언더톤' }
                     ]
                 }
             },
@@ -1259,21 +509,18 @@
                 title: '명도 분석 (Value)',
                 theory: 'Munsell 명도 척도 시스템',
                 description: '개인에게 조화로운 색상의 밝기 범위를 찾습니다.',
-                method: '밝은 색상과 깊은 색상의 대비 효과를 비교 관찰합니다.',
-                observationTime: '각 색상당 3-5초, 총 2-3분 소요',
-                scientificBasis: 'Value 0-10 척도를 기준으로 한 명도 조화 분석',
                 colors: {
                     light: [
-                        { name: '페일 핑크', color: '#FFB6C1', munsell: '5RP 8/6', description: '연한 분홍색, 봄의 벚꽃 같은 색상', lightness: 'high (Value 8)', effect: '부드럽고 여성스러운 인상' },
-                        { name: '베이비 블루', color: '#87CEEB', munsell: '5PB 8/4', description: '하늘색처럼 맑고 밝은 파란색', lightness: 'high (Value 8)', effect: '깨끗하고 청순한 인상' },
-                        { name: '크림 옐로우', color: '#FFFACD', munsell: '5Y 9/6', description: '크림처럼 부드럽고 따뜻한 노란색', lightness: 'very high (Value 9)', effect: '온화하고 친근한 인상' },
-                        { name: '민트 그린', color: '#98FB98', munsell: '5G 9/6', description: '민트잎처럼 시원하고 밝은 녹색', lightness: 'very high (Value 9)', effect: '상쾌하고 생기 있는 인상' }
+                        { name: '페일 핑크', color: '#FFB6C1', munsell: '5RP 8/6' },
+                        { name: '베이비 블루', color: '#87CEEB', munsell: '5PB 8/4' },
+                        { name: '크림 옐로우', color: '#FFFACD', munsell: '5Y 9/6' },
+                        { name: '민트 그린', color: '#98FB98', munsell: '5G 9/6' }
                     ],
                     deep: [
-                        { name: '딥 네이비', color: '#000080', munsell: '5PB 2/10', description: '깊은 바다처럼 진한 남색', lightness: 'very low (Value 2)', effect: '고급스럽고 신뢰감 있는 인상' },
-                        { name: '버건디', color: '#800020', munsell: '5R 3/12', description: '와인처럼 깊고 진한 적포도색', lightness: 'low (Value 3)', effect: '우아하고 성숙한 인상' },
-                        { name: '포레스트 그린', color: '#228B22', munsell: '5G 4/12', description: '깊은 숲처럼 진한 초록색', lightness: 'low (Value 4)', effect: '안정적이고 자연스러운 인상' },
-                        { name: '자주색', color: '#8B008B', munsell: '5P 3/12', description: '깊고 신비로운 보라색', lightness: 'low (Value 3)', effect: '고귀하고 신비로운 인상' }
+                        { name: '딥 네이비', color: '#000080', munsell: '5PB 2/10' },
+                        { name: '버건디', color: '#800020', munsell: '5R 3/12' },
+                        { name: '포레스트 그린', color: '#228B22', munsell: '5G 4/12' },
+                        { name: '자주색', color: '#8B008B', munsell: '5P 3/12' }
                     ]
                 }
             },
@@ -1281,21 +528,18 @@
                 title: '채도 분석 (Chroma)',
                 theory: 'Munsell 채도 분석법',
                 description: '색상의 선명도와 순수성 정도를 결정합니다.',
-                method: '선명한 색상과 부드러운 색상의 조화도를 비교합니다.',
-                observationTime: '각 색상당 3-5초, 총 2-3분 소요',
-                scientificBasis: 'Chroma 0-16+ 척도를 기준으로 한 채도 적합성 분석',
                 colors: {
                     vivid: [
-                        { name: '브라이트 레드', color: '#FF0000', munsell: '5R 5/16', description: '가장 선명하고 강렬한 빨간색', chroma: 'maximum (Chroma 16)', impact: '강렬하고 주목받는 인상' },
-                        { name: '일렉트릭 블루', color: '#0080FF', munsell: '5PB 5/14', description: '전기처럼 강렬한 파란색', chroma: 'very high (Chroma 14)', impact: '현대적이고 역동적인 인상' },
-                        { name: '라임 그린', color: '#32CD32', munsell: '5GY 6/14', description: '라임처럼 선명하고 생동감 있는 녹색', chroma: 'very high (Chroma 14)', impact: '활기차고 에너지 넘치는 인상' },
-                        { name: '핫 핑크', color: '#FF69B4', munsell: '5RP 6/14', description: '뜨겁고 강렬한 분홍색', chroma: 'very high (Chroma 14)', impact: '대담하고 매력적인 인상' }
+                        { name: '브라이트 레드', color: '#FF0000', munsell: '5R 5/16' },
+                        { name: '일렉트릭 블루', color: '#0080FF', munsell: '5PB 5/14' },
+                        { name: '라임 그린', color: '#32CD32', munsell: '5GY 6/14' },
+                        { name: '핫 핑크', color: '#FF69B4', munsell: '5RP 6/14' }
                     ],
                     muted: [
-                        { name: '더스티 로즈', color: '#BC8F8F', munsell: '5R 6/6', description: '먼지가 앉은 듯 차분한 장미색', chroma: 'low (Chroma 6)', elegance: '세련되고 우아한 인상' },
-                        { name: '세이지 그린', color: '#9CAF88', munsell: '5GY 7/4', description: '세이지 허브처럼 부드러운 녹색', chroma: 'low (Chroma 4)', elegance: '자연스럽고 차분한 인상' },
-                        { name: '슬레이트 블루', color: '#6A5ACD', munsell: '5PB 5/8', description: '슬레이트 돌처럼 차분한 청보라색', chroma: 'medium (Chroma 8)', elegance: '지적이고 신중한 인상' },
-                        { name: '모카 브라운', color: '#D2B48C', munsell: '5YR 7/6', description: '모카 커피처럼 부드러운 갈색', chroma: 'medium (Chroma 6)', elegance: '따뜻하고 편안한 인상' }
+                        { name: '더스티 로즈', color: '#BC8F8F', munsell: '5R 6/6' },
+                        { name: '세이지 그린', color: '#9CAF88', munsell: '5GY 7/4' },
+                        { name: '슬레이트 블루', color: '#6A5ACD', munsell: '5PB 5/8' },
+                        { name: '모카 브라운', color: '#D2B48C', munsell: '5YR 7/6' }
                     ]
                 }
             }
@@ -1303,27 +547,39 @@
 
         // 관찰 기준
         const OBSERVATION_CRITERIA = {
-            positive: {
-                title: '긍정적 반응 (조화)',
-                indicators: [
-                    '피부 내부 발광 증가 (Inner Glow)',
-                    '혈색 개선, 생기 있는 인상',
-                    '윤곽선 선명도 향상',
-                    '피부톤 균일화, 잡티 완화',
-                    '전체적 조화감, 자연스러움',
-                    '건강하고 젊어 보이는 효과'
-                ]
-            },
-            negative: {
-                title: '부정적 반응 (부조화)',
-                indicators: [
-                    '피부 변색, 칙칙함 증가',
-                    '그림자 진함, 노화 인상',
-                    '윤곽 흐려짐, 피곤해 보임',
-                    '결점 강조, 피부 트러블 부각',
-                    '부자연스러운 대비, 어색함',
-                    '창백하거나 병든 듯한 인상'
-                ]
+            positive: [
+                '피부 내부 발광 증가 (Inner Glow)',
+                '혈색 개선, 생기 있는 인상',
+                '윤곽선 선명도 향상',
+                '피부톤 균일화, 잡티 완화'
+            ],
+            negative: [
+                '피부 변색, 칙칙함 증가',
+                '그림자 진함, 노화 인상',
+                '윤곽 흐려짐, 피곤해 보임',
+                '결점 강조, 피부 트러블 부각'
+            ]
+        };
+
+        // 계절별 추천 색상 데이터
+        const SEASON_RECOMMENDATIONS = {
+            'Spring Light': {
+                hairColors: {
+                    primary: [
+                        { name: '허니 브라운', level: '7-8레벨', color: '#D4A574', description: '따뜻한 꿀색 브라운' },
+                        { name: '골든 베이지', level: '8-9레벨', color: '#E6D0A3', description: '밝은 황금빛 베이지' },
+                        { name: '카라멜 브라운', level: '6-7레벨', color: '#C4915C', description: '달콤한 카라멜색' }
+                    ],
+                    secondary: [
+                        { name: '골든 블론드', level: '9-10레벨', color: '#F4E4BC', description: '따뜻한 금발' },
+                        { name: '스트로베리 블론드', level: '8-9레벨', color: '#E8B5A0', description: '딸기빛 금발' }
+                    ],
+                    avoid: [
+                        { name: '애쉬 브라운', color: '#8B7D6B', reason: '회색빛으로 인한 칙칙함' },
+                        { name: '제트 블랙', color: '#1C1C1C', reason: '너무 강한 대비' },
+                        { name: '플래티넘 블론드', color: '#F5F5DC', reason: '차가운 톤' }
+                    ]
+                }
             }
         };
 
@@ -1347,7 +603,7 @@
                 if (e.key === 'Escape') {
                     if (fullscreenActive) {
                         exitFullscreen();
-                    } else if (document.getElementById('expert-manual-modal').classList.contains('hidden') === false) {
+                    } else if (!document.getElementById('expert-manual-modal').classList.contains('hidden')) {
                         hideExpertManual();
                     }
                 }
@@ -1390,7 +646,6 @@
             document.getElementById('app').style.display = 'block';
         }
 
-        // 결과 화면으로 이동할 때 개인별 추천 컬러 생성
         function showStep(stepNumber) {
             console.log('단계 표시:', stepNumber);
             
@@ -1423,7 +678,6 @@
                     
                     // 개인별 헤어컬러 추천 생성
                     generatePersonalizedHairColors();
-                    generatePersonalizedMakeup();
                 }, 100);
             }
 
@@ -1498,40 +752,8 @@
             }
         }
 
-        function generatePersonalizedMakeup() {
-            const recommendations = getPersonalizedRecommendations();
-            
-            // 메이크업 색상들도 개인별로 업데이트
-            if (recommendations.makeup) {
-                updateMakeupSection(recommendations.makeup);
-            }
-        }
-
-        function updateMakeupSection(makeup) {
-            // 립스틱 색상 업데이트
-            const lipstickColors = makeup.lipstick.map(lip => 
-                `<div class="flex items-center gap-2 mb-2">
-                    <div class="w-6 h-6 rounded-full border border-gray-300" style="background-color: ${lip.color};"></div>
-                    <span class="text-sm">${lip.name}</span>
-                </div>`
-            ).join('');
-
-            // 아이섀도 색상 업데이트
-            const eyeshadowColors = makeup.eyeshadow.map(eye => 
-                `<div class="flex items-center gap-2 mb-2">
-                    <div class="w-6 h-6 rounded-full border border-gray-300" style="background-color: ${eye.color};"></div>
-                    <span class="text-sm">${eye.name}</span>
-                </div>`
-            ).join('');
-
-            // 실제 DOM 업데이트는 메이크업 섹션이 있을 때만
-            // (여기서는 예시로 콘솔에 출력)
-            console.log('개인별 메이크업 추천:', { lipstickColors, eyeshadowColors });
-        }
-
         // 색상 밝기 조절 함수
         function adjustColorBrightness(hex, percent) {
-            // hex 색상을 RGB로 변환
             const num = parseInt(hex.replace("#", ""), 16);
             const amt = Math.round(2.55 * percent);
             const R = (num >> 16) + amt;
@@ -1569,6 +791,12 @@
             }
         }
 
+        function getPersonalizedRecommendations() {
+            // 현재 진단된 계절
+            const currentSeason = document.getElementById('result-season')?.textContent || 'Spring Light';
+            return SEASON_RECOMMENDATIONS[currentSeason] || SEASON_RECOMMENDATIONS['Spring Light'];
+        }
+
         function selectMode(mode) {
             console.log('모드 선택:', mode);
             analysisMode = mode;
@@ -1597,21 +825,20 @@
         }
 
         function startPhotoAnalysis() {
-            const header = document.getElementById('step2-header');
             const content = document.getElementById('step2-content');
             
-            header.innerHTML = `
-                <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    뒤로가기
-                </button>
-                <h2 class="text-3xl font-bold mb-4">🔍 AI 색상 분석</h2>
-            `;
-            
             content.innerHTML = `
-                <div class="text-center">
+                <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto text-center">
+                    <div class="text-center mb-8">
+                        <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            뒤로가기
+                        </button>
+                        <h2 class="text-3xl font-bold mb-4">🔍 AI 색상 분석</h2>
+                    </div>
+                    
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
                     <p class="text-gray-600 mb-4">사진을 분석하고 있습니다...</p>
                     <div class="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
@@ -1632,7 +859,6 @@
 
         function renderDrapingStep() {
             const stepData = DRAPING_DATA[currentDrapingStep];
-            const header = document.getElementById('step2-header');
             const content = document.getElementById('step2-content');
             
             // 진행률 표시
@@ -1652,96 +878,98 @@
                 return `<div class="${className}">${index + 1}</div>`;
             }).join('<div class="w-8 border-t-2 mt-4 border-gray-300"></div>');
 
-            header.innerHTML = `
-                <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    뒤로가기
-                </button>
-                
-                <!-- 진행률 표시 -->
-                <div class="flex justify-center mb-6">
-                    <div class="flex space-x-4">
-                        ${progressHTML}
-                    </div>
-                </div>
-                
-                <h2 class="text-4xl font-bold mb-4">
-                    🎭 ${stepData.title}
-                </h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    ${stepData.description}
-                </p>
-            `;
-
             content.innerHTML = `
-                <!-- 이론적 배경 토글 섹션 -->
-                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-8">
-                    <button class="theory-toggle w-full flex items-center justify-between text-left font-bold text-lg text-blue-800 hover:text-blue-900 transition-colors" 
-                            data-target="theory-${currentDrapingStep}">
-                        <span>📚 과학적 배경 & 이론</span>
-                        <svg class="toggle-arrow w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    
-                    <div id="theory-${currentDrapingStep}" class="toggle-content">
-                        <div class="space-y-4 text-sm mt-4">
-                            <div class="bg-white rounded-lg p-4 border border-blue-200">
-                                <h4 class="font-bold text-blue-900 mb-2">🔬 과학적 원리</h4>
-                                <p class="text-gray-700">${stepData.theory}</p>
-                                <p class="text-gray-600 mt-2">${stepData.scientificBasis}</p>
+                <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-none">
+                    <div class="text-center mb-8">
+                        <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            뒤로가기
+                        </button>
+                        
+                        <!-- 진행률 표시 -->
+                        <div class="flex justify-center mb-6">
+                            <div class="flex space-x-4">
+                                ${progressHTML}
                             </div>
-                            
-                            <div class="bg-white rounded-lg p-4 border border-purple-200">
-                                <h4 class="font-bold text-purple-900 mb-2">⏱️ 관찰 방법</h4>
-                                <p class="text-gray-700">${stepData.method}</p>
-                                <p class="text-purple-600 mt-2"><strong>소요 시간:</strong> ${stepData.observationTime}</p>
+                        </div>
+                        
+                        <h2 class="text-4xl font-bold mb-4">
+                            🎭 ${stepData.title}
+                        </h2>
+                        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                            ${stepData.description}
+                        </p>
+                    </div>
+
+                    <!-- 이론적 배경 토글 섹션 -->
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-8">
+                        <button class="theory-toggle w-full flex items-center justify-between text-left font-bold text-lg text-blue-800 hover:text-blue-900 transition-colors" 
+                                data-target="theory-${currentDrapingStep}">
+                            <span>📚 과학적 배경 & 이론</span>
+                            <svg class="toggle-arrow w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <div id="theory-${currentDrapingStep}" class="toggle-content">
+                            <div class="space-y-4 text-sm mt-4">
+                                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                                    <h4 class="font-bold text-blue-900 mb-2">🔬 과학적 원리</h4>
+                                    <p class="text-gray-700">${stepData.theory}</p>
+                                    <p class="text-gray-600 mt-2">${stepData.scientificBasis || ''}</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4 border border-purple-200">
+                                    <h4 class="font-bold text-purple-900 mb-2">⏱️ 관찰 방법</h4>
+                                    <p class="text-gray-700">${stepData.method || stepData.description}</p>
+                                    <p class="text-purple-600 mt-2"><strong>소요 시간:</strong> ${stepData.observationTime || '각 색상당 3-5초'}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 관찰 기준 토글 섹션 -->
-                <div class="bg-gradient-to-r from-green-50 to-red-50 rounded-2xl p-6 mb-8">
-                    <button class="observation-toggle w-full flex items-center justify-between text-left font-bold text-lg text-gray-800 hover:text-gray-900 transition-colors" 
-                            data-target="observation-criteria">
-                        <span>👁️ 전문가 관찰 기준</span>
-                        <svg class="toggle-arrow w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    
-                    <div id="observation-criteria" class="toggle-content">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                            <div class="bg-gradient-to-br from-green-100 to-green-50 border-l-4 border-green-500 rounded-lg p-4">
-                                <h4 class="font-bold text-green-800 mb-3">✅ ${OBSERVATION_CRITERIA.positive.title}</h4>
-                                <ul class="text-sm text-green-700 space-y-1">
-                                    ${OBSERVATION_CRITERIA.positive.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
-                                </ul>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-red-100 to-red-50 border-l-4 border-red-500 rounded-lg p-4">
-                                <h4 class="font-bold text-red-800 mb-3">❌ ${OBSERVATION_CRITERIA.negative.title}</h4>
-                                <ul class="text-sm text-red-700 space-y-1">
-                                    ${OBSERVATION_CRITERIA.negative.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
-                                </ul>
+                    <!-- 관찰 기준 토글 섹션 -->
+                    <div class="bg-gradient-to-r from-green-50 to-red-50 rounded-2xl p-6 mb-8">
+                        <button class="observation-toggle w-full flex items-center justify-between text-left font-bold text-lg text-gray-800 hover:text-gray-900 transition-colors" 
+                                data-target="observation-criteria">
+                            <span>👁️ 전문가 관찰 기준</span>
+                            <svg class="toggle-arrow w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <div id="observation-criteria" class="toggle-content">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                                <div class="bg-gradient-to-br from-green-100 to-green-50 border-l-4 border-green-500 rounded-lg p-4">
+                                    <h4 class="font-bold text-green-800 mb-3">✅ 긍정적 반응 (조화)</h4>
+                                    <ul class="text-sm text-green-700 space-y-1">
+                                        ${OBSERVATION_CRITERIA.positive.map(indicator => `<li>• ${indicator}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-red-100 to-red-50 border-l-4 border-red-500 rounded-lg p-4">
+                                    <h4 class="font-bold text-red-800 mb-3">❌ 부정적 반응 (부조화)</h4>
+                                    <ul class="text-sm text-red-700 space-y-1">
+                                        ${OBSERVATION_CRITERIA.negative.map(indicator => `<li>• ${indicator}</li>`).join('')}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                ${renderColorSelection()}
+                    ${renderColorSelection()}
 
-                <div class="text-center max-w-2xl mx-auto mt-8">
-                    <div class="bg-blue-50 rounded-xl p-6">
-                        <h4 class="font-bold text-blue-800 mb-3">👁️ 관찰 방법</h4>
-                        <div class="text-sm text-blue-700 space-y-2">
-                            <p>• 각 색상을 최소 3초 이상 천천히 관찰하세요</p>
-                            <p>• 🎭 버튼으로 전체화면 드래이핑을 체험해보세요</p>
-                            <p>• 피부가 화사하고 생기있게 보이는 색상을 선택하세요</p>
-                            <p>• 피부가 칙칙하거나 피곤해 보이는 색상은 피하세요</p>
+                    <div class="text-center max-w-2xl mx-auto mt-8">
+                        <div class="bg-blue-50 rounded-xl p-6">
+                            <h4 class="font-bold text-blue-800 mb-3">👁️ 관찰 방법</h4>
+                            <div class="text-sm text-blue-700 space-y-2">
+                                <p>• 각 색상을 최소 3초 이상 천천히 관찰하세요</p>
+                                <p>• 🎭 버튼으로 전체화면 드래이핑을 체험해보세요</p>
+                                <p>• 피부가 화사하고 생기있게 보이는 색상을 선택하세요</p>
+                                <p>• 피부가 칙칙하거나 피곤해 보이는 색상은 피하세요</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1816,77 +1044,13 @@
             return classes[step][type];
         }
 
-        // 계절별 추천 색상 데이터
-        const SEASON_RECOMMENDATIONS = {
-            'Spring Light': {
-                hairColors: {
-                    primary: [
-                        { name: '허니 브라운', level: '7-8레벨', color: '#D4A574', description: '따뜻한 꿀색 브라운' },
-                        { name: '골든 베이지', level: '8-9레벨', color: '#E6D0A3', description: '밝은 황금빛 베이지' },
-                        { name: '카라멜 브라운', level: '6-7레벨', color: '#C4915C', description: '달콤한 카라멜색' }
-                    ],
-                    secondary: [
-                        { name: '골든 블론드', level: '9-10레벨', color: '#F4E4BC', description: '따뜻한 금발' },
-                        { name: '스트로베리 블론드', level: '8-9레벨', color: '#E8B5A0', description: '딸기빛 금발' }
-                    ],
-                    avoid: [
-                        { name: '애쉬 브라운', color: '#8B7D6B', reason: '회색빛으로 인한 칙칙함' },
-                        { name: '제트 블랙', color: '#1C1C1C', reason: '너무 강한 대비' },
-                        { name: '플래티넘 블론드', color: '#F5F5DC', reason: '차가운 톤' }
-                    ]
-                },
-                makeup: {
-                    foundation: { colors: ['#F5DEB3', '#E6D3A3', '#DEB887'], shades: '21-23호 (골든 언더톤)' },
-                    lipstick: [
-                        { name: '코랄 핑크', color: '#FF7F7F' },
-                        { name: '피치 핑크', color: '#FFCBA4' },
-                        { name: '따뜻한 레드', color: '#FF6B47' }
-                    ],
-                    eyeshadow: [
-                        { name: '골드', color: '#FFD700' },
-                        { name: '코랄', color: '#FF7F50' },
-                        { name: '카라멜 브라운', color: '#C4915C' }
-                    ]
-                }
-            },
-            'Summer Light': {
-                hairColors: {
-                    primary: [
-                        { name: '애쉬 브라운', level: '6-7레벨', color: '#8B7D6B', description: '부드러운 회색빛 브라운' },
-                        { name: '쿨 블론드', level: '8-9레벨', color: '#E6E6FA', description: '차가운 금발' },
-                        { name: '다크 블론드', level: '7-8레벨', color: '#D3C7B8', description: '진한 금발' }
-                    ],
-                    secondary: [
-                        { name: '플래티넘 블론드', level: '9-10레벨', color: '#F5F5DC', description: '은빛 금발' },
-                        { name: '라이트 브라운', level: '7-8레벨', color: '#A0826D', description: '밝은 브라운' }
-                    ],
-                    avoid: [
-                        { name: '골든 브라운', color: '#D4A574', reason: '너무 따뜻한 톤' },
-                        { name: '구리색', color: '#B87333', reason: '황색 성분 과다' },
-                        { name: '오렌지 브라운', color: '#CC8400', reason: '웜톤으로 인한 부조화' }
-                    ]
-                },
-                makeup: {
-                    foundation: { colors: ['#F5E6D3', '#E8D5C4', '#DBC4A2'], shades: '19-21호 (핑크 언더톤)' },
-                    lipstick: [
-                        { name: '로지 핑크', color: '#F08080' },
-                        { name: '베리 핑크', color: '#DA70D6' },
-                        { name: '라벤더 핑크', color: '#DDA0DD' }
-                    ],
-                    eyeshadow: [
-                        { name: '쿨 그레이', color: '#A9A9A9' },
-                        { name: '라벤더', color: '#E6E6FA' },
-                        { name: '쿨 브라운', color: '#8B7D6B' }
-                    ]
-                }
-            }
-            // 다른 계절들도 추가...
-        };
-
-        function getPersonalizedRecommendations() {
-            // 현재 진단된 계절 (실제로는 진단 결과에 따라 결정)
-            const currentSeason = document.getElementById('result-season')?.textContent || 'Spring Light';
-            return SEASON_RECOMMENDATIONS[currentSeason] || SEASON_RECOMMENDATIONS['Spring Light'];
+        function getHoverColor(step, type) {
+            const colors = {
+                temperature: { warm: 'orange', cool: 'blue' },
+                brightness: { light: 'yellow', deep: 'purple' },
+                saturation: { vivid: 'red', muted: 'gray' }
+            };
+            return colors[step][type];
         }
 
         function selectColor(colorType, colorName, colorIndex) {
@@ -1994,13 +1158,13 @@
                                     <div class="bg-white rounded-lg p-4 border border-green-200">
                                         <h4 class="font-bold text-green-700 mb-3">✅ 긍정적 반응 (조화)</h4>
                                         <ul class="text-gray-700 space-y-1 text-sm">
-                                            ${OBSERVATION_CRITERIA.positive.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
+                                            ${OBSERVATION_CRITERIA.positive.map(indicator => `<li>• ${indicator}</li>`).join('')}
                                         </ul>
                                     </div>
                                     <div class="bg-white rounded-lg p-4 border border-red-200">
                                         <h4 class="font-bold text-red-700 mb-3">❌ 부정적 반응 (부조화)</h4>
                                         <ul class="text-gray-700 space-y-1 text-sm">
-                                            ${OBSERVATION_CRITERIA.negative.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
+                                            ${OBSERVATION_CRITERIA.negative.map(indicator => `<li>• ${indicator}</li>`).join('')}
                                         </ul>
                                     </div>
                                 </div>
@@ -2132,7 +1296,7 @@
                         <div class="space-y-2">
                             <div class="text-xl font-bold">${color.name}</div>
                             <div class="text-sm opacity-90">${color.munsell}</div>
-                            <div class="text-xs opacity-80">${color.spd || color.description}</div>
+                            <div class="text-xs opacity-80">${color.spd || color.description || ''}</div>
                             <div id="draping-timer" class="text-sm font-mono text-yellow-400">
                                 관찰 시간: 0.0초
                             </div>
@@ -2186,8 +1350,6 @@
                                         ${color.lightness ? `<p><strong>명도:</strong> ${color.lightness}</p>` : ''}
                                         ${color.chroma ? `<p><strong>채도:</strong> ${color.chroma}</p>` : ''}
                                         ${color.effect ? `<p><strong>인상 효과:</strong> ${color.effect}</p>` : ''}
-                                        ${color.impact ? `<p><strong>시각적 효과:</strong> ${color.impact}</p>` : ''}
-                                        ${color.elegance ? `<p><strong>우아함:</strong> ${color.elegance}</p>` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -2210,7 +1372,9 @@
 
         function toggleColorInfo() {
             const colorInfo = document.getElementById('color-info');
-            colorInfo.classList.toggle('hidden');
+            if (colorInfo) {
+                colorInfo.classList.toggle('hidden');
+            }
         }
 
         function startDrapingTimer() {
@@ -2239,7 +1403,6 @@
         // 오류 처리
         window.addEventListener('error', function(e) {
             console.error('JavaScript 오류:', e.error);
-            alert('오류가 발생했습니다. 페이지를 새로고침해주세요.');
         });
 
         console.log('JavaScript 초기화 완료');
