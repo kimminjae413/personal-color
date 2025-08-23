@@ -8,7 +8,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 기본 스타일 -->
+    <!-- 커스텀 스타일 -->
     <style>
         .fade-in-up {
             animation: fadeInUp 0.6s ease-out;
@@ -28,6 +28,40 @@
         .color-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 토글 애니메이션 */
+        .toggle-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .toggle-content.expanded {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in, padding 0.3s ease-in;
+        }
+
+        .toggle-arrow {
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        .progress-step {
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            transform: scale(1.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
     </style>
 </head>
@@ -175,15 +209,16 @@
             <!-- 단계 2: 분석 -->
             <div id="step-2" class="step-content" style="display: none;">
                 <div class="bg-white rounded-2xl shadow-xl p-8">
-                    <div class="text-center mb-8">
+                    <div id="step2-header" class="text-center mb-8">
                         <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                             </svg>
                             뒤로가기
                         </button>
-                        <h2 id="step2-title" class="text-3xl font-bold mb-4">🔍 분석 중...</h2>
-                        <div id="step2-content"></div>
+                    </div>
+                    <div id="step2-content">
+                        <!-- 동적으로 생성될 내용 -->
                     </div>
                 </div>
             </div>
@@ -237,24 +272,104 @@
         // 전역 변수
         let currentStep = 0;
         let analysisMode = null;
+        let currentDrapingStep = 'temperature'; // temperature, brightness, saturation
+        let drapingResults = { temperature: null, brightness: null, saturation: null };
         let fullscreenActive = false;
         let drapingTimer = 0;
         let timerInterval = null;
 
-        // 드래이핑 색상 데이터
-        const drapingColors = {
+        // 드래이핑 데이터 - 실제 연구 보고서의 데이터 활용
+        const DRAPING_DATA = {
             temperature: {
-                warm: [
-                    { name: '골든 옐로우', color: '#FFD700', munsell: '5Y 8/12', spd: '따뜻한 황색 스펙트럼' },
-                    { name: '코랄 오렌지', color: '#FF7F50', munsell: '5YR 7/12', spd: '복숭아 언더톤 강조' },
-                    { name: '러스트 레드', color: '#B7410E', munsell: '5YR 4/14', spd: '웜톤 적색 성분' },
-                    { name: '올리브 그린', color: '#8FBC8F', munsell: '5GY 6/8', spd: '황록 혼합 스펙트럼' }
-                ],
-                cool: [
-                    { name: '아이시 핑크', color: '#FF1493', munsell: '5RP 6/14', spd: '차가운 마젠타 스펙트럼' },
-                    { name: '로얄 블루', color: '#4169E1', munsell: '5PB 4/12', spd: '순수 청색 성분' },
-                    { name: '에메랄드', color: '#50C878', munsell: '5G 6/12', spd: '청록 혼합 스펙트럼' },
-                    { name: '라벤더', color: '#E6E6FA', munsell: '5P 8/4', spd: '보라 언더톤' }
+                title: '온도감 분석 (Temperature)',
+                theory: 'Von Kries 색채 적응 이론',
+                description: '피부의 언더톤이 따뜻한지(황색) 차가운지(핑크/블루)를 판단합니다.',
+                method: '따뜻한 색상군과 차가운 색상군을 번갈아 비교하며 관찰합니다.',
+                observationTime: '각 색상당 3-5초, 총 2-3분 소요',
+                scientificBasis: 'SPD(Spectral Power Distribution) 분석을 통한 언더톤 매칭',
+                colors: {
+                    warm: [
+                        { name: '골든 옐로우', color: '#FFD700', munsell: '5Y 8/12', spd: '따뜻한 황색 스펙트럼', description: '황금빛이 도는 따뜻한 노란색으로 웜톤의 대표 색상', wavelength: '570-590nm 주도' },
+                        { name: '코랄 오렌지', color: '#FF7F50', munsell: '5YR 7/12', spd: '복숭아 언더톤 강조', description: '산호색과 오렌지가 섞인 생기 넘치는 색상', wavelength: '590-620nm 주도' },
+                        { name: '러스트 레드', color: '#B7410E', munsell: '5YR 4/14', spd: '웜톤 적색 성분', description: '녹이 슨 듯한 깊은 주황빛 빨강', wavelength: '620-750nm, 황색 성분 포함' },
+                        { name: '올리브 그린', color: '#8FBC8F', munsell: '5GY 6/8', spd: '황록 혼합 스펙트럼', description: '황색이 가미된 따뜻한 녹색', wavelength: '520-570nm, 황색 성분 강함' }
+                    ],
+                    cool: [
+                        { name: '아이시 핑크', color: '#FF1493', munsell: '5RP 6/14', spd: '차가운 마젠타 스펙트럼', description: '얼음처럼 차가운 느낌의 선명한 핑크', wavelength: '380-450nm + 620-750nm' },
+                        { name: '로얄 블루', color: '#4169E1', munsell: '5PB 4/12', spd: '순수 청색 성분', description: '왕실을 상징하는 깊고 차가운 파란색', wavelength: '450-495nm 주도' },
+                        { name: '에메랄드', color: '#50C878', munsell: '5G 6/12', spd: '청록 혼합 스펙트럼', description: '보석 에메랄드와 같은 청록색', wavelength: '495-520nm, 청색 성분 포함' },
+                        { name: '라벤더', color: '#E6E6FA', munsell: '5P 8/4', spd: '보라 언더톤', description: '라벤더 꽃과 같은 부드러운 보라색', wavelength: '380-450nm, 고명도' }
+                    ]
+                }
+            },
+            brightness: {
+                title: '명도 분석 (Value)',
+                theory: 'Munsell 명도 척도 시스템',
+                description: '개인에게 조화로운 색상의 밝기 범위를 찾습니다.',
+                method: '밝은 색상과 깊은 색상의 대비 효과를 비교 관찰합니다.',
+                observationTime: '각 색상당 3-5초, 총 2-3분 소요',
+                scientificBasis: 'Value 0-10 척도를 기준으로 한 명도 조화 분석',
+                colors: {
+                    light: [
+                        { name: '페일 핑크', color: '#FFB6C1', munsell: '5RP 8/6', description: '연한 분홍색, 봄의 벚꽃 같은 색상', lightness: 'high (Value 8)', effect: '부드럽고 여성스러운 인상' },
+                        { name: '베이비 블루', color: '#87CEEB', munsell: '5PB 8/4', description: '하늘색처럼 맑고 밝은 파란색', lightness: 'high (Value 8)', effect: '깨끗하고 청순한 인상' },
+                        { name: '크림 옐로우', color: '#FFFACD', munsell: '5Y 9/6', description: '크림처럼 부드럽고 따뜻한 노란색', lightness: 'very high (Value 9)', effect: '온화하고 친근한 인상' },
+                        { name: '민트 그린', color: '#98FB98', munsell: '5G 9/6', description: '민트잎처럼 시원하고 밝은 녹색', lightness: 'very high (Value 9)', effect: '상쾌하고 생기 있는 인상' }
+                    ],
+                    deep: [
+                        { name: '딥 네이비', color: '#000080', munsell: '5PB 2/10', description: '깊은 바다처럼 진한 남색', lightness: 'very low (Value 2)', effect: '고급스럽고 신뢰감 있는 인상' },
+                        { name: '버건디', color: '#800020', munsell: '5R 3/12', description: '와인처럼 깊고 진한 적포도색', lightness: 'low (Value 3)', effect: '우아하고 성숙한 인상' },
+                        { name: '포레스트 그린', color: '#228B22', munsell: '5G 4/12', description: '깊은 숲처럼 진한 초록색', lightness: 'low (Value 4)', effect: '안정적이고 자연스러운 인상' },
+                        { name: '자주색', color: '#8B008B', munsell: '5P 3/12', description: '깊고 신비로운 보라색', lightness: 'low (Value 3)', effect: '고귀하고 신비로운 인상' }
+                    ]
+                }
+            },
+            saturation: {
+                title: '채도 분석 (Chroma)',
+                theory: 'Munsell 채도 분석법',
+                description: '색상의 선명도와 순수성 정도를 결정합니다.',
+                method: '선명한 색상과 부드러운 색상의 조화도를 비교합니다.',
+                observationTime: '각 색상당 3-5초, 총 2-3분 소요',
+                scientificBasis: 'Chroma 0-16+ 척도를 기준으로 한 채도 적합성 분석',
+                colors: {
+                    vivid: [
+                        { name: '브라이트 레드', color: '#FF0000', munsell: '5R 5/16', description: '가장 선명하고 강렬한 빨간색', chroma: 'maximum (Chroma 16)', impact: '강렬하고 주목받는 인상' },
+                        { name: '일렉트릭 블루', color: '#0080FF', munsell: '5PB 5/14', description: '전기처럼 강렬한 파란색', chroma: 'very high (Chroma 14)', impact: '현대적이고 역동적인 인상' },
+                        { name: '라임 그린', color: '#32CD32', munsell: '5GY 6/14', description: '라임처럼 선명하고 생동감 있는 녹색', chroma: 'very high (Chroma 14)', impact: '활기차고 에너지 넘치는 인상' },
+                        { name: '핫 핑크', color: '#FF69B4', munsell: '5RP 6/14', description: '뜨겁고 강렬한 분홍색', chroma: 'very high (Chroma 14)', impact: '대담하고 매력적인 인상' }
+                    ],
+                    muted: [
+                        { name: '더스티 로즈', color: '#BC8F8F', munsell: '5R 6/6', description: '먼지가 앉은 듯 차분한 장미색', chroma: 'low (Chroma 6)', elegance: '세련되고 우아한 인상' },
+                        { name: '세이지 그린', color: '#9CAF88', munsell: '5GY 7/4', description: '세이지 허브처럼 부드러운 녹색', chroma: 'low (Chroma 4)', elegance: '자연스럽고 차분한 인상' },
+                        { name: '슬레이트 블루', color: '#6A5ACD', munsell: '5PB 5/8', description: '슬레이트 돌처럼 차분한 청보라색', chroma: 'medium (Chroma 8)', elegance: '지적이고 신중한 인상' },
+                        { name: '모카 브라운', color: '#D2B48C', munsell: '5YR 7/6', description: '모카 커피처럼 부드러운 갈색', chroma: 'medium (Chroma 6)', elegance: '따뜻하고 편안한 인상' }
+                    ]
+                }
+            }
+        };
+
+        // 관찰 기준
+        const OBSERVATION_CRITERIA = {
+            positive: {
+                title: '긍정적 반응 (조화)',
+                indicators: [
+                    '피부 내부 발광 증가 (Inner Glow)',
+                    '혈색 개선, 생기 있는 인상',
+                    '윤곽선 선명도 향상',
+                    '피부톤 균일화, 잡티 완화',
+                    '전체적 조화감, 자연스러움',
+                    '건강하고 젊어 보이는 효과'
+                ]
+            },
+            negative: {
+                title: '부정적 반응 (부조화)',
+                indicators: [
+                    '피부 변색, 칙칙함 증가',
+                    '그림자 진함, 노화 인상',
+                    '윤곽 흐려짐, 피곤해 보임',
+                    '결점 강조, 피부 트러블 부각',
+                    '부자연스러운 대비, 어색함',
+                    '창백하거나 병든 듯한 인상'
                 ]
             }
         };
@@ -264,80 +379,481 @@
             console.log('DOM 로드 완료');
             hideLoading();
             showStep(0);
-            addManualButton();
+            setupEventListeners();
         });
 
-        // 매뉴얼 버튼 추가
-        function addManualButton() {
+        function setupEventListeners() {
+            // 매뉴얼 버튼
             const manualBtn = document.getElementById('manual-btn');
             if (manualBtn) {
                 manualBtn.addEventListener('click', showExpertManual);
             }
+
+            // ESC 키 이벤트
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (fullscreenActive) {
+                        exitFullscreen();
+                    } else if (document.getElementById('expert-manual-modal').classList.contains('hidden') === false) {
+                        hideExpertManual();
+                    }
+                }
+            });
+
+            // 전역 클릭 이벤트 (토글 버튼들)
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.theory-toggle') || e.target.closest('.theory-toggle')) {
+                    const button = e.target.closest('.theory-toggle') || e.target;
+                    const targetId = button.dataset.target;
+                    toggleContent(targetId);
+                }
+
+                if (e.target.matches('.observation-toggle') || e.target.closest('.observation-toggle')) {
+                    const button = e.target.closest('.observation-toggle') || e.target;
+                    const targetId = button.dataset.target;
+                    toggleContent(targetId);
+                }
+            });
+        }
+
+        // 토글 기능
+        function toggleContent(targetId) {
+            const content = document.getElementById(targetId);
+            const button = document.querySelector(`[data-target="${targetId}"]`);
+            const arrow = button.querySelector('.toggle-arrow');
+
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                arrow.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                arrow.classList.add('rotated');
+            }
+        }
+
+        function hideLoading() {
+            console.log('로딩 화면 숨김');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        }
+
+        function showStep(stepNumber) {
+            console.log('단계 표시:', stepNumber);
+            
+            const steps = document.querySelectorAll('.step-content');
+            steps.forEach(step => {
+                step.style.display = 'none';
+            });
+
+            const currentStepElement = document.getElementById(`step-${stepNumber}`);
+            if (currentStepElement) {
+                currentStepElement.style.display = 'block';
+                currentStepElement.classList.add('fade-in-up');
+            }
+
+            currentStep = stepNumber;
+        }
+
+        function selectMode(mode) {
+            console.log('모드 선택:', mode);
+            analysisMode = mode;
+            
+            if (mode === 'photo') {
+                showStep(1);
+                setupPhotoUpload();
+            } else if (mode === 'expert') {
+                showStep(2);
+                startExpertAnalysis();
+            }
+        }
+
+        function setupPhotoUpload() {
+            const input = document.getElementById('photo-input');
+            if (input) {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        console.log('파일 업로드:', file.name);
+                        showStep(2);
+                        startPhotoAnalysis();
+                    }
+                });
+            }
+        }
+
+        function startPhotoAnalysis() {
+            const header = document.getElementById('step2-header');
+            const content = document.getElementById('step2-content');
+            
+            header.innerHTML = `
+                <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    뒤로가기
+                </button>
+                <h2 class="text-3xl font-bold mb-4">🔍 AI 색상 분석</h2>
+            `;
+            
+            content.innerHTML = `
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                    <p class="text-gray-600 mb-4">사진을 분석하고 있습니다...</p>
+                    <div class="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
+                        <p class="text-sm text-blue-700">AI가 피부톤, 명도, 채도를 종합 분석 중입니다.</p>
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                showStep(3);
+            }, 3000);
+        }
+
+        function startExpertAnalysis() {
+            currentDrapingStep = 'temperature';
+            renderDrapingStep();
+        }
+
+        function renderDrapingStep() {
+            const stepData = DRAPING_DATA[currentDrapingStep];
+            const header = document.getElementById('step2-header');
+            const content = document.getElementById('step2-content');
+            
+            // 진행률 표시
+            const progressSteps = ['temperature', 'brightness', 'saturation'];
+            const currentIndex = progressSteps.indexOf(currentDrapingStep);
+            
+            const progressHTML = progressSteps.map((step, index) => {
+                let className = 'progress-step w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ';
+                if (index === currentIndex) {
+                    className += 'border-orange-500 bg-orange-100 text-orange-700 active';
+                } else if (drapingResults[step]) {
+                    className += 'border-green-500 bg-green-100 text-green-700';
+                } else {
+                    className += 'border-gray-300 text-gray-400';
+                }
+                
+                return `<div class="${className}">${index + 1}</div>`;
+            }).join('<div class="w-8 border-t-2 mt-4 border-gray-300"></div>');
+
+            header.innerHTML = `
+                <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    뒤로가기
+                </button>
+                
+                <!-- 진행률 표시 -->
+                <div class="flex justify-center mb-6">
+                    <div class="flex space-x-4">
+                        ${progressHTML}
+                    </div>
+                </div>
+                
+                <h2 class="text-4xl font-bold mb-4">
+                    🎭 ${stepData.title}
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    ${stepData.description}
+                </p>
+            `;
+
+            content.innerHTML = `
+                <!-- 이론적 배경 토글 섹션 -->
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-8">
+                    <button class="theory-toggle w-full flex items-center justify-between text-left font-bold text-lg text-blue-800 hover:text-blue-900 transition-colors" 
+                            data-target="theory-${currentDrapingStep}">
+                        <span>📚 과학적 배경 & 이론</span>
+                        <svg class="toggle-arrow w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <div id="theory-${currentDrapingStep}" class="toggle-content">
+                        <div class="space-y-4 text-sm mt-4">
+                            <div class="bg-white rounded-lg p-4 border border-blue-200">
+                                <h4 class="font-bold text-blue-900 mb-2">🔬 과학적 원리</h4>
+                                <p class="text-gray-700">${stepData.theory}</p>
+                                <p class="text-gray-600 mt-2">${stepData.scientificBasis}</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4 border border-purple-200">
+                                <h4 class="font-bold text-purple-900 mb-2">⏱️ 관찰 방법</h4>
+                                <p class="text-gray-700">${stepData.method}</p>
+                                <p class="text-purple-600 mt-2"><strong>소요 시간:</strong> ${stepData.observationTime}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 관찰 기준 토글 섹션 -->
+                <div class="bg-gradient-to-r from-green-50 to-red-50 rounded-2xl p-6 mb-8">
+                    <button class="observation-toggle w-full flex items-center justify-between text-left font-bold text-lg text-gray-800 hover:text-gray-900 transition-colors" 
+                            data-target="observation-criteria">
+                        <span>👁️ 전문가 관찰 기준</span>
+                        <svg class="toggle-arrow w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <div id="observation-criteria" class="toggle-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                            <div class="bg-gradient-to-br from-green-100 to-green-50 border-l-4 border-green-500 rounded-lg p-4">
+                                <h4 class="font-bold text-green-800 mb-3">✅ ${OBSERVATION_CRITERIA.positive.title}</h4>
+                                <ul class="text-sm text-green-700 space-y-1">
+                                    ${OBSERVATION_CRITERIA.positive.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-red-100 to-red-50 border-l-4 border-red-500 rounded-lg p-4">
+                                <h4 class="font-bold text-red-800 mb-3">❌ ${OBSERVATION_CRITERIA.negative.title}</h4>
+                                <ul class="text-sm text-red-700 space-y-1">
+                                    ${OBSERVATION_CRITERIA.negative.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${renderColorSelection()}
+
+                <div class="text-center max-w-2xl mx-auto mt-8">
+                    <div class="bg-blue-50 rounded-xl p-6">
+                        <h4 class="font-bold text-blue-800 mb-3">👁️ 관찰 방법</h4>
+                        <div class="text-sm text-blue-700 space-y-2">
+                            <p>• 각 색상을 최소 3초 이상 천천히 관찰하세요</p>
+                            <p>• 🎭 버튼으로 전체화면 드래이핑을 체험해보세요</p>
+                            <p>• 피부가 화사하고 생기있게 보이는 색상을 선택하세요</p>
+                            <p>• 피부가 칙칙하거나 피곤해 보이는 색상은 피하세요</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderColorSelection() {
+            const stepData = DRAPING_DATA[currentDrapingStep];
+            const colorKeys = Object.keys(stepData.colors);
+            
+            let gridHTML = `<div class="grid grid-cols-1 lg:grid-cols-${colorKeys.length} gap-8 max-w-6xl mx-auto mb-8">`;
+            
+            colorKeys.forEach(colorType => {
+                const colors = stepData.colors[colorType];
+                const typeLabel = getColorTypeLabel(currentDrapingStep, colorType);
+                const typeIcon = getColorTypeIcon(currentDrapingStep, colorType);
+                
+                gridHTML += `
+                    <div>
+                        <h3 class="text-2xl font-bold ${getColorTypeClass(currentDrapingStep, colorType)} text-center mb-6">
+                            ${typeIcon} ${typeLabel}
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            ${colors.map((color, index) => `
+                                <div class="relative group">
+                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-${getHoverColor(currentDrapingStep, colorType)}-300 transition-all cursor-pointer text-center"
+                                         onclick="selectColor('${colorType}', '${color.name}', ${index})">
+                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: ${color.color}"></div>
+                                        <p class="text-sm font-medium">${color.name}</p>
+                                        <p class="text-xs text-gray-500">${color.munsell}</p>
+                                    </div>
+                                    <button onclick="enterFullscreen(${JSON.stringify(color).replace(/"/g, '&quot;')})" 
+                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-${getHoverColor(currentDrapingStep, colorType)}-100"
+                                            title="전체화면에서 드래이핑 체험">
+                                        🎭
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            gridHTML += '</div>';
+            return gridHTML;
+        }
+
+        function getColorTypeLabel(step, type) {
+            const labels = {
+                temperature: { warm: '따뜻한 색상 (Warm)', cool: '차가운 색상 (Cool)' },
+                brightness: { light: '밝은 색상 (Light)', deep: '깊은 색상 (Deep)' },
+                saturation: { vivid: '선명한 색상 (Vivid)', muted: '부드러운 색상 (Muted)' }
+            };
+            return labels[step][type];
+        }
+
+        function getColorTypeIcon(step, type) {
+            const icons = {
+                temperature: { warm: '🔥', cool: '❄️' },
+                brightness: { light: '🌟', deep: '🌑' },
+                saturation: { vivid: '⚡', muted: '🌙' }
+            };
+            return icons[step][type];
+        }
+
+        function getColorTypeClass(step, type) {
+            const classes = {
+                temperature: { warm: 'text-orange-500', cool: 'text-blue-500' },
+                brightness: { light: 'text-yellow-500', deep: 'text-purple-600' },
+                saturation: { vivid: 'text-red-500', muted: 'text-gray-600' }
+            };
+            return classes[step][type];
+        }
+
+        function getHoverColor(step, type) {
+            const colors = {
+                temperature: { warm: 'orange', cool: 'blue' },
+                brightness: { light: 'yellow', deep: 'purple' },
+                saturation: { vivid: 'red', muted: 'gray' }
+            };
+            return colors[step][type];
+        }
+
+        function selectColor(colorType, colorName, colorIndex) {
+            console.log('색상 선택:', currentDrapingStep, colorType, colorName);
+            
+            // 결과 저장
+            drapingResults[currentDrapingStep] = { type: colorType, name: colorName, index: colorIndex };
+            
+            // 시각적 피드백
+            const selectedCard = event.currentTarget;
+            selectedCard.style.transform = 'scale(1.05)';
+            selectedCard.style.borderColor = '#22c55e';
+            selectedCard.classList.add('color-selected');
+            
+            setTimeout(() => {
+                // 다음 단계로 진행
+                const steps = ['temperature', 'brightness', 'saturation'];
+                const currentIndex = steps.indexOf(currentDrapingStep);
+                
+                if (currentIndex < steps.length - 1) {
+                    currentDrapingStep = steps[currentIndex + 1];
+                    renderDrapingStep();
+                } else {
+                    // 모든 단계 완료 - 결과 화면으로
+                    showStep(3);
+                }
+            }, 1000);
+        }
+
+        function goBack() {
+            console.log('뒤로 가기');
+            if (currentStep === 2 && analysisMode === 'expert') {
+                // 드래이핑 중이면 이전 단계로
+                const steps = ['temperature', 'brightness', 'saturation'];
+                const currentIndex = steps.indexOf(currentDrapingStep);
+                
+                if (currentIndex > 0) {
+                    currentDrapingStep = steps[currentIndex - 1];
+                    renderDrapingStep();
+                    return;
+                }
+            }
+            
+            if (currentStep > 0) {
+                showStep(currentStep - 1);
+                
+                // 드래이핑 결과 초기화
+                if (currentStep === 1) {
+                    drapingResults = { temperature: null, brightness: null, saturation: null };
+                    currentDrapingStep = 'temperature';
+                }
+            }
+        }
+
+        function resetApp() {
+            console.log('앱 리셋');
+            currentStep = 0;
+            analysisMode = null;
+            currentDrapingStep = 'temperature';
+            drapingResults = { temperature: null, brightness: null, saturation: null };
+            showStep(0);
         }
 
         // 전문가 매뉴얼 표시
         function showExpertManual() {
             const modal = document.getElementById('expert-manual-modal');
             modal.innerHTML = `
-                <div class="flex items-center justify-center min-h-screen bg-black bg-opacity-50">
-                    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl max-h-[90vh] overflow-y-auto p-8 m-4">
+                <div class="flex items-center justify-center min-h-screen bg-black bg-opacity-50 p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-6xl max-h-[90vh] overflow-y-auto p-8">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-3xl font-bold text-gray-800">🎓 전문가용 드래이핑 진단 매뉴얼</h2>
                             <button onclick="hideExpertManual()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
                         </div>
 
-                        <div class="space-y-6 text-sm">
-                            <!-- 이론적 배경 -->
-                            <section class="bg-blue-50 rounded-lg p-6">
-                                <h3 class="text-xl font-bold text-blue-800 mb-4">🔬 과학적 배경</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="bg-white rounded-lg p-4">
-                                        <h4 class="font-bold text-blue-700 mb-2">Von Kries 색채 적응 이론</h4>
-                                        <ul class="text-gray-700 space-y-1 text-xs">
+                        <div class="space-y-8 text-sm">
+                            <!-- 과학적 배경 -->
+                            <section class="bg-blue-50 rounded-xl p-6">
+                                <h3 class="text-2xl font-bold text-blue-800 mb-4">🔬 과학적 배경</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-white rounded-lg p-4 border border-blue-200">
+                                        <h4 class="font-bold text-blue-700 mb-3">Von Kries 색채 적응 이론</h4>
+                                        <ul class="text-gray-700 space-y-2 text-sm">
                                             <li>• L, M, S 원추세포의 민감도 자동 조정</li>
-                                            <li>• 최소 3초, 권장 5-10초 관찰</li>
+                                            <li>• 최소 3초, 권장 5-10초 관찰 필요</li>
                                             <li>• 공식: R' = R×ka, G' = G×kb, B' = B×kc</li>
+                                            <li>• 색채 항상성 메커니즘 활용</li>
                                         </ul>
                                     </div>
-                                    <div class="bg-white rounded-lg p-4">
-                                        <h4 class="font-bold text-purple-700 mb-2">Munsell 색체계</h4>
-                                        <ul class="text-gray-700 space-y-1 text-xs">
-                                            <li>• 색상(Hue): 5R~5RP, 10단계</li>
+                                    <div class="bg-white rounded-lg p-4 border border-purple-200">
+                                        <h4 class="font-bold text-purple-700 mb-3">Munsell 색체계</h4>
+                                        <ul class="text-gray-700 space-y-2 text-sm">
+                                            <li>• 색상(Hue): 5R~5RP, 10단계 구분</li>
                                             <li>• 명도(Value): 0~10, 피부톤 4-8 범위</li>
                                             <li>• 채도(Chroma): 0~16+, 개인차 2-12</li>
+                                            <li>• 3차원 색공간 정밀 분석</li>
                                         </ul>
                                     </div>
                                 </div>
                             </section>
 
                             <!-- 관찰 기준 -->
-                            <section class="bg-green-50 rounded-lg p-6">
-                                <h3 class="text-xl font-bold text-green-800 mb-4">👁️ 관찰 기준</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="bg-white rounded-lg p-4">
-                                        <h4 class="font-bold text-green-700 mb-2">✅ 긍정적 반응</h4>
-                                        <ul class="text-gray-700 space-y-1 text-xs">
-                                            <li>• 피부 내부 발광 증가</li>
-                                            <li>• 혈색 개선, 생기 있는 인상</li>
-                                            <li>• 윤곽선 선명도 향상</li>
+                            <section class="bg-green-50 rounded-xl p-6">
+                                <h3 class="text-2xl font-bold text-green-800 mb-4">👁️ 전문가 관찰 기준</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-white rounded-lg p-4 border border-green-200">
+                                        <h4 class="font-bold text-green-700 mb-3">✅ 긍정적 반응 (조화)</h4>
+                                        <ul class="text-gray-700 space-y-1 text-sm">
+                                            ${OBSERVATION_CRITERIA.positive.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
                                         </ul>
                                     </div>
-                                    <div class="bg-white rounded-lg p-4">
-                                        <h4 class="font-bold text-red-700 mb-2">❌ 부정적 반응</h4>
-                                        <ul class="text-gray-700 space-y-1 text-xs">
-                                            <li>• 피부 변색, 칙칙함 증가</li>
-                                            <li>• 그림자 진함, 노화 인상</li>
-                                            <li>• 결점 강조, 피부 트러블 부각</li>
+                                    <div class="bg-white rounded-lg p-4 border border-red-200">
+                                        <h4 class="font-bold text-red-700 mb-3">❌ 부정적 반응 (부조화)</h4>
+                                        <ul class="text-gray-700 space-y-1 text-sm">
+                                            ${OBSERVATION_CRITERIA.negative.indicators.map(indicator => `<li>• ${indicator}</li>`).join('')}
                                         </ul>
                                     </div>
                                 </div>
                             </section>
 
-                            <!-- 한국형 시스템 -->
-                            <section class="bg-orange-50 rounded-lg p-6">
-                                <h3 class="text-xl font-bold text-orange-800 mb-4">🇰🇷 한국형 12계절 시스템</h3>
-                                <div class="grid grid-cols-4 gap-3 text-xs">
-                                    <div class="text-center p-3 bg-yellow-50 rounded border">
+                            <!-- 3단계 분석법 -->
+                            <section class="bg-orange-50 rounded-xl p-6">
+                                <h3 class="text-2xl font-bold text-orange-800 mb-4">🎯 Sci\\ART 3단계 분석법</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-lg p-4 border border-yellow-200">
+                                        <h4 class="font-bold text-yellow-700 mb-2">1️⃣ ${DRAPING_DATA.temperature.title}</h4>
+                                        <p class="text-gray-700 text-sm">${DRAPING_DATA.temperature.description}</p>
+                                        <p class="text-yellow-600 text-sm mt-1"><strong>이론:</strong> ${DRAPING_DATA.temperature.theory}</p>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 border border-purple-200">
+                                        <h4 class="font-bold text-purple-700 mb-2">2️⃣ ${DRAPING_DATA.brightness.title}</h4>
+                                        <p class="text-gray-700 text-sm">${DRAPING_DATA.brightness.description}</p>
+                                        <p class="text-purple-600 text-sm mt-1"><strong>이론:</strong> ${DRAPING_DATA.brightness.theory}</p>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4 border border-red-200">
+                                        <h4 class="font-bold text-red-700 mb-2">3️⃣ ${DRAPING_DATA.saturation.title}</h4>
+                                        <p class="text-gray-700 text-sm">${DRAPING_DATA.saturation.description}</p>
+                                        <p class="text-red-600 text-sm mt-1"><strong>이론:</strong> ${DRAPING_DATA.saturation.theory}</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- 한국형 12계절 시스템 -->
+                            <section class="bg-purple-50 rounded-xl p-6">
+                                <h3 class="text-2xl font-bold text-purple-800 mb-4">🇰🇷 한국형 12계절 시스템</h3>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                                    <div class="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                                         <h5 class="font-semibold text-yellow-700 mb-2">🌸 Spring</h5>
                                         <ul class="text-gray-700 space-y-1">
                                             <li><strong>Light:</strong> 밝고 부드러움</li>
@@ -345,7 +861,7 @@
                                             <li><strong>Deep:</strong> 깊고 풍부함</li>
                                         </ul>
                                     </div>
-                                    <div class="text-center p-3 bg-blue-50 rounded border">
+                                    <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                                         <h5 class="font-semibold text-blue-700 mb-2">🌊 Summer</h5>
                                         <ul class="text-gray-700 space-y-1">
                                             <li><strong>Light:</strong> 밝고 쿨함</li>
@@ -353,7 +869,7 @@
                                             <li><strong>Deep:</strong> 깊고 차가움</li>
                                         </ul>
                                     </div>
-                                    <div class="text-center p-3 bg-orange-50 rounded border">
+                                    <div class="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
                                         <h5 class="font-semibold text-orange-700 mb-2">🍂 Autumn</h5>
                                         <ul class="text-gray-700 space-y-1">
                                             <li><strong>Soft:</strong> 부드럽고 따뜻함</li>
@@ -361,12 +877,46 @@
                                             <li><strong>Deep:</strong> 가장 깊은 웜톤</li>
                                         </ul>
                                     </div>
-                                    <div class="text-center p-3 bg-purple-50 rounded border">
+                                    <div class="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
                                         <h5 class="font-semibold text-purple-700 mb-2">❄️ Winter</h5>
                                         <ul class="text-gray-700 space-y-1">
                                             <li><strong>Bright:</strong> 선명하고 차가움</li>
                                             <li><strong>True:</strong> 진정한 겨울톤</li>
                                             <li><strong>Deep:</strong> 가장 깊은 쿨톤</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- 환경 설정 -->
+                            <section class="bg-gray-50 rounded-xl p-6">
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">⚙️ 진단 환경 기준</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-bold text-gray-700 mb-2">💡 조명 조건</h4>
+                                        <ul class="text-gray-600 text-sm space-y-1">
+                                            <li>• 색온도: 5000K (자연광)</li>
+                                            <li>• CRI: 90 이상</li>
+                                            <li>• R9 값: 70 이상</li>
+                                            <li>• 조도: 1000lux 권장</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-bold text-gray-700 mb-2">🎭 드래이핑 천</h4>
+                                        <ul class="text-gray-600 text-sm space-y-1">
+                                            <li>• 크기: 30x49cm</li>
+                                            <li>• 재질: 100% 천연섬유</li>
+                                            <li>• 마감: 무광택</li>
+                                            <li>• 표준: Munsell 색체계</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-bold text-gray-700 mb-2">⏱️ 관찰 시간</h4>
+                                        <ul class="text-gray-600 text-sm space-y-1">
+                                            <li>• 최소 관찰: 3초</li>
+                                            <li>• 권장 시간: 5-10초</li>
+                                            <li>• 총 소요: 15-20분</li>
+                                            <li>• 적응 시간: 2-3초 대기</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -385,12 +935,11 @@
             modal.classList.remove('hidden');
         }
 
-        // 전문가 매뉴얼 숨김
         function hideExpertManual() {
             document.getElementById('expert-manual-modal').classList.add('hidden');
         }
 
-        // 전체화면 드래이핑 시작
+        // 전체화면 드래이핑
         function enterFullscreen(color) {
             console.log('전체화면 드래이핑:', color.name);
             fullscreenActive = true;
@@ -400,11 +949,11 @@
             modal.innerHTML = `
                 <div class="w-full h-full flex items-center justify-center relative" style="background-color: ${color.color}">
                     <!-- 상단 정보 바 -->
-                    <div class="absolute top-4 left-4 bg-black bg-opacity-80 text-white px-6 py-4 rounded-xl">
+                    <div class="absolute top-4 left-4 bg-black bg-opacity-80 text-white px-6 py-4 rounded-xl max-w-md">
                         <div class="space-y-2">
                             <div class="text-xl font-bold">${color.name}</div>
                             <div class="text-sm opacity-90">${color.munsell}</div>
-                            <div class="text-xs opacity-80">${color.spd}</div>
+                            <div class="text-xs opacity-80">${color.spd || color.description}</div>
                             <div id="draping-timer" class="text-sm font-mono text-yellow-400">
                                 관찰 시간: 0.0초
                             </div>
@@ -413,12 +962,12 @@
 
                     <!-- 닫기 버튼 -->
                     <button onclick="exitFullscreen()" 
-                            class="absolute top-4 right-4 bg-black bg-opacity-80 text-white p-4 rounded-full text-2xl hover:bg-opacity-100 transition-all">
+                            class="absolute top-4 right-4 bg-black bg-opacity-80 text-white p-4 rounded-full text-2xl hover:bg-opacity-100 transition-all z-10">
                         ✕
                     </button>
 
                     <!-- 중앙 안내 -->
-                    <div class="text-center">
+                    <div class="text-center z-10">
                         <div class="bg-black bg-opacity-60 text-white px-8 py-8 rounded-2xl max-w-lg mx-auto">
                             <h2 class="text-4xl font-bold mb-4">🎭 실제 드래이핑</h2>
                             <div class="space-y-3 text-lg">
@@ -432,16 +981,36 @@
                             
                             <div class="mt-6 p-4 bg-white bg-opacity-20 rounded-lg">
                                 <h3 class="font-bold mb-2">관찰 체크포인트</h3>
-                                <div class="text-sm space-y-1">
+                                <div class="text-sm space-y-1 text-left">
                                     <p>✅ 피부가 화사해 보이나요?</p>
                                     <p>✅ 혈색이 좋아 보이나요?</p>
+                                    <p>✅ 윤곽이 선명해 보이나요?</p>
                                     <p>❌ 피부가 칙칙해 보이나요?</p>
+                                    <p>❌ 그림자가 진해 보이나요?</p>
                                 </div>
                             </div>
 
                             <div class="mt-4 text-sm opacity-80">
                                 <p>💡 팁: 첫인상이 가장 정확합니다!</p>
                                 <p>ESC 키 또는 ✕ 버튼으로 종료</p>
+                            </div>
+
+                            <!-- 색상 상세 정보 (토글) -->
+                            <div class="mt-6">
+                                <button onclick="toggleColorInfo()" class="text-sm bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all">
+                                    ℹ️ 색상 상세 정보
+                                </button>
+                                <div id="color-info" class="hidden mt-4 text-xs text-left bg-black bg-opacity-40 rounded-lg p-4">
+                                    <div class="space-y-2">
+                                        <p><strong>Munsell 표기:</strong> ${color.munsell}</p>
+                                        ${color.wavelength ? `<p><strong>파장대:</strong> ${color.wavelength}</p>` : ''}
+                                        ${color.lightness ? `<p><strong>명도:</strong> ${color.lightness}</p>` : ''}
+                                        ${color.chroma ? `<p><strong>채도:</strong> ${color.chroma}</p>` : ''}
+                                        ${color.effect ? `<p><strong>인상 효과:</strong> ${color.effect}</p>` : ''}
+                                        ${color.impact ? `<p><strong>시각적 효과:</strong> ${color.impact}</p>` : ''}
+                                        ${color.elegance ? `<p><strong>우아함:</strong> ${color.elegance}</p>` : ''}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -452,7 +1021,6 @@
             document.body.style.overflow = 'hidden';
         }
 
-        // 전체화면 드래이핑 종료
         function exitFullscreen() {
             fullscreenActive = false;
             stopDrapingTimer();
@@ -461,7 +1029,11 @@
             document.body.style.overflow = '';
         }
 
-        // 드래이핑 타이머 시작
+        function toggleColorInfo() {
+            const colorInfo = document.getElementById('color-info');
+            colorInfo.classList.toggle('hidden');
+        }
+
         function startDrapingTimer() {
             drapingTimer = 0;
             timerInterval = setInterval(() => {
@@ -470,7 +1042,7 @@
                 if (timerElement && fullscreenActive) {
                     timerElement.textContent = `관찰 시간: ${drapingTimer.toFixed(1)}초`;
                     
-                    // 3초 이상일 때 색상 변경
+                    // 3초 이상일 때 색상 변경 - Von Kries 적응 시간 기준
                     if (drapingTimer >= 3) {
                         timerElement.className = 'text-sm font-mono text-green-400';
                     }
@@ -478,214 +1050,11 @@
             }, 100);
         }
 
-        // 드래이핑 타이머 정지
         function stopDrapingTimer() {
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
-        }
-
-        // ESC 키로 전체화면 종료
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && fullscreenActive) {
-                exitFullscreen();
-            }
-        });
-        function hideLoading() {
-            console.log('로딩 화면 숨김');
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-        }
-
-        // 단계 표시
-        function showStep(stepNumber) {
-            console.log('단계 표시:', stepNumber);
-            
-            // 모든 단계 숨기기
-            const steps = document.querySelectorAll('.step-content');
-            steps.forEach(step => {
-                step.style.display = 'none';
-            });
-
-            // 현재 단계 표시
-            const currentStepElement = document.getElementById(`step-${stepNumber}`);
-            if (currentStepElement) {
-                currentStepElement.style.display = 'block';
-                currentStepElement.classList.add('fade-in-up');
-            }
-
-            currentStep = stepNumber;
-        }
-
-        // 분석 모드 선택
-        function selectMode(mode) {
-            console.log('모드 선택:', mode);
-            analysisMode = mode;
-            
-            if (mode === 'photo') {
-                showStep(1);
-                setupPhotoUpload();
-            } else if (mode === 'expert') {
-                showStep(2);
-                startExpertAnalysis();
-            }
-        }
-
-        // 사진 업로드 설정
-        function setupPhotoUpload() {
-            const input = document.getElementById('photo-input');
-            if (input) {
-                input.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        console.log('파일 업로드:', file.name);
-                        showStep(2);
-                        startPhotoAnalysis();
-                    }
-                });
-            }
-        }
-
-        // 사진 분석 시작
-        function startPhotoAnalysis() {
-            document.getElementById('step2-title').textContent = '🔍 AI 색상 분석';
-            document.getElementById('step2-content').innerHTML = `
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                    <p class="text-gray-600 mb-4">사진을 분석하고 있습니다...</p>
-                    <div class="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
-                        <p class="text-sm text-blue-700">AI가 피부톤, 명도, 채도를 종합 분석 중입니다.</p>
-                    </div>
-                </div>
-            `;
-            
-            // 3초 후 결과 표시
-            setTimeout(() => {
-                showStep(3);
-            }, 3000);
-        }
-
-        // 전문가 분석 시작
-        function startExpertAnalysis() {
-            document.getElementById('step2-title').textContent = '🎭 전문가 드래이핑 진단';
-            document.getElementById('step2-content').innerHTML = `
-                <div class="space-y-8">
-                    <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200 max-w-2xl mx-auto">
-                        <h4 class="font-bold text-yellow-800 mb-2">🎯 1단계: 온도감 분석</h4>
-                        <p class="text-sm text-yellow-700">
-                            Von Kries 색채 적응 이론에 따라 피부의 언더톤이 따뜻한지(황색) 차가운지(핑크)를 판단합니다.
-                        </p>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                        <div>
-                            <h3 class="text-2xl font-bold text-orange-500 text-center mb-6">🔥 따뜻한 색상 (Warm)</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="relative group">
-                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 transition-all cursor-pointer text-center"
-                                         onclick="selectColor('warm', 'golden-yellow')">
-                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #FFD700"></div>
-                                        <p class="text-sm font-medium">골든 옐로우</p>
-                                        <p class="text-xs text-gray-500">5Y 8/12</p>
-                                    </div>
-                                    <button onclick="enterFullscreen(drapingColors.temperature.warm[0])" 
-                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-orange-100"
-                                            title="전체화면에서 드래이핑 체험">
-                                        🎭
-                                    </button>
-                                </div>
-                                <div class="relative group">
-                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 transition-all cursor-pointer text-center"
-                                         onclick="selectColor('warm', 'coral-orange')">
-                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #FF7F50"></div>
-                                        <p class="text-sm font-medium">코랄 오렌지</p>
-                                        <p class="text-xs text-gray-500">5YR 7/12</p>
-                                    </div>
-                                    <button onclick="enterFullscreen(drapingColors.temperature.warm[1])" 
-                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-orange-100"
-                                            title="전체화면에서 드래이핑 체험">
-                                        🎭
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="text-2xl font-bold text-blue-500 text-center mb-6">❄️ 차가운 색상 (Cool)</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="relative group">
-                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-all cursor-pointer text-center"
-                                         onclick="selectColor('cool', 'icy-pink')">
-                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #FF1493"></div>
-                                        <p class="text-sm font-medium">아이시 핑크</p>
-                                        <p class="text-xs text-gray-500">5RP 6/14</p>
-                                    </div>
-                                    <button onclick="enterFullscreen(drapingColors.temperature.cool[0])" 
-                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-100"
-                                            title="전체화면에서 드래이핑 체험">
-                                        🎭
-                                    </button>
-                                </div>
-                                <div class="relative group">
-                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-all cursor-pointer text-center"
-                                         onclick="selectColor('cool', 'royal-blue')">
-                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #4169E1"></div>
-                                        <p class="text-sm font-medium">로얄 블루</p>
-                                        <p class="text-xs text-gray-500">5PB 4/12</p>
-                                    </div>
-                                    <button onclick="enterFullscreen(drapingColors.temperature.cool[1])" 
-                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-100"
-                                            title="전체화면에서 드래이핑 체험">
-                                        🎭
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-center max-w-2xl mx-auto">
-                        <div class="bg-blue-50 rounded-xl p-6">
-                            <h4 class="font-bold text-blue-800 mb-3">👁️ 관찰 방법</h4>
-                            <div class="text-sm text-blue-700 space-y-2">
-                                <p>• 각 색상을 3초 이상 천천히 관찰하세요</p>
-                                <p>• 피부가 화사하고 생기있게 보이는 색상을 선택하세요</p>
-                                <p>• 피부가 칙칙하거나 피곤해 보이는 색상은 피하세요</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 색상 선택
-        function selectColor(temperature, colorName) {
-            console.log('색상 선택:', temperature, colorName);
-            
-            // 간단한 애니메이션
-            const selectedCard = event.currentTarget;
-            selectedCard.style.transform = 'scale(1.05)';
-            selectedCard.style.borderColor = temperature === 'warm' ? '#f97316' : '#3b82f6';
-            
-            setTimeout(() => {
-                showStep(3);
-            }, 1000);
-        }
-
-        // 뒤로 가기
-        function goBack() {
-            console.log('뒤로 가기');
-            if (currentStep > 0) {
-                showStep(currentStep - 1);
-            }
-        }
-
-        // 앱 리셋
-        function resetApp() {
-            console.log('앱 리셋');
-            currentStep = 0;
-            analysisMode = null;
-            showStep(0);
         }
 
         // 오류 처리
