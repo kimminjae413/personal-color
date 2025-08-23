@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과학적 퍼스널컬러 진단 시스템</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="Munsell 색체계 기반 과학적 퍼스널컬러 진단 시스템">
+    <meta name="keywords" content="퍼스널컬러, 드래이핑, Munsell, 색채진단">
+    <meta name="author" content="Personal Color Analyzer">
+    
+    <!-- Open Graph for social sharing -->
+    <meta property="og:title" content="과학적 퍼스널컬러 진단">
+    <meta property="og:description" content="Von Kries 이론과 Munsell 색체계 기반 전문가급 진단">
+    <meta property="og:type" content="website">
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-white to-blue-50 min-h-screen">
+    <!-- 로딩 스피너 -->
+    <div id="loading" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+    </div>
+
+    <!-- 메인 앱 컨테이너 -->
+    <div id="app" class="min-h-screen" style="display: none;">
+        <!-- 헤더 -->
+        <header class="container mx-auto px-4 py-8 max-w-6xl">
+            <div class="text-center mb-12">
+                <div class="flex justify-center items-center gap-4 mb-4">
+                    <h1 class="text-4xl font-bold text-gray-800">
+                        과학적 퍼스널컬러 진단
+                    </h1>
+                    <button
+                        id="manual-btn"
+                        class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-2 text-sm font-medium"
+                    >
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        설명서 보기
+                    </button>
+                </div>
+                <p class="text-lg text-gray-600 mb-4">
+                    Munsell 색체계 • Sci\ART 방법론 • Von Kries 이론 기반
+                </p>
+                <div class="bg-blue-50 rounded-xl p-4 max-w-4xl mx-auto">
+                    <p class="text-gray-700 text-sm">
+                        🔬 과학적 근거: CRI 90+ 조명, 5000K 색온도 | 🎨 전문 시스템: Munsell 색체계 | 🇰🇷 한국형 특화
+                    </p>
+                </div>
+            </div>
+
+            <!-- 네비게이션 -->
+            <div id="nav-back" class="mb-6" style="display: none;">
+                <button
+                    id="back-btn"
+                    class="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                    <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                    <span>이전 단계</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="container mx-auto px-4 max-w-6xl">
+            <!-- 단계별 콘텐츠 -->
+            <div id="step-0" class="step-content">
+                <!-- 메인 선택 화면 -->
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold text-center mb-6">진단 방식 선택</h2>
+                    <p class="text-gray-600 text-center mb-8">과학적 이론에 기반한 두 가지 방법론</p>
+
+                    <!-- 과학적 배경 설명 -->
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-8">
+                        <button 
+                            id="theory-toggle"
+                            class="w-full flex items-center justify-between text-left"
+                        >
+                            <div class="flex items-center">
+                                <i data-lucide="lightbulb" class="w-6 h-6 text-purple-600 mr-3"></i>
+                                <span class="text-xl font-bold text-gray-800">드래이핑 진단의 과학적 원리</span>
+                            </div>
+                            <i data-lucide="chevron-down" id="theory-chevron" class="w-6 h-6"></i>
+                        </button>
+                        
+                        <div id="theory-content" class="mt-6 pt-6 border-t border-blue-200" style="display: none;">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="bg-white rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <i data-lucide="eye" class="w-5 h-5 text-blue-600 mr-2"></i>
+                                        <h4 class="font-bold text-blue-800">시각 과학</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700">
+                                        인간의 시각은 L, M, S 3종류 원추세포로 색상을 인지합니다. 
+                                        Von Kries 색채 적응 이론에 따라 주변 조명에 따라 민감도를 조정합니다.
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <i data-lucide="palette" class="w-5 h-5 text-purple-600 mr-2"></i>
+                                        <h4 class="font-bold text-purple-800">Munsell 색체계</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700">
+                                        색상(Hue), 명도(Value), 채도(Chroma)의 3차원으로 모든 색을 정의합니다. 
+                                        1905년 개발되어 현재까지 전세계 색채 표준입니다.
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <i data-lucide="sun" class="w-5 h-5 text-orange-600 mr-2"></i>
+                                        <h4 class="font-bold text-orange-800">조명 과학</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700">
+                                        메타메리즘 현상을 고려하여 5000K 색온도, CRI 90+ 조명에서 진단해야 합니다. 
+                                        조명이 다르면 같은 색도 다르게 보입니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 진단 방식 선택 카드 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div 
+                            id="photo-mode-btn"
+                            class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                        >
+                            <div class="text-center">
+                                <div class="bg-blue-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                                    <i data-lucide="camera" class="w-10 h-10 text-blue-600"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">사진 기반 간편 진단</h3>
+                                <p class="text-gray-600 mb-6">
+                                    업로드한 사진을 AI가 분석하여 색상 특성을 추출합니다.
+                                </p>
+                                
+                                <div class="bg-blue-50 rounded-lg p-4">
+                                    <div class="grid grid-cols-3 gap-4 text-center">
+                                        <div>
+                                            <div class="text-2xl font-bold text-blue-600">5분</div>
+                                            <div class="text-xs text-blue-700">소요시간</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-2xl font-bold text-blue-600">85%</div>
+                                            <div class="text-xs text-blue-700">정확도</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-2xl font-bold text-blue-600">⭐⭐</div>
+                                            <div class="text-xs text-blue-700">난이도</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div 
+                            id="expert-mode-btn"
+                            class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                        >
+                            <div class="text-center">
+                                <div class="bg-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                                    <i data-lucide="palette" class="w-10 h-10 text-purple-600"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">전문가급 드래이핑 진단</h3>
+                                <p class="text-gray-600 mb-6">
+                                    Sci\ART 방법론으로 3단계 체계적 분석을 진행합니다.
+                                </p>
+                                
+                                <div class="bg-purple-50 rounded-lg p-4">
+                                    <div class="grid grid-cols-3 gap-4 text-center">
+                                        <div>
+                                            <div class="text-2xl font-bold text-purple-600">15분</div>
+                                            <div class="text-xs text-purple-700">소요시간</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-2xl font-bold text-purple-600">92%</div>
+                                            <div class="text-xs text-purple-700">정확도</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-2xl font-bold text-purple-600">⭐⭐⭐</div>
+                                            <div class="text-xs text-purple-700">난이도</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 사진 업로드 단계 -->
+            <div id="step-1" class="step-content" style="display: none;">
+                <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold mb-4">📸 사진 업로드</h2>
+                        <p class="text-gray-600">정확한 AI 분석을 위해 고품질 사진을 업로드해주세요</p>
+                    </div>
+
+                    <!-- 촬영 가이드 -->
+                    <div class="bg-blue-50 rounded-xl p-6 mb-8">
+                        <button 
+                            id="photo-guide-toggle"
+                            class="w-full flex items-center justify-between text-left"
+                        >
+                            <div class="flex items-center">
+                                <i data-lucide="info" class="w-5 h-5 text-blue-600 mr-2"></i>
+                                <h3 class="font-bold text-blue-800">과학적 촬영 가이드</h3>
+                            </div>
+                            <i data-lucide="chevron-down" id="photo-guide-chevron" class="w-6 h-6"></i>
+                        </button>
+                        
+                        <div id="photo-guide-content" class="mt-4 pt-4 border-t border-blue-200" style="display: none;">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-green-700 mb-3">✅ 권장사항</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2">
+                                        <li>• 자연광 (오전 10시-오후 2시)</li>
+                                        <li>• 정면 각도, 어깨까지 포함</li>
+                                        <li>• 메이크업 제거된 맨얼굴</li>
+                                        <li>• 흰색/회색 상의</li>
+                                        <li>• CRI 90+ 조명 환경</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-red-700 mb-3">❌ 금지사항</h4>
+                                    <ul class="text-sm text-gray-700 space-y-2">
+                                        <li>• 실내 인공조명</li>
+                                        <li>• 직사광선</li>
+                                        <li>• 측면 각도</li>
+                                        <li>• 진한 색상 의상</li>
+                                        <li>• 필터/보정 사용</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 파일 업로드 영역 -->
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center">
+                        <i data-lucide="upload" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">사진 업로드</h3>
+                        <p class="text-gray-500 mb-6">고품질 사진을 선택해주세요</p>
+                        <input
+                            type="file"
+                            id="photo-input"
+                            accept="image/*"
+                            class="hidden"
+                        />
+                        <button
+                            id="photo-upload-btn"
+                            class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 font-semibold transition-colors"
+                        >
+                            파일 선택하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 기타 단계들 -->
+            <div id="step-2" class="step-content" style="display: none;">
+                <!-- 사진 분석 또는 드래이핑 단계 -->
+            </div>
+
+            <div id="step-3" class="step-content" style="display: none;">
+                <!-- 결과 표시 단계 -->
+            </div>
+        </main>
+    </div>
+
+    <!-- 모달들 -->
+    <!-- 전문가 매뉴얼 모달 -->
+    <div id="expert-manual-modal" class="fixed inset-0 z-50 hidden">
+        <!-- 모달 내용은 ExpertManual.js에서 동적 생성 -->
+    </div>
+
+    <!-- 전체화면 드래이핑 모달 -->
+    <div id="fullscreen-modal" class="fixed inset-0 z-50 hidden">
+        <!-- 전체화면 내용은 FullscreenDraping.js에서 동적 생성 -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data/seasons.js"></script>
+    <script src="js/data/drapingColors.js"></script>
+    <script src="js/utils/colorAnalysis.js"></script>
+    <script src="js/components/ExpertManual.js"></script>
+    <script src="js/components/FullscreenDraping.js"></script>
+    <script src="js/components/ColorCard.js"></script>
+    <script src="js/components/ResultDisplay.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
