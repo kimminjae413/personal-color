@@ -1,0 +1,272 @@
+/* css/styles.css */
+
+/* 커스텀 애니메이션 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 기본 스타일 */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.slide-in-right {
+    animation: slideInFromRight 0.5s ease-out;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* 단계별 콘텐츠 전환 */
+.step-content {
+    transition: all 0.3s ease-in-out;
+}
+
+/* 모달 배경 */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* 드래이핑 타이머 */
+.draping-timer {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #10b981;
+}
+
+/* 색상 카드 호버 효과 */
+.color-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.color-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.color-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.color-card:hover::before {
+    left: 100%;
+}
+
+/* 진행률 표시 */
+.progress-step {
+    transition: all 0.3s ease;
+}
+
+.progress-step.active {
+    transform: scale(1.1);
+}
+
+.progress-step.completed {
+    animation: pulse 0.5s ease-in-out;
+}
+
+/* 전체화면 드래이핑 */
+.fullscreen-draping {
+    transition: background-color 0.3s ease;
+}
+
+/* 스크롤바 커스터마이징 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .text-4xl {
+        font-size: 2rem;
+        line-height: 2.5rem;
+    }
+    
+    .grid-cols-3 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    
+    .grid-cols-2 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .p-8 {
+        padding: 1.5rem;
+    }
+    
+    .rounded-2xl {
+        border-radius: 1rem;
+    }
+    
+    .text-3xl {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+    border-top-color: #6366f1;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 토글 애니메이션 */
+.toggle-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.toggle-content.expanded {
+    max-height: 1000px;
+    transition: max-height 0.5s ease-in;
+}
+
+/* 색상 선택 피드백 */
+.color-selected {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5);
+    border-color: #22c55e;
+}
+
+/* 드래이핑 관찰 기준 */
+.observation-positive {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border-left: 4px solid #22c55e;
+}
+
+.observation-negative {
+    background: linear-gradient(135deg, #fef2f2, #fecaca);
+    border-left: 4px solid #ef4444;
+}
+
+/* 매뉴얼 스크롤 */
+.manual-content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* 결과 카드 */
+.result-card {
+    background: linear-gradient(135deg, #fdfbff, #f8fafc);
+    border: 1px solid #e2e8f0;
+}
+
+.result-card-header {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 셀렉션 비활성화 (드래이핑 중) */
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* 접근성 개선 */
+.focus-visible:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .bg-blue-50 {
+        background-color: #ffffff;
+        border: 2px solid #1d4ed8;
+    }
+    
+    .text-gray-600 {
+        color: #000000;
+    }
+}
+
+/* 다크모드 지원 (추후 확장 가능) */
+@media (prefers-color-scheme: dark) {
+    .bg-white {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+}
+
+/* 인쇄 스타일 */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    .container {
+        max-width: none;
+    }
+}
