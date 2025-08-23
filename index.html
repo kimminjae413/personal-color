@@ -8,33 +8,39 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
-    
-    <!-- Meta tags for SEO -->
-    <meta name="description" content="Munsell 색체계 기반 과학적 퍼스널컬러 진단 시스템">
-    <meta name="keywords" content="퍼스널컬러, 드래이핑, Munsell, 색채진단">
-    <meta name="author" content="Personal Color Analyzer">
-    
-    <!-- Open Graph for social sharing -->
-    <meta property="og:title" content="과학적 퍼스널컬러 진단">
-    <meta property="og:description" content="Von Kries 이론과 Munsell 색체계 기반 전문가급 진단">
-    <meta property="og:type" content="website">
-    
-    <!-- PWA Support -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6366f1">
+    <!-- 기본 스타일 -->
+    <style>
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .color-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-pink-50 via-white to-blue-50 min-h-screen">
-    <!-- 로딩 스피너 -->
+    <!-- 로딩 확인 -->
     <div id="loading" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">로딩 중...</p>
+        </div>
     </div>
 
-    <!-- 메인 앱 컨테이너 -->
+    <!-- 메인 앱 -->
     <div id="app" class="min-h-screen" style="display: none;">
         <!-- 헤더 -->
         <header class="container mx-auto px-4 py-8 max-w-6xl">
@@ -43,12 +49,8 @@
                     <h1 class="text-4xl font-bold text-gray-800">
                         과학적 퍼스널컬러 진단
                     </h1>
-                    <button
-                        id="manual-btn"
-                        class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-2 text-sm font-medium"
-                    >
-                        <i data-lucide="book-open" class="w-4 h-4"></i>
-                        설명서 보기
+                    <button id="manual-btn" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-2 text-sm font-medium">
+                        📖 설명서 보기
                     </button>
                 </div>
                 <p class="text-lg text-gray-600 mb-4">
@@ -60,92 +62,30 @@
                     </p>
                 </div>
             </div>
-
-            <!-- 네비게이션 -->
-            <div id="nav-back" class="mb-6" style="display: none;">
-                <button
-                    id="back-btn"
-                    class="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                    <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
-                    <span>이전 단계</span>
-                </button>
-            </div>
         </header>
 
         <!-- 메인 콘텐츠 -->
         <main class="container mx-auto px-4 max-w-6xl">
-            <!-- 단계별 콘텐츠 -->
+            <!-- 단계 0: 메인 화면 -->
             <div id="step-0" class="step-content">
-                <!-- 메인 선택 화면 -->
                 <div class="max-w-4xl mx-auto">
                     <h2 class="text-3xl font-bold text-center mb-6">진단 방식 선택</h2>
                     <p class="text-gray-600 text-center mb-8">과학적 이론에 기반한 두 가지 방법론</p>
 
-                    <!-- 과학적 배경 설명 -->
-                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-8">
-                        <button 
-                            id="theory-toggle"
-                            class="w-full flex items-center justify-between text-left"
-                        >
-                            <div class="flex items-center">
-                                <i data-lucide="lightbulb" class="w-6 h-6 text-purple-600 mr-3"></i>
-                                <span class="text-xl font-bold text-gray-800">드래이핑 진단의 과학적 원리</span>
-                            </div>
-                            <i data-lucide="chevron-down" id="theory-chevron" class="w-6 h-6"></i>
-                        </button>
-                        
-                        <div id="theory-content" class="mt-6 pt-6 border-t border-blue-200" style="display: none;">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="bg-white rounded-lg p-4">
-                                    <div class="flex items-center mb-3">
-                                        <i data-lucide="eye" class="w-5 h-5 text-blue-600 mr-2"></i>
-                                        <h4 class="font-bold text-blue-800">시각 과학</h4>
-                                    </div>
-                                    <p class="text-sm text-gray-700">
-                                        인간의 시각은 L, M, S 3종류 원추세포로 색상을 인지합니다. 
-                                        Von Kries 색채 적응 이론에 따라 주변 조명에 따라 민감도를 조정합니다.
-                                    </p>
-                                </div>
-                                
-                                <div class="bg-white rounded-lg p-4">
-                                    <div class="flex items-center mb-3">
-                                        <i data-lucide="palette" class="w-5 h-5 text-purple-600 mr-2"></i>
-                                        <h4 class="font-bold text-purple-800">Munsell 색체계</h4>
-                                    </div>
-                                    <p class="text-sm text-gray-700">
-                                        색상(Hue), 명도(Value), 채도(Chroma)의 3차원으로 모든 색을 정의합니다. 
-                                        1905년 개발되어 현재까지 전세계 색채 표준입니다.
-                                    </p>
-                                </div>
-                                
-                                <div class="bg-white rounded-lg p-4">
-                                    <div class="flex items-center mb-3">
-                                        <i data-lucide="sun" class="w-5 h-5 text-orange-600 mr-2"></i>
-                                        <h4 class="font-bold text-orange-800">조명 과학</h4>
-                                    </div>
-                                    <p class="text-sm text-gray-700">
-                                        메타메리즘 현상을 고려하여 5000K 색온도, CRI 90+ 조명에서 진단해야 합니다. 
-                                        조명이 다르면 같은 색도 다르게 보입니다.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 진단 방식 선택 카드 -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div 
-                            id="photo-mode-btn"
-                            class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
-                        >
+                        <!-- 사진 기반 진단 -->
+                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                             onclick="selectMode('photo')">
                             <div class="text-center">
                                 <div class="bg-blue-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                                    <i data-lucide="camera" class="w-10 h-10 text-blue-600"></i>
+                                    <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
                                 </div>
                                 <h3 class="text-2xl font-bold text-gray-800 mb-4">사진 기반 간편 진단</h3>
                                 <p class="text-gray-600 mb-6">
-                                    업로드한 사진을 AI가 분석하여 색상 특성을 추출합니다.
+                                    업로드한 사진을 분석하여 색상 특성을 추출합니다.
                                 </p>
                                 
                                 <div class="bg-blue-50 rounded-lg p-4">
@@ -167,13 +107,14 @@
                             </div>
                         </div>
 
-                        <div 
-                            id="expert-mode-btn"
-                            class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
-                        >
+                        <!-- 전문가 드래이핑 진단 -->
+                        <div class="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                             onclick="selectMode('expert')">
                             <div class="text-center">
                                 <div class="bg-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                                    <i data-lucide="palette" class="w-10 h-10 text-purple-600"></i>
+                                    <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                                    </svg>
                                 </div>
                                 <h3 class="text-2xl font-bold text-gray-800 mb-4">전문가급 드래이핑 진단</h3>
                                 <p class="text-gray-600 mb-6">
@@ -202,104 +143,558 @@
                 </div>
             </div>
 
-            <!-- 사진 업로드 단계 -->
+            <!-- 단계 1: 사진 업로드 -->
             <div id="step-1" class="step-content" style="display: none;">
                 <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
                     <div class="text-center mb-8">
-                        <h2 class="text-3xl font-bold mb-4">📸 사진 업로드</h2>
-                        <p class="text-gray-600">정확한 AI 분석을 위해 고품질 사진을 업로드해주세요</p>
-                    </div>
-
-                    <!-- 촬영 가이드 -->
-                    <div class="bg-blue-50 rounded-xl p-6 mb-8">
-                        <button 
-                            id="photo-guide-toggle"
-                            class="w-full flex items-center justify-between text-left"
-                        >
-                            <div class="flex items-center">
-                                <i data-lucide="info" class="w-5 h-5 text-blue-600 mr-2"></i>
-                                <h3 class="font-bold text-blue-800">과학적 촬영 가이드</h3>
-                            </div>
-                            <i data-lucide="chevron-down" id="photo-guide-chevron" class="w-6 h-6"></i>
+                        <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            뒤로가기
                         </button>
-                        
-                        <div id="photo-guide-content" class="mt-4 pt-4 border-t border-blue-200" style="display: none;">
-                            <div class="grid grid-cols-2 gap-6">
-                                <div>
-                                    <h4 class="font-bold text-green-700 mb-3">✅ 권장사항</h4>
-                                    <ul class="text-sm text-gray-700 space-y-2">
-                                        <li>• 자연광 (오전 10시-오후 2시)</li>
-                                        <li>• 정면 각도, 어깨까지 포함</li>
-                                        <li>• 메이크업 제거된 맨얼굴</li>
-                                        <li>• 흰색/회색 상의</li>
-                                        <li>• CRI 90+ 조명 환경</li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-red-700 mb-3">❌ 금지사항</h4>
-                                    <ul class="text-sm text-gray-700 space-y-2">
-                                        <li>• 실내 인공조명</li>
-                                        <li>• 직사광선</li>
-                                        <li>• 측면 각도</li>
-                                        <li>• 진한 색상 의상</li>
-                                        <li>• 필터/보정 사용</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                        <h2 class="text-3xl font-bold mb-4">📸 사진 업로드</h2>
+                        <p class="text-gray-600">정확한 분석을 위해 고품질 사진을 업로드해주세요</p>
                     </div>
 
-                    <!-- 파일 업로드 영역 -->
                     <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center">
-                        <i data-lucide="upload" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
                         <h3 class="text-xl font-semibold mb-2">사진 업로드</h3>
-                        <p class="text-gray-500 mb-6">고품질 사진을 선택해주세요</p>
-                        <input
-                            type="file"
-                            id="photo-input"
-                            accept="image/*"
-                            class="hidden"
-                        />
-                        <button
-                            id="photo-upload-btn"
-                            class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 font-semibold transition-colors"
-                        >
+                        <p class="text-gray-500 mb-6">자연광에서 촬영한 정면 사진을 선택해주세요</p>
+                        <input type="file" id="photo-input" accept="image/*" class="hidden">
+                        <button onclick="document.getElementById('photo-input').click()" 
+                                class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 font-semibold transition-colors">
                             파일 선택하기
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 기타 단계들 -->
+            <!-- 단계 2: 분석 -->
             <div id="step-2" class="step-content" style="display: none;">
-                <!-- 사진 분석 또는 드래이핑 단계 -->
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <button onclick="goBack()" class="float-left text-gray-600 hover:text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            뒤로가기
+                        </button>
+                        <h2 id="step2-title" class="text-3xl font-bold mb-4">🔍 분석 중...</h2>
+                        <div id="step2-content"></div>
+                    </div>
+                </div>
             </div>
 
+            <!-- 단계 3: 결과 -->
             <div id="step-3" class="step-content" style="display: none;">
-                <!-- 결과 표시 단계 -->
+                <div class="space-y-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+                        <h2 class="text-4xl font-bold text-gray-800 mb-4">🎉 진단 완료!</h2>
+                        <div class="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 mb-4" id="result-season">
+                            Spring Light
+                        </div>
+                        <p class="text-gray-600 text-xl mb-6" id="result-description">
+                            밝고 따뜻한 톤, 부드러운 채도
+                        </p>
+                        
+                        <div class="flex justify-center space-x-8 mb-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-green-600">92%</div>
+                                <div class="text-sm text-gray-600">신뢰도</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-blue-600">전문가급</div>
+                                <div class="text-sm text-gray-600">분석 방법</div>
+                            </div>
+                        </div>
+
+                        <button onclick="resetApp()" 
+                                class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all font-semibold">
+                            새로운 진단 시작
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- 모달들 -->
-    <!-- 전문가 매뉴얼 모달 -->
-    <div id="expert-manual-modal" class="fixed inset-0 z-50 hidden">
-        <!-- 모달 내용은 ExpertManual.js에서 동적 생성 -->
-    </div>
-
     <!-- 전체화면 드래이핑 모달 -->
     <div id="fullscreen-modal" class="fixed inset-0 z-50 hidden">
-        <!-- 전체화면 내용은 FullscreenDraping.js에서 동적 생성 -->
+        <!-- 전체화면 내용이 여기에 동적으로 생성됩니다 -->
     </div>
 
-    <!-- Scripts -->
-    <script src="js/data/seasons.js"></script>
-    <script src="js/data/drapingColors.js"></script>
-    <script src="js/utils/colorAnalysis.js"></script>
-    <script src="js/components/ExpertManual.js"></script>
-    <script src="js/components/FullscreenDraping.js"></script>
-    <script src="js/components/ColorCard.js"></script>
-    <script src="js/components/ResultDisplay.js"></script>
-    <script src="js/app.js"></script>
+    <!-- 전문가 매뉴얼 모달 -->
+    <div id="expert-manual-modal" class="fixed inset-0 z-50 hidden">
+        <!-- 매뉴얼 내용이 여기에 동적으로 생성됩니다 -->
+    </div>
+
+    <script>
+        console.log('페이지 로딩 시작');
+        
+        // 전역 변수
+        let currentStep = 0;
+        let analysisMode = null;
+        let fullscreenActive = false;
+        let drapingTimer = 0;
+        let timerInterval = null;
+
+        // 드래이핑 색상 데이터
+        const drapingColors = {
+            temperature: {
+                warm: [
+                    { name: '골든 옐로우', color: '#FFD700', munsell: '5Y 8/12', spd: '따뜻한 황색 스펙트럼' },
+                    { name: '코랄 오렌지', color: '#FF7F50', munsell: '5YR 7/12', spd: '복숭아 언더톤 강조' },
+                    { name: '러스트 레드', color: '#B7410E', munsell: '5YR 4/14', spd: '웜톤 적색 성분' },
+                    { name: '올리브 그린', color: '#8FBC8F', munsell: '5GY 6/8', spd: '황록 혼합 스펙트럼' }
+                ],
+                cool: [
+                    { name: '아이시 핑크', color: '#FF1493', munsell: '5RP 6/14', spd: '차가운 마젠타 스펙트럼' },
+                    { name: '로얄 블루', color: '#4169E1', munsell: '5PB 4/12', spd: '순수 청색 성분' },
+                    { name: '에메랄드', color: '#50C878', munsell: '5G 6/12', spd: '청록 혼합 스펙트럼' },
+                    { name: '라벤더', color: '#E6E6FA', munsell: '5P 8/4', spd: '보라 언더톤' }
+                ]
+            }
+        };
+
+        // 페이지 로드 완료 후 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM 로드 완료');
+            hideLoading();
+            showStep(0);
+            addManualButton();
+        });
+
+        // 매뉴얼 버튼 추가
+        function addManualButton() {
+            const manualBtn = document.getElementById('manual-btn');
+            if (manualBtn) {
+                manualBtn.addEventListener('click', showExpertManual);
+            }
+        }
+
+        // 전문가 매뉴얼 표시
+        function showExpertManual() {
+            const modal = document.getElementById('expert-manual-modal');
+            modal.innerHTML = `
+                <div class="flex items-center justify-center min-h-screen bg-black bg-opacity-50">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl max-h-[90vh] overflow-y-auto p-8 m-4">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-3xl font-bold text-gray-800">🎓 전문가용 드래이핑 진단 매뉴얼</h2>
+                            <button onclick="hideExpertManual()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                        </div>
+
+                        <div class="space-y-6 text-sm">
+                            <!-- 이론적 배경 -->
+                            <section class="bg-blue-50 rounded-lg p-6">
+                                <h3 class="text-xl font-bold text-blue-800 mb-4">🔬 과학적 배경</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-bold text-blue-700 mb-2">Von Kries 색채 적응 이론</h4>
+                                        <ul class="text-gray-700 space-y-1 text-xs">
+                                            <li>• L, M, S 원추세포의 민감도 자동 조정</li>
+                                            <li>• 최소 3초, 권장 5-10초 관찰</li>
+                                            <li>• 공식: R' = R×ka, G' = G×kb, B' = B×kc</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-bold text-purple-700 mb-2">Munsell 색체계</h4>
+                                        <ul class="text-gray-700 space-y-1 text-xs">
+                                            <li>• 색상(Hue): 5R~5RP, 10단계</li>
+                                            <li>• 명도(Value): 0~10, 피부톤 4-8 범위</li>
+                                            <li>• 채도(Chroma): 0~16+, 개인차 2-12</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- 관찰 기준 -->
+                            <section class="bg-green-50 rounded-lg p-6">
+                                <h3 class="text-xl font-bold text-green-800 mb-4">👁️ 관찰 기준</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-bold text-green-700 mb-2">✅ 긍정적 반응</h4>
+                                        <ul class="text-gray-700 space-y-1 text-xs">
+                                            <li>• 피부 내부 발광 증가</li>
+                                            <li>• 혈색 개선, 생기 있는 인상</li>
+                                            <li>• 윤곽선 선명도 향상</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-bold text-red-700 mb-2">❌ 부정적 반응</h4>
+                                        <ul class="text-gray-700 space-y-1 text-xs">
+                                            <li>• 피부 변색, 칙칙함 증가</li>
+                                            <li>• 그림자 진함, 노화 인상</li>
+                                            <li>• 결점 강조, 피부 트러블 부각</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- 한국형 시스템 -->
+                            <section class="bg-orange-50 rounded-lg p-6">
+                                <h3 class="text-xl font-bold text-orange-800 mb-4">🇰🇷 한국형 12계절 시스템</h3>
+                                <div class="grid grid-cols-4 gap-3 text-xs">
+                                    <div class="text-center p-3 bg-yellow-50 rounded border">
+                                        <h5 class="font-semibold text-yellow-700 mb-2">🌸 Spring</h5>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li><strong>Light:</strong> 밝고 부드러움</li>
+                                            <li><strong>True:</strong> 선명하고 따뜻함</li>
+                                            <li><strong>Deep:</strong> 깊고 풍부함</li>
+                                        </ul>
+                                    </div>
+                                    <div class="text-center p-3 bg-blue-50 rounded border">
+                                        <h5 class="font-semibold text-blue-700 mb-2">🌊 Summer</h5>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li><strong>Light:</strong> 밝고 쿨함</li>
+                                            <li><strong>True:</strong> 중간 쿨톤</li>
+                                            <li><strong>Deep:</strong> 깊고 차가움</li>
+                                        </ul>
+                                    </div>
+                                    <div class="text-center p-3 bg-orange-50 rounded border">
+                                        <h5 class="font-semibold text-orange-700 mb-2">🍂 Autumn</h5>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li><strong>Soft:</strong> 부드럽고 따뜻함</li>
+                                            <li><strong>True:</strong> 진한 가을색</li>
+                                            <li><strong>Deep:</strong> 가장 깊은 웜톤</li>
+                                        </ul>
+                                    </div>
+                                    <div class="text-center p-3 bg-purple-50 rounded border">
+                                        <h5 class="font-semibold text-purple-700 mb-2">❄️ Winter</h5>
+                                        <ul class="text-gray-700 space-y-1">
+                                            <li><strong>Bright:</strong> 선명하고 차가움</li>
+                                            <li><strong>True:</strong> 진정한 겨울톤</li>
+                                            <li><strong>Deep:</strong> 가장 깊은 쿨톤</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="mt-8 text-center">
+                            <button onclick="hideExpertManual()" 
+                                    class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all font-semibold">
+                                매뉴얼 닫기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        // 전문가 매뉴얼 숨김
+        function hideExpertManual() {
+            document.getElementById('expert-manual-modal').classList.add('hidden');
+        }
+
+        // 전체화면 드래이핑 시작
+        function enterFullscreen(color) {
+            console.log('전체화면 드래이핑:', color.name);
+            fullscreenActive = true;
+            startDrapingTimer();
+            
+            const modal = document.getElementById('fullscreen-modal');
+            modal.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center relative" style="background-color: ${color.color}">
+                    <!-- 상단 정보 바 -->
+                    <div class="absolute top-4 left-4 bg-black bg-opacity-80 text-white px-6 py-4 rounded-xl">
+                        <div class="space-y-2">
+                            <div class="text-xl font-bold">${color.name}</div>
+                            <div class="text-sm opacity-90">${color.munsell}</div>
+                            <div class="text-xs opacity-80">${color.spd}</div>
+                            <div id="draping-timer" class="text-sm font-mono text-yellow-400">
+                                관찰 시간: 0.0초
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 닫기 버튼 -->
+                    <button onclick="exitFullscreen()" 
+                            class="absolute top-4 right-4 bg-black bg-opacity-80 text-white p-4 rounded-full text-2xl hover:bg-opacity-100 transition-all">
+                        ✕
+                    </button>
+
+                    <!-- 중앙 안내 -->
+                    <div class="text-center">
+                        <div class="bg-black bg-opacity-60 text-white px-8 py-8 rounded-2xl max-w-lg mx-auto">
+                            <h2 class="text-4xl font-bold mb-4">🎭 실제 드래이핑</h2>
+                            <div class="space-y-3 text-lg">
+                                <p class="font-semibold">화면을 얼굴 근처에 대어보세요</p>
+                                <div class="text-base opacity-90">
+                                    <p>📱 턱 아래 또는 가슴 근처 위치</p>
+                                    <p>👁️ 거울을 보며 피부 변화 관찰</p>
+                                    <p>⏱️ 최소 3초 이상 천천히 관찰</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 p-4 bg-white bg-opacity-20 rounded-lg">
+                                <h3 class="font-bold mb-2">관찰 체크포인트</h3>
+                                <div class="text-sm space-y-1">
+                                    <p>✅ 피부가 화사해 보이나요?</p>
+                                    <p>✅ 혈색이 좋아 보이나요?</p>
+                                    <p>❌ 피부가 칙칙해 보이나요?</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 text-sm opacity-80">
+                                <p>💡 팁: 첫인상이 가장 정확합니다!</p>
+                                <p>ESC 키 또는 ✕ 버튼으로 종료</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 전체화면 드래이핑 종료
+        function exitFullscreen() {
+            fullscreenActive = false;
+            stopDrapingTimer();
+            
+            document.getElementById('fullscreen-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // 드래이핑 타이머 시작
+        function startDrapingTimer() {
+            drapingTimer = 0;
+            timerInterval = setInterval(() => {
+                drapingTimer += 0.1;
+                const timerElement = document.getElementById('draping-timer');
+                if (timerElement && fullscreenActive) {
+                    timerElement.textContent = `관찰 시간: ${drapingTimer.toFixed(1)}초`;
+                    
+                    // 3초 이상일 때 색상 변경
+                    if (drapingTimer >= 3) {
+                        timerElement.className = 'text-sm font-mono text-green-400';
+                    }
+                }
+            }, 100);
+        }
+
+        // 드래이핑 타이머 정지
+        function stopDrapingTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // ESC 키로 전체화면 종료
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && fullscreenActive) {
+                exitFullscreen();
+            }
+        });
+        function hideLoading() {
+            console.log('로딩 화면 숨김');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        }
+
+        // 단계 표시
+        function showStep(stepNumber) {
+            console.log('단계 표시:', stepNumber);
+            
+            // 모든 단계 숨기기
+            const steps = document.querySelectorAll('.step-content');
+            steps.forEach(step => {
+                step.style.display = 'none';
+            });
+
+            // 현재 단계 표시
+            const currentStepElement = document.getElementById(`step-${stepNumber}`);
+            if (currentStepElement) {
+                currentStepElement.style.display = 'block';
+                currentStepElement.classList.add('fade-in-up');
+            }
+
+            currentStep = stepNumber;
+        }
+
+        // 분석 모드 선택
+        function selectMode(mode) {
+            console.log('모드 선택:', mode);
+            analysisMode = mode;
+            
+            if (mode === 'photo') {
+                showStep(1);
+                setupPhotoUpload();
+            } else if (mode === 'expert') {
+                showStep(2);
+                startExpertAnalysis();
+            }
+        }
+
+        // 사진 업로드 설정
+        function setupPhotoUpload() {
+            const input = document.getElementById('photo-input');
+            if (input) {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        console.log('파일 업로드:', file.name);
+                        showStep(2);
+                        startPhotoAnalysis();
+                    }
+                });
+            }
+        }
+
+        // 사진 분석 시작
+        function startPhotoAnalysis() {
+            document.getElementById('step2-title').textContent = '🔍 AI 색상 분석';
+            document.getElementById('step2-content').innerHTML = `
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                    <p class="text-gray-600 mb-4">사진을 분석하고 있습니다...</p>
+                    <div class="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
+                        <p class="text-sm text-blue-700">AI가 피부톤, 명도, 채도를 종합 분석 중입니다.</p>
+                    </div>
+                </div>
+            `;
+            
+            // 3초 후 결과 표시
+            setTimeout(() => {
+                showStep(3);
+            }, 3000);
+        }
+
+        // 전문가 분석 시작
+        function startExpertAnalysis() {
+            document.getElementById('step2-title').textContent = '🎭 전문가 드래이핑 진단';
+            document.getElementById('step2-content').innerHTML = `
+                <div class="space-y-8">
+                    <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200 max-w-2xl mx-auto">
+                        <h4 class="font-bold text-yellow-800 mb-2">🎯 1단계: 온도감 분석</h4>
+                        <p class="text-sm text-yellow-700">
+                            Von Kries 색채 적응 이론에 따라 피부의 언더톤이 따뜻한지(황색) 차가운지(핑크)를 판단합니다.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <div>
+                            <h3 class="text-2xl font-bold text-orange-500 text-center mb-6">🔥 따뜻한 색상 (Warm)</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="relative group">
+                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 transition-all cursor-pointer text-center"
+                                         onclick="selectColor('warm', 'golden-yellow')">
+                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #FFD700"></div>
+                                        <p class="text-sm font-medium">골든 옐로우</p>
+                                        <p class="text-xs text-gray-500">5Y 8/12</p>
+                                    </div>
+                                    <button onclick="enterFullscreen(drapingColors.temperature.warm[0])" 
+                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-orange-100"
+                                            title="전체화면에서 드래이핑 체험">
+                                        🎭
+                                    </button>
+                                </div>
+                                <div class="relative group">
+                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 transition-all cursor-pointer text-center"
+                                         onclick="selectColor('warm', 'coral-orange')">
+                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #FF7F50"></div>
+                                        <p class="text-sm font-medium">코랄 오렌지</p>
+                                        <p class="text-xs text-gray-500">5YR 7/12</p>
+                                    </div>
+                                    <button onclick="enterFullscreen(drapingColors.temperature.warm[1])" 
+                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-orange-100"
+                                            title="전체화면에서 드래이핑 체험">
+                                        🎭
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-2xl font-bold text-blue-500 text-center mb-6">❄️ 차가운 색상 (Cool)</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="relative group">
+                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-all cursor-pointer text-center"
+                                         onclick="selectColor('cool', 'icy-pink')">
+                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #FF1493"></div>
+                                        <p class="text-sm font-medium">아이시 핑크</p>
+                                        <p class="text-xs text-gray-500">5RP 6/14</p>
+                                    </div>
+                                    <button onclick="enterFullscreen(drapingColors.temperature.cool[0])" 
+                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-100"
+                                            title="전체화면에서 드래이핑 체험">
+                                        🎭
+                                    </button>
+                                </div>
+                                <div class="relative group">
+                                    <div class="color-card p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-all cursor-pointer text-center"
+                                         onclick="selectColor('cool', 'royal-blue')">
+                                        <div class="w-full h-20 rounded-lg mb-2 shadow-md" style="background-color: #4169E1"></div>
+                                        <p class="text-sm font-medium">로얄 블루</p>
+                                        <p class="text-xs text-gray-500">5PB 4/12</p>
+                                    </div>
+                                    <button onclick="enterFullscreen(drapingColors.temperature.cool[1])" 
+                                            class="absolute top-2 right-2 bg-white bg-opacity-90 text-gray-700 p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-100"
+                                            title="전체화면에서 드래이핑 체험">
+                                        🎭
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center max-w-2xl mx-auto">
+                        <div class="bg-blue-50 rounded-xl p-6">
+                            <h4 class="font-bold text-blue-800 mb-3">👁️ 관찰 방법</h4>
+                            <div class="text-sm text-blue-700 space-y-2">
+                                <p>• 각 색상을 3초 이상 천천히 관찰하세요</p>
+                                <p>• 피부가 화사하고 생기있게 보이는 색상을 선택하세요</p>
+                                <p>• 피부가 칙칙하거나 피곤해 보이는 색상은 피하세요</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 색상 선택
+        function selectColor(temperature, colorName) {
+            console.log('색상 선택:', temperature, colorName);
+            
+            // 간단한 애니메이션
+            const selectedCard = event.currentTarget;
+            selectedCard.style.transform = 'scale(1.05)';
+            selectedCard.style.borderColor = temperature === 'warm' ? '#f97316' : '#3b82f6';
+            
+            setTimeout(() => {
+                showStep(3);
+            }, 1000);
+        }
+
+        // 뒤로 가기
+        function goBack() {
+            console.log('뒤로 가기');
+            if (currentStep > 0) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        // 앱 리셋
+        function resetApp() {
+            console.log('앱 리셋');
+            currentStep = 0;
+            analysisMode = null;
+            showStep(0);
+        }
+
+        // 오류 처리
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript 오류:', e.error);
+            alert('오류가 발생했습니다. 페이지를 새로고침해주세요.');
+        });
+
+        console.log('JavaScript 초기화 완료');
+    </script>
 </body>
 </html>
