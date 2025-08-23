@@ -1,0 +1,71 @@
+{
+  "name": "personal-color-analyzer",
+  "version": "1.0.0",
+  "description": "과학적 퍼스널컬러 진단 시스템 - Munsell 색체계와 Von Kries 이론 기반",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1",
+    "dev": "http-server -p 3000 -c-1 -o",
+    "build": "npm run minify && npm run optimize",
+    "minify": "terser js/**/*.js -o dist/app.min.js",
+    "optimize": "csso css/styles.css --output dist/styles.min.css",
+    "test": "echo \"웹 서버를 통해 브라우저에서 테스트하세요\" && exit 1",
+    "deploy": "gh-pages -d .",
+    "lint": "eslint js/**/*.js",
+    "format": "prettier --write js/**/*.js css/**/*.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/personal-color-analyzer.git"
+  },
+  "keywords": [
+    "personal-color",
+    "color-analysis", 
+    "munsell",
+    "draping",
+    "color-science",
+    "k-beauty",
+    "beauty-tech",
+    "web-app",
+    "color-matching",
+    "sci-art"
+  ],
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com",
+    "url": "https://yoursite.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/personal-color-analyzer/issues"
+  },
+  "homepage": "https://github.com/yourusername/personal-color-analyzer#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "terser": "^5.16.6",
+    "csso-cli": "^4.0.2",
+    "eslint": "^8.36.0",
+    "prettier": "^2.8.6",
+    "gh-pages": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 1%",
+    "not dead"
+  ],
+  "files": [
+    "index.html",
+    "css/",
+    "js/",
+    "assets/",
+    "README.md",
+    "LICENSE"
+  ],
+  "config": {
+    "port": 8000
+  }
+}
