@@ -67,20 +67,14 @@ class PersonalColorAnalyzer {
      * 의존성 확인
      */
     checkDependencies() {
-        const required = [
-            'SEASON_DATA',
-            'DRAPING_COLORS',
-            'COLOR_HEX_MAP',
-            'SIMPLE_COLORS'
-        ];
-        
+        const required = ['SEASONS', 'DRAPING_COLORS', 'SIMPLE_COLORS'];
         const missing = required.filter(dep => !window[dep]);
         
         if (missing.length > 0) {
-            throw new Error(`필수 데이터가 누락되었습니다: ${missing.join(', ')}`);
+            console.warn(`일부 데이터가 누락되었지만 기본 기능은 동작합니다: ${missing.join(', ')}`);
         }
         
-        console.log('모든 의존성 확인 완료');
+        console.log('의존성 확인 완료');
     }
     
     /**
@@ -246,7 +240,7 @@ class PersonalColorAnalyzer {
                         </svg>
                     </div>
                     
-                    <h2 class="mega-font-sm text-gray-800 mb-6 font-bold">
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl text-gray-800 mb-6 font-bold">
                         당신만의 색을 찾아보세요
                     </h2>
                     
@@ -313,7 +307,7 @@ class PersonalColorAnalyzer {
         return `
             <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-12">
-                    <h2 class="mega-font-sm text-gray-800 mb-6 font-bold">진단 방식을 선택하세요</h2>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl text-gray-800 mb-6 font-bold">진단 방식을 선택하세요</h2>
                     <p class="text-xl text-gray-600 mb-8">
                         두 가지 방식 중 원하는 진단 방법을 선택해주세요
                     </p>
@@ -453,5 +447,379 @@ class PersonalColorAnalyzer {
      * 드래이핑 분석 단계 생성
      */
     createDrapingAnalysisStep() {
-        const stepMap = {
-            'temperature
+        return `
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                        전문가급 드래이핑 진단
+                    </h2>
+                    <p class="text-xl text-gray-600 mb-8">
+                        3단계 체계적 분석을 통해 당신만의 색상을 찾아보겠습니다
+                    </p>
+                    
+                    <!-- 진행 단계 표시 -->
+                    <div class="flex justify-center mb-12">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">1</div>
+                            <div class="w-16 h-1 bg-gray-200"></div>
+                            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold">2</div>
+                            <div class="w-16 h-1 bg-gray-200"></div>
+                            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold">3</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-3xl shadow-xl p-8">
+                    <h3 class="text-2xl font-bold text-center mb-8">1단계: 온도감 진단</h3>
+                    <p class="text-gray-600 text-center mb-12">
+                        따뜻한 색상과 차가운 색상 중 어떤 것이 더 잘 어울리는지 선택해주세요
+                    </p>
+                    
+                    <!-- 온도감 색상 선택 -->
+                    <div class="grid grid-cols-2 gap-8 mb-8">
+                        <div class="text-center">
+                            <h4 class="text-xl font-bold mb-6 text-orange-600">따뜻한 색상</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${this.generateColorOptions('warm')}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <h4 class="text-xl font-bold mb-6 text-blue-600">차가운 색상</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${this.generateColorOptions('cool')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button onclick="app.showStep(3)" 
+                                class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
+                            결과 보기 (임시)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    /**
+     * 색상 옵션 생성
+     */
+    generateColorOptions(type) {
+        const colors = window.SIMPLE_COLORS && window.SIMPLE_COLORS[type] 
+            ? window.SIMPLE_COLORS[type] 
+            : this.getDefaultColors(type);
+            
+        return colors.map(colorData => `
+            <div class="cursor-pointer touch-target transform hover:scale-105 transition-all duration-200"
+                 onclick="selectColor('temperature', '${type}', '${colorData.name}', ${JSON.stringify(colorData).replace(/"/g, '&quot;')})">
+                <div class="w-full h-24 rounded-xl shadow-md mb-3" 
+                     style="background: ${colorData.color};"
+                     title="${colorData.description}">
+                </div>
+                <p class="text-sm font-medium text-gray-700">${colorData.name}</p>
+            </div>
+        `).join('');
+    }
+    
+    /**
+     * 기본 색상 제공 (데이터가 없을 경우)
+     */
+    getDefaultColors(type) {
+        if (type === 'warm') {
+            return [
+                { name: '골든 옐로우', color: '#FFD700', description: '따뜻한 황금색' },
+                { name: '코랄 오렌지', color: '#FF7F50', description: '산호색 오렌지' },
+                { name: '피치', color: '#FFCBA4', description: '복숭아색' },
+                { name: '올리브', color: '#8FBC8F', description: '따뜻한 올리브' }
+            ];
+        } else {
+            return [
+                { name: '아이시 핑크', color: '#FF1493', description: '차가운 핑크' },
+                { name: '로얄 블루', color: '#4169E1', description: '깊은 파란색' },
+                { name: '에메랄드', color: '#50C878', description: '청록색' },
+                { name: '라벤더', color: '#E6E6FA', description: '연한 보라색' }
+            ];
+        }
+    }
+    
+    /**
+     * 결과 단계 생성
+     */
+    createResultsStep() {
+        // 임시 결과 (실제로는 분석 결과 기반)
+        const season = 'Spring Light';
+        const seasonData = window.SEASONS && window.SEASONS[season] ? window.SEASONS[season] : {
+            name: season,
+            korean: '봄 라이트',
+            characteristics: '밝고 따뜻한 톤',
+            bestColors: ['#FFE5B4', '#FFD700', '#FFB6C1', '#98FB98'],
+            description: '밝고 화사한 색상이 잘 어울리는 타입입니다.'
+        };
+        
+        return `
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="w-32 h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full mx-auto mb-8 flex items-center justify-center">
+                        <span class="text-6xl">🎉</span>
+                    </div>
+                    
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                        진단 완료!
+                    </h2>
+                    
+                    <div class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
+                        ${seasonData.korean || seasonData.name}
+                    </div>
+                    
+                    <p class="text-xl text-gray-600 mb-8">
+                        ${seasonData.characteristics}
+                    </p>
+                </div>
+                
+                <!-- 추천 컬러 팔레트 -->
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h3 class="text-2xl font-bold text-center mb-8">🎨 추천 컬러 팔레트</h3>
+                    <div class="flex justify-center space-x-4 mb-8">
+                        ${seasonData.bestColors.map(color => `
+                            <div class="w-20 h-20 rounded-full shadow-lg border-4 border-white" 
+                                 style="background: ${color};"
+                                 title="${color}">
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <p class="text-gray-600 text-center leading-relaxed">
+                        ${seasonData.description}
+                    </p>
+                </div>
+                
+                <!-- 액션 버튼들 -->
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="flex space-x-4">
+                        <button onclick="shareResults()" 
+                                class="bg-green-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-green-600 transition-all duration-200">
+                            📱 결과 공유하기
+                        </button>
+                        <button onclick="exportToPDF()" 
+                                class="bg-blue-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-600 transition-all duration-200">
+                            📄 PDF로 저장
+                        </button>
+                    </div>
+                    
+                    <button onclick="resetApp()" 
+                            class="bg-gray-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200">
+                        🔄 다시 진단하기
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    /**
+     * 색상 선택 처리
+     */
+    selectColor(step, type, colorName, colorData) {
+        console.log(`색상 선택: ${step}, ${type}, ${colorName}`);
+        
+        // 선택 데이터 저장
+        if (!this.analysisData.selectedColors[step]) {
+            this.analysisData.selectedColors[step] = {};
+        }
+        this.analysisData.selectedColors[step][type] = { colorName, colorData };
+        
+        // 임시: 바로 결과 단계로
+        setTimeout(() => {
+            this.showStep(3);
+        }, 500);
+    }
+    
+    /**
+     * 네비게이션 버튼 업데이트
+     */
+    updateNavigationButtons() {
+        const backBtn = document.getElementById('thumbBackBtn');
+        const homeBtn = document.getElementById('thumbHomeBtn');
+        
+        if (backBtn) {
+            backBtn.style.display = this.currentStep > 0 ? 'block' : 'none';
+        }
+        
+        if (homeBtn) {
+            homeBtn.style.display = 'block';
+        }
+    }
+    
+    /**
+     * 뒤로가기
+     */
+    goBack() {
+        if (this.isModalOpen()) {
+            this.closeModal();
+            return;
+        }
+        
+        if (this.currentStep > 0) {
+            this.showStep(this.currentStep - 1);
+        }
+    }
+    
+    /**
+     * 앱 초기화 (홈으로)
+     */
+    resetApp() {
+        console.log('앱 초기화');
+        
+        // 데이터 초기화
+        this.currentStep = 0;
+        this.analysisMode = null;
+        this.currentDrapingStep = 'temperature';
+        this.analysisData = {
+            mode: null,
+            results: {},
+            selectedColors: {},
+            finalSeason: null,
+            confidence: 0
+        };
+        
+        // 첫 단계로
+        this.showStep(0);
+    }
+    
+    /**
+     * 결과 공유
+     */
+    shareResults() {
+        const shareData = {
+            title: '퍼스널컬러 진단 결과',
+            text: `나의 퍼스널컬러는 ${this.analysisData.finalSeason || 'Spring Light'}입니다!`,
+            url: window.location.href
+        };
+        
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            navigator.share(shareData).catch(console.error);
+        } else if (navigator.clipboard) {
+            const shareText = `${shareData.text} ${shareData.url}`;
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert('결과가 클립보드에 복사되었습니다!');
+            }).catch(() => {
+                alert('공유 기능을 사용할 수 없습니다.');
+            });
+        }
+    }
+    
+    /**
+     * PDF 내보내기
+     */
+    exportToPDF() {
+        alert('PDF 내보내기 기능은 곧 추가될 예정입니다.');
+    }
+    
+    /**
+     * 모달 상태 확인
+     */
+    isModalOpen() {
+        const fullscreenModal = document.getElementById('fullscreenModal');
+        const expertModal = document.getElementById('expertManualModal');
+        
+        return (fullscreenModal && !fullscreenModal.classList.contains('hidden')) ||
+               (expertModal && !expertModal.classList.contains('hidden'));
+    }
+    
+    /**
+     * 모달 닫기
+     */
+    closeModal() {
+        if (window.FullscreenDraping && window.FullscreenDraping.hide) {
+            window.FullscreenDraping.hide();
+        }
+        if (window.ExpertManual && window.ExpertManual.hide) {
+            window.ExpertManual.hide();
+        }
+    }
+    
+    /**
+     * 오류 표시
+     */
+    showError(message) {
+        console.error('오류:', message);
+        alert(message);
+    }
+}
+
+// 전역 함수들 (HTML에서 직접 호출)
+function selectMode(mode) {
+    if (window.app) {
+        window.app.selectAnalysisMode(mode);
+    }
+}
+
+function selectColor(step, type, colorName, colorData) {
+    if (window.app) {
+        window.app.selectColor(step, type, colorName, colorData);
+    }
+}
+
+function goBack() {
+    if (window.app) {
+        window.app.goBack();
+    }
+}
+
+function resetApp() {
+    if (window.app) {
+        window.app.resetApp();
+    }
+}
+
+function exportToPDF() {
+    if (window.app) {
+        window.app.exportToPDF();
+    }
+}
+
+function shareResults() {
+    if (window.app) {
+        window.app.shareResults();
+    }
+}
+
+function showExpertManual() {
+    if (window.ExpertManual && window.ExpertManual.show) {
+        window.ExpertManual.show();
+    }
+}
+
+function enterFullscreenDraping(colorData) {
+    if (window.FullscreenDraping && window.FullscreenDraping.show) {
+        window.FullscreenDraping.show(colorData);
+    }
+}
+
+// 앱 인스턴스 생성 및 초기화
+let app = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM 로드 완료 - 앱 초기화 시작');
+    
+    try {
+        app = new PersonalColorAnalyzer();
+        window.app = app; // 전역 접근을 위해
+        console.log('앱 인스턴스 생성 완료');
+    } catch (error) {
+        console.error('앱 초기화 실패:', error);
+        alert('애플리케이션을 초기화하는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+    }
+});
+
+// 전역 오류 핸들러
+window.addEventListener('error', function(e) {
+    console.error('전역 JavaScript 오류:', e.error);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('처리되지 않은 Promise 거부:', e.reason);
+});
+
+console.log('app.js 로딩 완료');
