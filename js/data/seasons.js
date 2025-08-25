@@ -247,7 +247,7 @@ window.SEASON_DATA = {
             base: '쿨톤 베이지, 핑크 베이지',
             lips: '딥 베리, 와인, 딥 로즈',
             eyes: '스모키 그레이, 네이비, 딥 퍼플',
-            cheeks: '딥 로즈', 베리'
+            cheeks: '딥 로즈, 베리'
         },
         
         hair: {
