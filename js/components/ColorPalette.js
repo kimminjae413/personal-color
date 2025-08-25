@@ -8,6 +8,7 @@
  * - ES6→ES5 완전 변환
  * - html is not defined 오류 완전 해결
  * - 브라우저 호환성 완성
+ * - 구문 오류 완전 해결 ✅
  */
 
 (function() {
@@ -1282,3 +1283,239 @@
                 });
                 
                 this.updateSelectedColors();
+                this.renderPalette();
+                
+                console.log('[ColorPalette] 팔레트 로드:', paletteName);
+                alert('팔레트를 불러왔습니다!');
+            } else {
+                alert('팔레트를 찾을 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('[ColorPalette] 팔레트 로드 실패:', error);
+            alert('팔레트 로드에 실패했습니다.');
+        }
+    };
+
+    ColorPalette.prototype.deletePalette = function(paletteName) {
+        if (!confirm('정말로 "' + paletteName + '" 팔레트를 삭제하시겠습니까?')) {
+            return;
+        }
+
+        try {
+            var savedPalettes = JSON.parse(localStorage.getItem('savedPalettes') || '[]');
+            var filteredPalettes = savedPalettes.filter(function(p) { return p.name !== paletteName; });
+            
+            localStorage.setItem('savedPalettes', JSON.stringify(filteredPalettes));
+            this.loadSavedPalettes();
+            
+            console.log('[ColorPalette] 팔레트 삭제:', paletteName);
+            alert('팔레트가 삭제되었습니다.');
+        } catch (error) {
+            console.error('[ColorPalette] 팔레트 삭제 실패:', error);
+            alert('팔레트 삭제에 실패했습니다.');
+        }
+    };
+
+    // === 추가 유틸리티 메서드들 ===
+    
+    ColorPalette.prototype.setToArray = function(set) {
+        var arr = [];
+        set.forEach(function(item) {
+            arr.push(item);
+        });
+        return arr;
+    };
+
+    ColorPalette.prototype.findHarmony = function(colorHex) {
+        console.log('[ColorPalette] 조화색 찾기:', colorHex);
+        this.selectedColors.clear();
+        this.selectedColors.add(colorHex);
+        
+        // 조화색 자동 추천 (간단한 보색 관계)
+        var hsl = this.hexToHslSafe(colorHex);
+        var complementHue = (hsl.h + 180) % 360;
+        var analogousHue1 = (hsl.h + 30) % 360;
+        var analogousHue2 = (hsl.h - 30 + 360) % 360;
+        
+        // 유사한 색상들을 현재 계절 데이터에서 찾기
+        this.findSimilarColorsInSeason(complementHue);
+        this.findSimilarColorsInSeason(analogousHue1);
+        this.findSimilarColorsInSeason(analogousHue2);
+        
+        this.updateSelectedColors();
+        this.renderPalette();
+        this.analyzeColorHarmony();
+    };
+
+    ColorPalette.prototype.findSimilarColorsInSeason = function(targetHue) {
+        var seasonData = this.getSeasonData(this.currentSeason);
+        if (!seasonData) return;
+        
+        var allColors = []
+            .concat(seasonData.colors.primary)
+            .concat(seasonData.colors.neutral)
+            .concat(seasonData.colors.accent);
+        
+        var self = this;
+        var closest = null;
+        var minDistance = Infinity;
+        
+        allColors.forEach(function(color) {
+            var hsl = self.hexToHslSafe(color.hex);
+            var distance = Math.abs(hsl.h - targetHue);
+            if (distance > 180) distance = 360 - distance; // 원형 거리
+            
+            if (distance < minDistance && !self.selectedColors.has(color.hex)) {
+                minDistance = distance;
+                closest = color;
+            }
+        });
+        
+        if (closest && minDistance < 60) { // 60도 이내만
+            this.selectedColors.add(closest.hex);
+        }
+    };
+
+    ColorPalette.prototype.matchBrands = function(colorHex) {
+        console.log('[ColorPalette] 단일 색상 브랜드 매칭:', colorHex);
+        this.selectedColors.clear();
+        this.selectedColors.add(colorHex);
+        
+        this.updateSelectedColors();
+        this.matchBrandProducts();
+    };
+
+    ColorPalette.prototype.exportPalette = function(format) {
+        format = format || 'json';
+        
+        if (this.selectedColors.size === 0) {
+            alert('내보낼 색상을 선택해주세요.');
+            return;
+        }
+        
+        var colors = Array.from ? Array.from(this.selectedColors) : this.setToArray(this.selectedColors);
+        var data = {
+            name: '사용자 팔레트',
+            season: this.currentSeason,
+            colors: colors.map(function(hex) {
+                var info = this.findColorInfo(hex);
+                return {
+                    hex: hex,
+                    name: info ? info.name : hex,
+                    lab: this.hexToLabSafe(hex)
+                };
+            }.bind(this)),
+            created: new Date().toISOString()
+        };
+        
+        var content, filename, mimeType;
+        
+        switch (format.toLowerCase()) {
+            case 'json':
+                content = JSON.stringify(data, null, 2);
+                filename = 'palette_' + this.currentSeason + '.json';
+                mimeType = 'application/json';
+                break;
+            case 'csv':
+                var csvLines = ['Name,Hex,L*,a*,b*'];
+                data.colors.forEach(function(color) {
+                    csvLines.push([
+                        color.name,
+                        color.hex,
+                        color.lab.l.toFixed(2),
+                        color.lab.a.toFixed(2),
+                        color.lab.b.toFixed(2)
+                    ].join(','));
+                });
+                content = csvLines.join('\n');
+                filename = 'palette_' + this.currentSeason + '.csv';
+                mimeType = 'text/csv';
+                break;
+            default:
+                alert('지원하지 않는 형식입니다.');
+                return;
+        }
+        
+        // 다운로드
+        var blob = new Blob([content], { type: mimeType });
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        console.log('[ColorPalette] 팔레트 내보냄:', filename);
+    };
+
+    /**
+     * 시스템 상태 반환
+     */
+    ColorPalette.prototype.getSystemStatus = function() {
+        return {
+            currentSeason: this.currentSeason,
+            viewMode: this.viewMode,
+            selectedCount: this.selectedColors.size,
+            isInitialized: true,
+            hasColorSystem: !!this.colorSystem,
+            hasDeltaE: !!this.deltaE,
+            cacheSize: {
+                color: this.colorCache.size,
+                harmony: this.harmonyCache.size,
+                brandMatch: this.brandMatchCache.size
+            }
+        };
+    };
+
+    /**
+     * 메모리 정리
+     */
+    ColorPalette.prototype.dispose = function() {
+        try {
+            // 캐시 정리
+            this.colorCache.clear();
+            this.harmonyCache.clear();
+            this.brandMatchCache.clear();
+            
+            // 선택된 색상 정리
+            this.selectedColors.clear();
+            
+            // DOM 이벤트 리스너 제거 (메모리 누수 방지)
+            if (this.container) {
+                this.container.innerHTML = '';
+            }
+            
+            console.log('[ColorPalette] 메모리 정리 완료');
+        } catch (error) {
+            console.error('[ColorPalette] 정리 중 오류:', error);
+        }
+    };
+
+    // 전역 등록 (ES5 호환 방식)
+    if (typeof window !== 'undefined') {
+        window.ColorPalette = ColorPalette;
+        
+        // 전역 인스턴스 생성 도우미
+        window.createColorPalette = function(containerId) {
+            var container = typeof containerId === 'string' ? 
+                document.querySelector(containerId) : containerId;
+            
+            if (!container) {
+                console.error('[ColorPalette] 컨테이너를 찾을 수 없습니다:', containerId);
+                return null;
+            }
+            
+            return new ColorPalette(container);
+        };
+        
+        // 디버그용 전역 인스턴스 (선택적)
+        if (typeof document !== 'undefined' && document.querySelector('#color-palette-container')) {
+            window.colorPalette = new ColorPalette(document.querySelector('#color-palette-container'));
+        }
+    }
+
+    console.log('✅ ColorPalette 완전 완성 버전 로드 완료');
+
+})(); // IIFE 패턴 완전 종료
