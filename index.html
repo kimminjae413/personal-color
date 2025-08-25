@@ -1,4 +1,377 @@
-<!DOCTYPE html>
+/* 🎭 진짜 드래이핑 모드 스타일 */
+        .draping-fullscreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 3000;
+            color: white;
+        }
+
+        .draping-fullscreen.active {
+            display: block;
+        }
+
+        .draping-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 3001;
+        }
+
+        .draping-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .draping-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .draping-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+
+        .draping-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .draping-content {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+        }
+
+        .draping-video-area {
+            flex: 2;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .draping-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* 거울 효과 */
+        }
+
+        /* 🎯 얼굴 가이드 오버레이 */
+        .face-guide-overlay {
+            position: absolute;
+            top: 10%;
+            left: 30%;
+            width: 40%;
+            height: 60%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .face-outline {
+            width: 100%;
+            height: 100%;
+            border: 3px dashed rgba(255,255,255,0.5);
+            border-radius: 50% 50% 40% 40%;
+            animation: pulseGuide 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGuide {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        .guide-text {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        /* 🎨 가상 천 오버레이 */
+        .virtual-fabric-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .virtual-fabric {
+            position: absolute;
+            border-radius: 20px;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(1px);
+        }
+
+        .left-fabric {
+            left: 15%;
+            top: 25%;
+            width: 200px;
+            height: 300px;
+            transform: rotate(-15deg);
+        }
+
+        .right-fabric {
+            right: 15%;
+            top: 25%;
+            width: 200px;
+            height: 300px;
+            transform: rotate(15deg);
+        }
+
+        .neck-fabric {
+            left: 50%;
+            top: 15%;
+            width: 150px;
+            height: 100px;
+            transform: translateX(-50%) rotate(-5deg);
+        }
+
+        /* 🎨 색상 패널 스타일 */
+        .color-picker-panel {
+            flex: 1;
+            background: rgba(0,0,0,0.9);
+            padding: 2rem;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .panel-header h4 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-header p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .season-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .season-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .season-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+
+        .season-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .color-item {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-item:hover,
+        .color-item.selected {
+            border-color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .color-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .color-item:hover::after {
+            left: 100%;
+        }
+
+        /* 🎛️ 드래이핑 옵션 */
+        .draping-options {
+            margin-bottom: 2rem;
+        }
+
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .option-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .option-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .option-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .position-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .pos-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+
+        .pos-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+
+        /* 📊 실시간 분석 */
+        .live-analysis {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .analysis-header {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        .delta-display {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .delta-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 0.5rem;
+        }
+
+        .delta-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .current-selection {
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* 🚀 드래이핑 액션 버튼 */
+        .draping-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .draping-action-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .draping-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .draping-action-btn.secondary {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -1687,9 +2060,22 @@
 
             async initializeDrapingMode() {
                 try {
-                    const drapingMode = new DrapingMode();
-                    await drapingMode.initialize();
-                    window.PersonalColorApp.aiInstances.drapingMode = drapingMode;
+                    // 🎭 실제 가상 드래이핑 시스템 초기화
+                    console.log('🎭 실제 가상 드래이핑 모드 시작...');
+                    
+                    // 전체화면 드래이핑 컨테이너 표시
+                    const drapingContainer = document.getElementById('draping-fullscreen');
+                    if (drapingContainer) {
+                        drapingContainer.classList.add('active');
+                    }
+                    
+                    // 🔥 실제 드래이핑 시스템 생성
+                    const realDraping = new RealVirtualDrapingSystem();
+                    await realDraping.initialize();
+                    window.PersonalColorApp.aiInstances.drapingMode = realDraping;
+                    
+                    showToast('🎭 실제 가상 드래이핑이 시작되었습니다!', 'success');
+                    
                 } catch (error) {
                     console.error('드래이핑 모드 초기화 실패:', error);
                     showToast('드래이핑 모드 초기화에 실패했습니다.', 'error');
@@ -1705,10 +2091,14 @@
                 this.switchToMode('selection');
             }
 
+            }
+
             generateDrapingReport() {
                 const drapingMode = window.PersonalColorApp.aiInstances.drapingMode;
-                if (drapingMode) {
+                if (drapingMode && drapingMode.generateReport) {
                     drapingMode.generateReport();
+                } else {
+                    showToast('드래이핑 시스템이 준비되지 않았습니다.', 'error');
                 }
             }
 
