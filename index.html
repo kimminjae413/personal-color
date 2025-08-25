@@ -1387,31 +1387,373 @@
                 setTimeout(() => {
                     const result = window.PersonalColorApp.diagnosis;
                     const reportText = `
-퍼스널 컬러 진단 결과
+// index.html 파일의 1431번째 줄 근처 generateReport() 함수를 이것으로 교체하세요!
 
-진단 날짜: ${new Date().toLocaleDateString('ko-KR')}
-계절: ${this.getSeasonDisplayName(result.season)}
-신뢰도: ${result.confidence}%
-언더톤: ${result.undertone === 'warm' ? '웜톤' : '쿨톤'}
-밝기: ${result.lightness === 'light' ? '라이트' : '딥'}
+generateReport() {
+    const result = window.PersonalColorApp.diagnosis;
+    if (!result) {
+        this.showToast('생성할 진단 결과가 없습니다.', 'error');
+        return;
+    }
 
-Personal Color Pro v1.0.0
-                    `;
+    this.showToast('전문 퍼스널컬러 보고서를 생성합니다...', 'info');
 
-                    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `퍼스널컬러_진단결과_${Date.now()}.txt`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
+    // 전문 보고서 생성
+    const reportHTML = this.createProfessionalReport({
+        customer: window.PersonalColorApp.customer || { name: '고객님', age: 25, gender: '여성' },
+        season: result.season,
+        confidence: result.confidence,
+        undertone: result.undertone,
+        lightness: result.lightness,
+        saturation: result.saturation || 'medium'
+    });
 
-                    this.showToast('보고서가 다운로드되었습니다!', 'success');
-                }, 1000);
-            }
+    // HTML 파일로 다운로드
+    const fullHTML = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>퍼스널컬러 진단 보고서</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .report-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        @media print {
+            body { margin: 0; padding: 10px; background: white; }
+            .no-print { display: none; }
+            .report-container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        ${reportHTML}
+    </div>
+    <div class="no-print" style="text-align: center; margin: 20px 0; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <button onclick="window.print()" style="background: #6366f1; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin-right: 15px; font-size: 16px;">🖨️ PDF로 저장</button>
+        <button onclick="window.close()" style="background: #6b7280; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">닫기</button>
+    </div>
+</body>
+</html>`;
+
+    // 다운로드
+    const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `퍼스널컬러_진단보고서_${Date.now()}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    this.showToast('🎉 전문 퍼스널컬러 진단 보고서가 생성되었습니다!', 'success');
+}
+
+// 이 함수도 ModeManager 클래스 안에 추가하세요!
+createProfessionalReport(data) {
+    const seasonInfo = this.getSeasonInfo(data.season);
+    const today = new Date().toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric',
+        weekday: 'long'
+    });
+
+    return `
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="color: #2C3E50; font-size: 28px; margin-bottom: 10px;">
+                🎨 퍼스널 컬러 진단 보고서
+            </h1>
+            <div style="background: linear-gradient(135deg, ${seasonInfo.gradient}); color: white; padding: 15px; border-radius: 25px; display: inline-block;">
+                <h2 style="margin: 0; font-size: 24px;">${seasonInfo.displayName}</h2>
+                <div style="font-size: 14px; opacity: 0.9;">신뢰도 ${data.confidence}% • ${today}</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+            <div style="background: #f8fafc; padding: 25px; border-radius: 12px;">
+                <h3 style="color: #1f2937; margin-bottom: 15px; font-size: 18px;">👤 고객 정보</h3>
+                <div style="line-height: 1.8; color: #4b5563;">
+                    <div><strong>성명:</strong> ${data.customer.name}</div>
+                    <div><strong>연령:</strong> ${data.customer.age}세</div>
+                    <div><strong>성별:</strong> ${data.customer.gender}</div>
+                    <div><strong>진단일:</strong> ${today}</div>
+                    <div><strong>진단자:</strong> Personal Color Pro AI</div>
+                </div>
+            </div>
+
+            <div style="background: #f8fafc; padding: 25px; border-radius: 12px;">
+                <h3 style="color: #1f2937; margin-bottom: 15px; font-size: 18px;">📊 진단 결과</h3>
+                <div style="line-height: 1.8; color: #4b5563;">
+                    <div><strong>계절 타입:</strong> <span style="color: ${seasonInfo.color};">${seasonInfo.displayName}</span></div>
+                    <div><strong>언더톤:</strong> ${data.undertone === 'warm' ? '웜톤 (따뜻함)' : '쿨톤 (차가움)'}</div>
+                    <div><strong>명도:</strong> ${data.lightness === 'deep' ? '딥 (깊고 진함)' : '라이트 (밝고 연함)'}</div>
+                    <div><strong>채도:</strong> ${data.saturation === 'rich' ? '리치 (풍부함)' : '소프트 (부드러움)'}</div>
+                    <div><strong>진단 정확도:</strong> ${data.confidence}%</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: #1f2937; margin-bottom: 20px; font-size: 20px; text-align: center;">🌟 ${seasonInfo.displayName} 특징</h3>
+            <div style="background: linear-gradient(135deg, ${seasonInfo.gradient}); color: white; padding: 25px; border-radius: 15px; text-align: center;">
+                <div style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                    ${seasonInfo.description}
+                </div>
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px 15px; border-radius: 8px;">
+                        <strong>키워드:</strong> ${seasonInfo.keywords.join(', ')}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: #1f2937; margin-bottom: 20px; font-size: 20px; text-align: center;">🎨 추천 색상 팔레트</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+                ${seasonInfo.bestColors.slice(0, 5).map((color, index) => `
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; background: ${color.hex}; border-radius: 50%; margin: 0 auto 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"></div>
+                        <div style="font-size: 14px; color: #4b5563;">${color.name}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+            <div>
+                <h3 style="color: #059669; margin-bottom: 15px;">✅ 추천 색상</h3>
+                <div style="background: #ecfdf5; padding: 20px; border-radius: 10px; border-left: 4px solid #059669;">
+                    ${seasonInfo.bestColors.slice(0, 5).map(color => `
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <div style="width: 20px; height: 20px; background: ${color.hex}; border-radius: 3px; margin-right: 10px; border: 1px solid #ddd;"></div>
+                            <span style="font-weight: 500;">${color.name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div>
+                <h3 style="color: #dc2626; margin-bottom: 15px;">❌ 피해야 할 색상</h3>
+                <div style="background: #fef2f2; padding: 20px; border-radius: 10px; border-left: 4px solid #dc2626;">
+                    ${seasonInfo.avoidColors.slice(0, 4).map(color => `
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <div style="width: 20px; height: 20px; background: ${color.hex}; border-radius: 3px; margin-right: 10px; border: 1px solid #ddd;"></div>
+                            <span style="font-weight: 500;">${color.name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: #1f2937; margin-bottom: 20px; text-align: center;">💄 화장품 추천</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                ${seasonInfo.makeup.map(item => `
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e5e7eb;">
+                        <h4 style="color: #374151; margin-bottom: 10px;">${item.category}</h4>
+                        <ul style="color: #6b7280; line-height: 1.6; margin: 0; padding-left: 20px;">
+                            ${item.products.map(product => `<li>${product}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: #1f2937; margin-bottom: 20px; text-align: center;">✂️ 헤어컬러 추천</h3>
+            <div style="background: #f8fafc; padding: 25px; border-radius: 12px; text-align: center;">
+                <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;">
+                    ${seasonInfo.hairColors.map(hair => `
+                        <div style="text-align: center;">
+                            <div style="width: 60px; height: 60px; background: ${hair.color}; border-radius: 50%; margin: 0 auto 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);"></div>
+                            <div style="font-weight: 500; color: #374151;">${hair.name}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="color: #6b7280; line-height: 1.6;">
+                    <strong>추천 이유:</strong> ${seasonInfo.hairReason}
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #1f2937; margin-bottom: 15px; text-align: center;">📝 전문가 조언</h3>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px;">
+                <div style="font-size: 16px; line-height: 1.7; text-align: center;">
+                    💡 <strong>${data.customer.name}님은 ${seasonInfo.displayName}입니다.</strong><br><br>
+                    ${seasonInfo.advice}
+                </div>
+            </div>
+        </div>
+
+        <div style="border-top: 2px solid #e5e7eb; padding-top: 20px; text-align: center; color: #6b7280;">
+            <div style="margin-bottom: 10px;">
+                <strong>Personal Color Pro</strong> v1.0.0 | 헤어디자이너 전용 퍼스널컬러 진단 시스템
+            </div>
+            <div style="font-size: 14px;">
+                진단일: ${today} | AI 분석 정확도: ${data.confidence}% | 문의: personalcolor@pro.com
+            </div>
+        </div>
+    `;
+}
+
+// getSeasonInfo 함수도 ModeManager 클래스 안에 추가하세요!
+getSeasonInfo(season) {
+    const seasons = {
+        spring: {
+            displayName: '봄 웜톤 (Spring Warm)',
+            color: '#ff6b6b',
+            gradient: '#ff6b6b, #feca57',
+            description: '밝고 화사한 봄의 에너지를 가진 따뜻한 톤입니다. 생기 넘치고 활기찬 색상들이 피부를 더욱 환하게 만들어줍니다.',
+            keywords: ['밝음', '활기참', '따뜻함', '생기', '화사함'],
+            bestColors: [
+                { name: '코랄 핑크', hex: '#ff6b6b' },
+                { name: '골든 옐로우', hex: '#feca57' },
+                { name: '피치 오렌지', hex: '#ff9ff3' },
+                { name: '아이보리', hex: '#fff8e7' },
+                { name: '카키 그린', hex: '#6ab04c' }
+            ],
+            avoidColors: [
+                { name: '아이시 블루', hex: '#74b9ff' },
+                { name: '퓨어 블랙', hex: '#2d3436' },
+                { name: '실버 그레이', hex: '#b2bec3' },
+                { name: '네이비', hex: '#2d3436' }
+            ],
+            makeup: [
+                { category: '립 제품', products: ['코랄 립스틱', '피치 글로스', '오렌지 틴트'] },
+                { category: '아이섀도', products: ['골드 브라운', '웜 베이지', '코퍼 브론즈'] },
+                { category: '블러셔', products: ['코랄 블러셔', '피치 블러셔'] },
+                { category: '베이스', products: ['웜 베이지 파운데이션', '골든 언더톤 컨실러'] }
+            ],
+            hairColors: [
+                { name: '골든 브라운', color: '#cd853f' },
+                { name: '허니 블론드', color: '#daa520' },
+                { name: '카라멜 브라운', color: '#d2691e' }
+            ],
+            hairReason: '따뜻한 골드 톤이 들어간 헤어컬러가 봄 웜톤의 화사함을 극대화시켜줍니다.',
+            advice: '밝고 따뜻한 색상들이 당신의 자연스러운 아름다움을 돋보이게 합니다.'
+        },
+        summer: {
+            displayName: '여름 쿨톤 (Summer Cool)',
+            color: '#74b9ff',
+            gradient: '#74b9ff, #a29bfe',
+            description: '시원하고 우아한 여름의 품격을 가진 쿨톤입니다. 부드럽고 세련된 색상들이 고급스러운 매력을 연출합니다.',
+            keywords: ['시원함', '우아함', '세련됨', '부드러움', '고급스러움'],
+            bestColors: [
+                { name: '소프트 핑크', hex: '#fd79a8' },
+                { name: '라벤더', hex: '#a29bfe' },
+                { name: '로즈 그레이', hex: '#ddd' },
+                { name: '아이스 블루', hex: '#74b9ff' },
+                { name: '민트 그린', hex: '#00cec9' }
+            ],
+            avoidColors: [
+                { name: '오렌지', hex: '#e17055' },
+                { name: '골드', hex: '#fdcb6e' },
+                { name: '브라운', hex: '#6c5ce7' },
+                { name: '카키', hex: '#6ab04c' }
+            ],
+            makeup: [
+                { category: '립 제품', products: ['로즈 핑크 립스틱', '베리 글로스', '쿨톤 레드'] },
+                { category: '아이섀도', products: ['쿨 브라운', '실버 그레이', '라벤더'] },
+                { category: '블러셔', products: ['로즈 블러셔', '핑크 블러셔'] },
+                { category: '베이스', products: ['핑크 언더톤 파운데이션', '쿨톤 컨실러'] }
+            ],
+            hairColors: [
+                { name: '애쉬 브라운', color: '#8b7355' },
+                { name: '플래티넘 블론드', color: '#f5f5dc' },
+                { name: '버건디', color: '#800020' }
+            ],
+            hairReason: '차가운 톤의 헤어컬러가 여름 쿨톤의 우아하고 세련된 이미지를 완성합니다.',
+            advice: '차가우면서도 부드러운 색상들이 당신의 우아한 매력을 극대화합니다.'
+        },
+        autumn: {
+            displayName: '가을 웜톤 (Autumn Warm)',
+            color: '#d63031',
+            gradient: '#d63031, #e17055',
+            description: '깊고 풍부한 가을의 따뜻함을 가진 웜톤입니다. 고급스럽고 성숙한 색상들이 강인하면서도 우아한 매력을 연출합니다.',
+            keywords: ['깊이', '풍부함', '성숙함', '고급스러움', '강인함'],
+            bestColors: [
+                { name: '딥 레드', hex: '#d63031' },
+                { name: '골든 옐로우', hex: '#fdcb6e' },
+                { name: '번트 오렌지', hex: '#e17055' },
+                { name: '올리브 그린', hex: '#6c5ce7' },
+                { name: '카라멜 브라운', hex: '#d2691e' }
+            ],
+            avoidColors: [
+                { name: '파스텔 핑크', hex: '#fd79a8' },
+                { name: '아이스 블루', hex: '#74b9ff' },
+                { name: '라벤더', hex: '#a29bfe' },
+                { name: '실버', hex: '#b2bec3' }
+            ],
+            makeup: [
+                { category: '립 제품', products: ['딥 레드 립스틱', '브라운 글로스', '번트 오렌지 틴트'] },
+                { category: '아이섀도', products: ['골드 브라운', '딥 브론즈', '올리브 그린'] },
+                { category: '블러셔', products: ['테라코타 블러셔', '피치 브라운'] },
+                { category: '베이스', products: ['골든 언더톤 파운데이션', '웜톤 컨실러'] }
+            ],
+            hairColors: [
+                { name: '초콜릿 브라운', color: '#8b4513' },
+                { name: '오번', color: '#a0522d' },
+                { name: '딥 레드', color: '#8b0000' }
+            ],
+            hairReason: '깊고 풍부한 브라운 계열 색상이 가을 웜톤의 성숙하고 고급스러운 매력을 강조합니다.',
+            advice: '깊고 풍부한 색상들이 당신의 성숙한 매력을 돋보이게 합니다.'
+        },
+        winter: {
+            displayName: '겨울 쿨톤 (Winter Cool)',
+            color: '#2d3436',
+            gradient: '#2d3436, #6c5ce7',
+            description: '강렬하고 선명한 겨울의 카리스마를 가진 쿨톤입니다. 대비가 강한 색상들이 도시적이고 세련된 매력을 연출합니다.',
+            keywords: ['강렬함', '선명함', '카리스마', '도시적', '세련됨'],
+            bestColors: [
+                { name: '퓨어 블랙', hex: '#2d3436' },
+                { name: '로열 블루', hex: '#0984e3' },
+                { name: '에메랄드', hex: '#00b894' },
+                { name: '퓨어 화이트', hex: '#ffffff' },
+                { name: '딥 퍼플', hex: '#6c5ce7' }
+            ],
+            avoidColors: [
+                { name: '오렌지', hex: '#e17055' },
+                { name: '베이지', hex: '#ddd' },
+                { name: '골드', hex: '#fdcb6e' },
+                { name: '카키', hex: '#6ab04c' }
+            ],
+            makeup: [
+                { category: '립 제품', products: ['레드 립스틱', '베리 글로스', '플럼 틴트'] },
+                { category: '아이섀도', products: ['쿨 브라운', '실버', '블루 그레이'] },
+                { category: '블러셔', products: ['로즈 블러셔', '베리 블러셔'] },
+                { category: '베이스', products: ['핑크 언더톤 파운데이션', '쿨톤 컨실러'] }
+            ],
+            hairColors: [
+                { name: '젯 블랙', color: '#000000' },
+                { name: '애쉬 브라운', color: '#696969' },
+                { name: '플래티넘', color: '#e5e5e5' }
+            ],
+            hairReason: '강렬하고 선명한 헤어컬러가 겨울 쿨톤의 카리스마 있고 도시적인 매력을 극대화합니다.',
+            advice: '강렬하고 선명한 색상들이 당신의 도시적인 매력을 극대화합니다.'
+        }
+    };
+    
+    return seasons[season] || seasons.spring;
+}
 
             saveResult() {
                 try {
