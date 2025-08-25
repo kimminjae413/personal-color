@@ -1,10 +1,10 @@
-/* css/styles.css */
+/* css/styles.css - 퍼스널컬러 진단 시스템 스타일 */
 
-/* 커스텀 애니메이션 */
+/* 기본 애니메이션 */
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
     }
     to {
         opacity: 1;
@@ -12,19 +12,10 @@
     }
 }
 
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
-
 @keyframes slideInFromRight {
     from {
         opacity: 0;
-        transform: translateX(100px);
+        transform: translateX(50px);
     }
     to {
         opacity: 1;
@@ -32,47 +23,124 @@
     }
 }
 
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+@keyframes spinLoader {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes touchRipple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* 폰트 크기 정의 (반응형) */
+.mega-font {
+    font-size: clamp(3rem, 10vw, 6rem);
+    font-weight: 900;
+    line-height: 0.9;
+}
+
+.mega-font-md {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+}
+
+.mega-font-sm {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.large-font {
+    font-size: clamp(1.25rem, 4vw, 2rem);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.result-font {
+    font-size: clamp(2.5rem, 12vw, 8rem);
+    font-weight: 900;
+    line-height: 0.8;
+}
+
+/* 그라데이션 텍스트 */
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 /* 기본 스타일 */
 .fade-in-up {
-    animation: fadeInUp 0.6s ease-out;
+    animation: fadeInUp 0.8s ease-out;
 }
 
 .slide-in-right {
-    animation: slideInFromRight 0.5s ease-out;
+    animation: slideInFromRight 0.6s ease-out;
 }
 
 .pulse-animation {
     animation: pulse 2s infinite;
 }
 
+/* 로딩 스피너 */
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #e5e7eb;
+    border-top: 6px solid #667eea;
+    border-radius: 50%;
+    animation: spinLoader 1s linear infinite;
+}
+
 /* 단계별 콘텐츠 전환 */
 .step-content {
-    transition: all 0.3s ease-in-out;
+    transition: all 0.4s ease-in-out;
+    opacity: 1;
 }
 
-/* 모달 배경 */
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+.step-content.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
-/* 드래이핑 타이머 */
-.draping-timer {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    color: #10b981;
-}
-
-/* 색상 카드 호버 효과 */
+/* 색상 카드 효과 */
 .color-card {
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .color-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.color-card.selected {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 0 0 4px #22c55e, 0 25px 50px -12px rgba(34, 197, 94, 0.3);
+    border-color: #22c55e;
 }
 
 .color-card::before {
@@ -82,7 +150,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transition: left 0.5s;
 }
 
@@ -90,41 +158,248 @@
     left: 100%;
 }
 
-/* 진행률 표시 */
-.progress-step {
+/* 컬러칩 입체감 */
+.color-chip {
+    background: linear-gradient(135deg, var(--chip-color), var(--chip-shadow));
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.color-chip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), transparent);
+    border-radius: inherit;
+}
+
+/* 터치 피드백 */
+.touch-feedback {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    position: absolute;
+    pointer-events: none;
+    transform: scale(0);
+    animation: touchRipple 0.6s ease-out;
+}
+
+/* 컬러 미리보기 (전체화면) */
+.color-preview {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.color-preview.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.face-simulation-area {
+    backdrop-filter: blur(2px);
     transition: all 0.3s ease;
 }
 
+/* 스와이프 영역 */
+.swipe-area {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.swipe-area:hover {
+    opacity: 0.1;
+    background: linear-gradient(to right, #667eea, transparent);
+}
+
+.swipe-left {
+    left: 0;
+}
+
+.swipe-right {
+    right: 0;
+    background: linear-gradient(to left, #667eea, transparent);
+}
+
+/* 엄지 네비게이션 최적화 */
+.thumb-button {
+    min-width: 80px;
+    min-height: 64px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.thumb-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.thumb-button:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* 모드 선택 카드 */
+.mode-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.mode-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mode-card:hover::before {
+    opacity: 1;
+}
+
+/* 액션 버튼 */
+.action-button {
+    padding: 16px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 토글 콘텐츠 */
+.toggle-content {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-content.expanded {
+    max-height: 2000px;
+    opacity: 1;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-arrow {
+    transition: transform 0.3s ease;
+}
+
+.toggle-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+/* 상담 멘트 */
+.consultation-bubble {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-left: 6px solid #f59e0b;
+    border-radius: 0 16px 16px 16px;
+    position: relative;
+    animation: fadeInUp 0.6s ease-out;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.consultation-bubble::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 20px;
+    border: 8px solid transparent;
+    border-right-color: #f59e0b;
+}
+
+.consultation-text {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    line-height: 1.6;
+    color: #92400e;
+}
+
+/* 진행률 표시 */
+.progress-step {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .progress-step.active {
-    transform: scale(1.1);
+    transform: scale(1.3);
+    animation: pulse 2s infinite;
 }
 
 .progress-step.completed {
-    animation: pulse 0.5s ease-in-out;
+    animation: none;
+    transform: scale(1.1);
 }
 
-/* 전체화면 드래이핑 */
-.fullscreen-draping {
-    transition: background-color 0.3s ease;
+/* 결과 화면 강화 */
+.result-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
 }
 
-/* 스크롤바 커스터마이징 */
-::-webkit-scrollbar {
-    width: 8px;
+.result-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
 }
 
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
+.season-name {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+/* 컬러 팔레트 개선 */
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 16px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border-radius: 20px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+.palette-color {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.palette-color:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
 }
 
 /* 반응형 디자인 */
@@ -134,139 +409,160 @@
         padding-right: 1rem;
     }
     
-    .text-4xl {
-        font-size: 2rem;
-        line-height: 2.5rem;
+    .mega-font {
+        font-size: clamp(2rem, 8vw, 4rem);
     }
     
-    .grid-cols-3 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
+    .thumb-button {
+        min-width: 70px;
+        min-height: 56px;
     }
     
-    .grid-cols-2 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 640px) {
-    .p-8 {
-        padding: 1.5rem;
+    .action-button {
+        min-height: 70px;
+        padding: 12px;
     }
     
-    .rounded-2xl {
-        border-radius: 1rem;
+    .color-palette {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mega-font {
+        font-size: clamp(1.5rem, 6vw, 3rem);
     }
     
-    .text-3xl {
-        font-size: 1.5rem;
-        line-height: 2rem;
+    .large-font {
+        font-size: clamp(1rem, 3vw, 1.5rem);
     }
-}
-
-/* 로딩 스피너 */
-.loading-spinner {
-    border-top-color: #6366f1;
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* 토글 애니메이션 */
-.toggle-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-
-.toggle-content.expanded {
-    max-height: 1000px;
-    transition: max-height 0.5s ease-in;
-}
-
-/* 색상 선택 피드백 */
-.color-selected {
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5);
-    border-color: #22c55e;
-}
-
-/* 드래이핑 관찰 기준 */
-.observation-positive {
-    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-    border-left: 4px solid #22c55e;
-}
-
-.observation-negative {
-    background: linear-gradient(135deg, #fef2f2, #fecaca);
-    border-left: 4px solid #ef4444;
-}
-
-/* 매뉴얼 스크롤 */
-.manual-content {
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-/* 결과 카드 */
-.result-card {
-    background: linear-gradient(135deg, #fdfbff, #f8fafc);
-    border: 1px solid #e2e8f0;
-}
-
-.result-card-header {
-    background: linear-gradient(135deg, #8b5cf6, #ec4899);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-/* 셀렉션 비활성화 (드래이핑 중) */
-.no-select {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    
+    .consultation-text {
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+    }
+    
+    .color-palette {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
 }
 
 /* 접근성 개선 */
-.focus-visible:focus {
-    outline: 2px solid #6366f1;
-    outline-offset: 2px;
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
-/* 고대비 모드 지원 */
 @media (prefers-contrast: high) {
-    .bg-blue-50 {
-        background-color: #ffffff;
-        border: 2px solid #1d4ed8;
+    .color-card {
+        border: 2px solid #000;
     }
     
-    .text-gray-600 {
-        color: #000000;
+    .thumb-button {
+        border: 2px solid rgba(255, 255, 255, 0.8);
     }
 }
 
-/* 다크모드 지원 (추후 확장 가능) */
+/* 다크모드 지원 */
 @media (prefers-color-scheme: dark) {
     .bg-white {
         background-color: #1f2937;
         color: #f9fafb;
     }
+    
+    .text-gray-800 {
+        color: #f9fafb;
+    }
+    
+    .text-gray-600 {
+        color: #d1d5db;
+    }
 }
 
 /* 인쇄 스타일 */
 @media print {
+    .fixed {
+        position: static !important;
+    }
+    
     .no-print {
         display: none !important;
     }
     
-    body {
-        font-size: 12pt;
-        line-height: 1.4;
+    .step-content {
+        page-break-inside: avoid;
     }
     
-    .container {
-        max-width: none;
+    .mega-font, .mega-font-md, .mega-font-sm {
+        font-size: 24pt;
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
     }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+    .color-card:hover {
+        transform: none;
+    }
+    
+    .thumb-button:hover {
+        transform: none;
+    }
+    
+    .action-button:hover {
+        transform: none;
+    }
+}
+
+/* 전체화면 모달 */
+.fullscreen-modal {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* 스크롤바 숨기기 */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 터치 영역 확대 */
+.touch-target {
+    position: relative;
+}
+
+.touch-target::before {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    z-index: -1;
+}
+
+/* 상태별 색상 */
+.status-positive {
+    color: #059669;
+    background-color: #ecfdf5;
+    border-color: #10b981;
+}
+
+.status-negative {
+    color: #dc2626;
+    background-color: #fef2f2;
+    border-color: #ef4444;
+}
+
+.status-neutral {
+    color: #374151;
+    background-color: #f9fafb;
+    border-color: #d1d5db;
 }
