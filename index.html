@@ -19,14 +19,14 @@
     <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icons/icon-192x192.png">
     <link rel="apple-touch-icon" href="assets/images/icons/icon-192x192.png">
     
-    <!-- Google Fonts (폰트 404 오류 해결) -->
+    <!-- Google Fonts (404 오류 해결) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 인라인 핵심 CSS (폰트 및 로딩 화면) -->
+    <!-- 인라인 핵심 CSS -->
     <style>
-        /* 폰트 설정 */
+        /* CSS 변수 */
         :root {
             --font-korean: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             --font-english: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -116,12 +116,6 @@
             background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
             border-radius: 3px;
             transition: width 0.3s ease;
-            animation: progressShimmer 2s infinite;
-        }
-
-        @keyframes progressShimmer {
-            0% { background-position: -400px 0; }
-            100% { background-position: 400px 0; }
         }
 
         .loading-message {
@@ -145,7 +139,7 @@
             font-weight: 500;
         }
 
-        /* 메인 앱 (초기 숨김) */
+        /* 메인 앱 */
         .main-app {
             display: none;
             height: 100vh;
@@ -238,19 +232,12 @@
             overflow: hidden;
         }
 
-        .mode-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .mode-card:hover::before {
-            left: 100%;
+        .mode-card.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
         }
 
         .mode-card:hover {
@@ -272,10 +259,18 @@
             margin-bottom: 1rem;
         }
 
+        .mode-card.selected h3 {
+            color: white;
+        }
+
         .mode-card p {
             color: var(--text-secondary);
             margin-bottom: 1.5rem;
             line-height: 1.6;
+        }
+
+        .mode-card.selected p {
+            color: rgba(255,255,255,0.9);
         }
 
         .mode-accuracy {
@@ -318,14 +313,347 @@
             content: '⭐ ';
         }
 
-        /* 진단 영역 (초기 숨김) */
-        .diagnosis-area,
-        .diagnosis-result,
-        .sidebar {
+        /* 진단 영역 */
+        .diagnosis-area {
             display: none;
         }
 
-        /* 반응형 디자인 */
+        .diagnosis-area.active {
+            display: block;
+        }
+
+        .diagnosis-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* AI 모드 컨테이너 */
+        .ai-mode-container {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .ai-mode-container.active {
+            display: block;
+        }
+
+        .ai-mode-container h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            height: 480px;
+            margin: 0 auto 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .camera-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .camera-controls button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .secondary-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .secondary-btn:hover {
+            background: var(--border-color);
+        }
+
+        /* 드레이핑 모드 컨테이너 */
+        .draping-mode-container {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .draping-mode-container.active {
+            display: block;
+        }
+
+        .draping-mode-container h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        .draping-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .color-palette {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .color-palette h4 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .color-swatch {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 3px solid transparent;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .color-swatch.selected {
+            border-color: var(--primary-color);
+            transform: scale(1.15);
+        }
+
+        .draping-notes {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .draping-notes h4 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .draping-notes textarea {
+            width: 100%;
+            height: 200px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .draping-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .draping-controls button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* 결과 영역 */
+        .diagnosis-result {
+            display: none;
+        }
+
+        .diagnosis-result.active {
+            display: block;
+        }
+
+        .result-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .result-container h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        .result-summary {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .season-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+        }
+
+        .season-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .confidence {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .result-details {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .result-actions button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+        }
+
+        .sidebar.show {
+            right: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-content {
+            padding: 1.5rem;
+        }
+
+        /* 반응형 */
         @media (max-width: 768px) {
             .loading-logo h1 {
                 font-size: 2.5rem;
@@ -344,30 +672,8 @@
                 gap: 1.5rem;
             }
             
-            .diagnosis-mode-selection h2 {
-                font-size: 1.5rem;
-            }
-        }
-
-        /* 태블릿 최적화 */
-        @media (min-width: 768px) and (max-width: 1024px) {
-            .app-header {
-                padding: 0 1.5rem;
-            }
-            
-            .mode-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .mode-card {
-                padding: 1.5rem;
-            }
-        }
-
-        /* 데스크톱 */
-        @media (min-width: 1025px) {
-            .mode-cards {
-                grid-template-columns: repeat(3, 1fr);
+            .draping-workspace {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -387,34 +693,65 @@
             animation: fadeInUp 0.6s ease-out;
         }
 
-        /* 에러 상태 */
-        .error-message {
-            background: var(--error-color);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            text-align: center;
+        /* 토스트 메시지 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            pointer-events: none;
         }
 
-        /* 성공 상태 */
-        .success-message {
-            background: var(--success-color);
-            color: white;
-            padding: 1rem;
+        .toast {
+            background: white;
             border-radius: 8px;
-            margin: 1rem 0;
-            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            padding: 16px;
+            pointer-events: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+            min-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            border-left-color: var(--success-color);
+        }
+
+        .toast-error {
+            border-left-color: var(--error-color);
+        }
+
+        .toast-warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: auto;
         }
     </style>
 
-    <!-- 외부 CSS 파일들 (비동기 로드) -->
-    <link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="css/tablet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="css/components.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="css/animations.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- 외부 CSS 파일들 (비동기 로드, 404 오류 방지) -->
+    <link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'" onerror="console.warn('styles.css 로드 실패')">
+    <link rel="preload" href="css/tablet.css" as="style" onload="this.onload=null;this.rel='stylesheet'" onerror="console.warn('tablet.css 로드 실패')">
+    <link rel="preload" href="css/components.css" as="style" onload="this.onload=null;this.rel='stylesheet'" onerror="console.warn('components.css 로드 실패')">
+    <link rel="preload" href="css/animations.css" as="style" onload="this.onload=null;this.rel='stylesheet'" onerror="console.warn('animations.css 로드 실패')">
     
-    <!-- CSS 로드 실패 대비 폴백 -->
     <noscript>
         <link rel="stylesheet" href="css/styles.css">
         <link rel="stylesheet" href="css/tablet.css">
@@ -503,17 +840,97 @@
                 </div>
             </section>
 
-            <!-- 진단 영역 (동적으로 표시) -->
+            <!-- 진단 영역 -->
             <section class="diagnosis-area" id="diagnosis-area">
                 <div class="diagnosis-container">
-                    <!-- 여기에 선택된 모드에 따라 컨텐츠가 동적으로 로드됩니다 -->
+                    <!-- AI 모드 컨테이너 -->
+                    <div class="ai-mode-container" id="ai-mode-container">
+                        <h3>📷 AI 사진 분석</h3>
+                        <div class="camera-container">
+                            <video class="camera-preview" id="camera-preview" autoplay muted playsinline></video>
+                            <canvas id="analysis-canvas" style="display: none;"></canvas>
+                            <div class="camera-overlay">
+                                <div class="face-guide">얼굴을 프레임에 맞춰주세요</div>
+                            </div>
+                        </div>
+                        
+                        <div class="camera-controls">
+                            <button id="capture-btn" class="primary-btn">📸 촬영</button>
+                            <button id="upload-btn" class="secondary-btn">📁 파일 선택</button>
+                            <input type="file" id="file-input" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <!-- 드레이핑 모드 컨테이너 -->
+                    <div class="draping-mode-container" id="draping-mode-container">
+                        <h3>🎨 전문가 드레이핑</h3>
+                        <div class="draping-workspace">
+                            <div class="color-palette">
+                                <h4>테스트 색상</h4>
+                                <div class="color-swatches">
+                                    <div class="color-swatch" data-color="#FF6B6B" style="background: #FF6B6B;" title="코랄 핑크"></div>
+                                    <div class="color-swatch" data-color="#4ECDC4" style="background: #4ECDC4;" title="터쿼이즈"></div>
+                                    <div class="color-swatch" data-color="#45B7D1" style="background: #45B7D1;" title="스카이 블루"></div>
+                                    <div class="color-swatch" data-color="#96CEB4" style="background: #96CEB4;" title="민트 그린"></div>
+                                    <div class="color-swatch" data-color="#FECA57" style="background: #FECA57;" title="골든 옐로우"></div>
+                                    <div class="color-swatch" data-color="#FF9FF3" style="background: #FF9FF3;" title="라벤더 핑크"></div>
+                                    <div class="color-swatch" data-color="#54A0FF" style="background: #54A0FF;" title="브라이트 블루"></div>
+                                    <div class="color-swatch" data-color="#5F27CD" style="background: #5F27CD;" title="딥 퍼플"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="draping-notes">
+                                <h4>관찰 메모</h4>
+                                <textarea id="draping-notes" placeholder="색상별 피부 반응을 기록하세요...&#10;&#10;예시:&#10;• 코랄 핑크: 피부가 밝아 보임&#10;• 터쿼이즈: 혈색이 좋아 보임&#10;• 스카이 블루: 피부톤과 잘 어울림"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="draping-controls">
+                            <button id="add-comparison" class="primary-btn">비교 추가</button>
+                            <button id="complete-draping" class="secondary-btn">진단 완료</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- 결과 영역 (동적으로 표시) -->
+            <!-- 결과 영역 -->
             <section class="diagnosis-result" id="diagnosis-result">
                 <div class="result-container">
-                    <!-- 여기에 진단 결과가 동적으로 표시됩니다 -->
+                    <h2>🎉 진단 결과</h2>
+                    
+                    <div class="result-summary">
+                        <div class="season-badge">
+                            <span class="season-name">봄 웜톤</span>
+                            <span class="confidence">92% 확신</span>
+                        </div>
+                        
+                        <div class="result-details">
+                            <div class="detail-item">
+                                <span class="label">피부 톤:</span>
+                                <span class="value">따뜻한 톤</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">밝기:</span>
+                                <span class="value">밝은 톤</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">채도:</span>
+                                <span class="value">선명한 톤</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button id="generate-report" class="primary-btn">
+                            📊 PDF 보고서 생성
+                        </button>
+                        <button id="save-result" class="secondary-btn">
+                            💾 결과 저장
+                        </button>
+                        <button id="new-diagnosis" class="secondary-btn">
+                            🔄 새 진단
+                        </button>
+                    </div>
                 </div>
             </section>
         </main>
@@ -531,21 +948,18 @@
                 </div>
                 
                 <div class="customer-list" id="customer-list">
-                    <!-- 동적으로 생성됨 -->
+                    <p style="text-align: center; color: #6b7280; margin-top: 2rem;">등록된 고객이 없습니다.</p>
                 </div>
                 
-                <button id="add-customer" class="header-btn" style="width: 100%; justify-content: center;">
+                <button id="add-customer" class="header-btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
                     ➕ 새 고객 추가
                 </button>
             </div>
         </aside>
     </div>
 
-    <!-- 에러/성공 메시지 컨테이너 -->
-    <div id="toast-container"></div>
-
-    <!-- 모달 컨테이너 -->
-    <div id="modal-container"></div>
+    <!-- 토스트 메시지 컨테이너 -->
+    <div class="toast-container" id="toast-container"></div>
 
     <!-- JavaScript 시작 -->
     <script>
@@ -554,22 +968,20 @@
             version: '1.0.0',
             buildTime: new Date().toISOString(),
             isLoaded: false,
-            currentMode: null,
+            currentMode: 'selection',
             customer: null,
-            diagnosis: null
+            diagnosis: null,
+            drapingData: {
+                selectedColors: [],
+                notes: '',
+                comparisons: []
+            }
         };
 
         // 로딩 관리자
         class LoadingManager {
             constructor() {
                 this.currentProgress = 0;
-                this.currentStep = 0;
-                this.steps = [
-                    { id: 'step-config', message: '설정 로드 중...', weight: 10 },
-                    { id: 'step-modules', message: '모듈 로드 중...', weight: 40 },
-                    { id: 'step-ai', message: 'AI 시스템 준비 중...', weight: 30 },
-                    { id: 'step-ui', message: 'UI 초기화 중...', weight: 20 }
-                ];
                 this.isComplete = false;
             }
 
@@ -592,29 +1004,17 @@
                 const step = document.getElementById(stepId);
                 if (!step) return;
 
-                const stepData = this.steps.find(s => s.id === stepId);
-                const message = customMessage || stepData?.message || '처리 중...';
-                
                 const icon = status === 'complete' ? '✅' : 
                             status === 'error' ? '❌' : 
                             status === 'active' ? '⏳' : '⏳';
                 
+                const message = customMessage || step.textContent.replace(/[⏳✅❌]\s*/, '');
                 step.textContent = `${icon} ${message}`;
                 
                 if (status === 'active') {
                     step.classList.add('active');
                 } else {
                     step.classList.remove('active');
-                }
-
-                // 진행률 자동 업데이트
-                if (status === 'complete') {
-                    const stepIndex = this.steps.findIndex(s => s.id === stepId);
-                    let progress = 0;
-                    for (let i = 0; i <= stepIndex; i++) {
-                        progress += this.steps[i].weight;
-                    }
-                    this.updateProgress(progress);
                 }
             }
 
@@ -631,135 +1031,580 @@
                     mainApp.classList.add('loaded');
                     window.PersonalColorApp.isLoaded = true;
                     
-                    // 로딩 완료 이벤트 발생
+                    // 로딩 완료 이벤트
                     window.dispatchEvent(new CustomEvent('appLoaded'));
                 }, 300);
             }
+        }
 
-            error(stepId, errorMessage) {
-                this.updateStep(stepId, 'error', errorMessage || '오류 발생');
+        // 전역 로딩 관리자
+        window.loadingManager = new LoadingManager();
+
+        // 모드 관리자
+        class ModeManager {
+            constructor() {
+                this.currentMode = 'selection';
+                this.setupModeSelection();
+            }
+
+            setupModeSelection() {
+                document.querySelectorAll('.mode-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const mode = card.getAttribute('data-mode');
+                        this.switchToMode(mode);
+                    });
+                });
+            }
+
+            switchToMode(mode) {
+                console.log(`🔄 모드 전환: ${this.currentMode} → ${mode}`);
                 
+                // 모든 카드에서 selected 클래스 제거
+                document.querySelectorAll('.mode-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // 선택된 카드에 selected 클래스 추가
+                const selectedCard = document.querySelector(`.mode-card[data-mode="${mode}"]`);
+                if (selectedCard) {
+                    selectedCard.classList.add('selected');
+                }
+
+                // UI 업데이트
+                this.updateModeUI(mode);
+                
+                // 상태 업데이트
+                this.currentMode = mode;
+                window.PersonalColorApp.currentMode = mode;
+                
+                // 모드별 초기화
+                this.initializeMode(mode);
+                
+                // 토스트 메시지
+                this.showToast(`${this.getModeDisplayName(mode)} 모드로 전환되었습니다.`, 'success');
+            }
+
+            updateModeUI(mode) {
+                const modeSelection = document.getElementById('mode-selection');
+                const diagnosisArea = document.getElementById('diagnosis-area');
+                const aiContainer = document.getElementById('ai-mode-container');
+                const drapingContainer = document.getElementById('draping-mode-container');
+                const resultArea = document.getElementById('diagnosis-result');
+
+                // 모든 영역 숨기기
+                if (modeSelection) modeSelection.style.display = 'none';
+                if (diagnosisArea) diagnosisArea.style.display = 'none';
+                if (aiContainer) aiContainer.classList.remove('active');
+                if (drapingContainer) drapingContainer.classList.remove('active');
+                if (resultArea) resultArea.classList.remove('active');
+
+                // 선택된 모드에 따라 표시
+                if (mode === 'selection') {
+                    if (modeSelection) modeSelection.style.display = 'block';
+                } else {
+                    if (diagnosisArea) {
+                        diagnosisArea.style.display = 'block';
+                        diagnosisArea.classList.add('active');
+                    }
+                    
+                    if (mode === 'ai_photo' || mode === 'hybrid') {
+                        if (aiContainer) aiContainer.classList.add('active');
+                    }
+                    
+                    if (mode === 'draping' || mode === 'hybrid') {
+                        if (drapingContainer) drapingContainer.classList.add('active');
+                    }
+                }
+            }
+
+            initializeMode(mode) {
+                switch (mode) {
+                    case 'ai_photo':
+                    case 'hybrid':
+                        this.initializeAIMode();
+                        break;
+                    case 'draping':
+                        this.initializeDrapingMode();
+                        break;
+                }
+            }
+
+            initializeAIMode() {
+                console.log('📷 AI 모드 초기화');
+                
+                // 카메라 버튼 이벤트
+                const captureBtn = document.getElementById('capture-btn');
+                const uploadBtn = document.getElementById('upload-btn');
+                const fileInput = document.getElementById('file-input');
+
+                if (captureBtn) {
+                    captureBtn.onclick = () => this.capturePhoto();
+                }
+
+                if (uploadBtn && fileInput) {
+                    uploadBtn.onclick = () => fileInput.click();
+                    fileInput.onchange = (e) => {
+                        if (e.target.files.length > 0) {
+                            this.handleFileUpload(e.target.files[0]);
+                        }
+                    };
+                }
+
+                // 카메라 시작 시도
+                this.startCamera();
+            }
+
+            initializeDrapingMode() {
+                console.log('🎨 드레이핑 모드 초기화');
+                
+                // 색상 견본 이벤트
+                document.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.addEventListener('click', (e) => {
+                        const color = e.target.getAttribute('data-color');
+                        this.selectDrapingColor(color, e.target);
+                    });
+                });
+
+                // 드레이핑 버튼 이벤트
+                const addComparisonBtn = document.getElementById('add-comparison');
+                const completeDrapingBtn = document.getElementById('complete-draping');
+
+                if (addComparisonBtn) {
+                    addComparisonBtn.onclick = () => this.addDrapingComparison();
+                }
+
+                if (completeDrapingBtn) {
+                    completeDrapingBtn.onclick = () => this.completeDraping();
+                }
+            }
+
+            async startCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: 640, 
+                            height: 480,
+                            facingMode: 'user'
+                        } 
+                    });
+                    
+                    const video = document.getElementById('camera-preview');
+                    if (video) {
+                        video.srcObject = stream;
+                        
+                        // 오버레이 숨기기
+                        const overlay = document.querySelector('.camera-overlay');
+                        if (overlay) {
+                            overlay.style.display = 'none';
+                        }
+                    }
+                    
+                    console.log('📷 카메라 시작됨');
+                } catch (error) {
+                    console.warn('카메라 시작 실패:', error);
+                    this.showToast('카메라에 접근할 수 없습니다. 파일 업로드를 이용해주세요.', 'warning');
+                }
+            }
+
+            capturePhoto() {
+                const video = document.getElementById('camera-preview');
+                const canvas = document.getElementById('analysis-canvas');
+                
+                if (!video || !canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+
+                // Mock 분석 결과
                 setTimeout(() => {
-                    document.getElementById('loading-message').innerHTML = 
-                        '<div class="error-message">로딩 중 오류가 발생했습니다. 페이지를 새로고침해주세요.</div>';
-                }, 500);
+                    const mockResult = {
+                        season: 'spring',
+                        confidence: 87,
+                        undertone: 'warm',
+                        lightness: 'light',
+                        saturation: 'medium'
+                    };
+                    this.showDiagnosisResult(mockResult);
+                }, 2000);
+
+                this.showToast('사진을 분석하고 있습니다...', 'info');
+            }
+
+            handleFileUpload(file) {
+                if (!file.type.startsWith('image/')) {
+                    this.showToast('이미지 파일을 선택해주세요.', 'error');
+                    return;
+                }
+
+                this.showToast('이미지를 분석하고 있습니다...', 'info');
+
+                // Mock 분석
+                setTimeout(() => {
+                    const mockResult = {
+                        season: 'summer',
+                        confidence: 91,
+                        undertone: 'cool',
+                        lightness: 'light',
+                        saturation: 'medium'
+                    };
+                    this.showDiagnosisResult(mockResult);
+                }, 2000);
+            }
+
+            selectDrapingColor(color, element) {
+                console.log('색상 선택:', color);
+                
+                // 이전 선택 해제
+                document.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.classList.remove('selected');
+                });
+                
+                // 현재 선택 표시
+                element.classList.add('selected');
+                
+                // 데이터 저장
+                window.PersonalColorApp.drapingData.selectedColors.push({
+                    color: color,
+                    timestamp: new Date(),
+                    notes: ''
+                });
+                
+                this.showToast(`색상 ${color}이(가) 선택되었습니다.`, 'success');
+            }
+
+            addDrapingComparison() {
+                const selectedColors = window.PersonalColorApp.drapingData.selectedColors;
+                const notes = document.getElementById('draping-notes').value;
+                
+                if (selectedColors.length === 0) {
+                    this.showToast('먼저 테스트할 색상을 선택해주세요.', 'warning');
+                    return;
+                }
+
+                window.PersonalColorApp.drapingData.comparisons.push({
+                    colors: [...selectedColors],
+                    notes: notes,
+                    timestamp: new Date()
+                });
+
+                // 데이터 초기화
+                window.PersonalColorApp.drapingData.selectedColors = [];
+                document.getElementById('draping-notes').value = '';
+                document.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.classList.remove('selected');
+                });
+
+                this.showToast('비교 데이터가 추가되었습니다.', 'success');
+            }
+
+            completeDraping() {
+                const comparisons = window.PersonalColorApp.drapingData.comparisons;
+                
+                if (comparisons.length === 0) {
+                    this.showToast('최소 한 번의 색상 비교를 완료해주세요.', 'warning');
+                    return;
+                }
+
+                // Mock 드레이핑 결과 생성
+                const mockResult = {
+                    season: 'autumn',
+                    confidence: 93,
+                    undertone: 'warm',
+                    lightness: 'dark',
+                    saturation: 'rich',
+                    drapingData: comparisons
+                };
+
+                this.showDiagnosisResult(mockResult);
+            }
+
+            showDiagnosisResult(result) {
+                console.log('✅ 진단 결과:', result);
+                
+                window.PersonalColorApp.diagnosis = result;
+                
+                // 결과 영역 표시
+                const diagnosisArea = document.getElementById('diagnosis-area');
+                const resultArea = document.getElementById('diagnosis-result');
+                
+                if (diagnosisArea) diagnosisArea.style.display = 'none';
+                if (resultArea) {
+                    resultArea.style.display = 'block';
+                    resultArea.classList.add('active');
+                }
+                
+                // 결과 내용 업데이트
+                this.updateResultDisplay(result);
+                
+                // 결과 버튼 이벤트 설정
+                this.setupResultButtons();
+                
+                this.currentMode = 'results';
+                window.PersonalColorApp.currentMode = 'results';
+            }
+
+            updateResultDisplay(result) {
+                const seasonName = this.getSeasonDisplayName(result.season);
+                const seasonBadge = document.querySelector('.season-badge .season-name');
+                const confidence = document.querySelector('.season-badge .confidence');
+                
+                if (seasonBadge) seasonBadge.textContent = seasonName;
+                if (confidence) confidence.textContent = `${result.confidence}% 확신`;
+                
+                // 세부 정보 업데이트
+                const details = document.querySelectorAll('.detail-item .value');
+                if (details.length >= 3) {
+                    details[0].textContent = result.undertone === 'warm' ? '따뜻한 톤' : '시원한 톤';
+                    details[1].textContent = result.lightness === 'light' ? '밝은 톤' : '어두운 톤';
+                    details[2].textContent = result.saturation || '중간 톤';
+                }
+            }
+
+            setupResultButtons() {
+                const generateBtn = document.getElementById('generate-report');
+                const saveBtn = document.getElementById('save-result');
+                const newBtn = document.getElementById('new-diagnosis');
+
+                if (generateBtn) {
+                    generateBtn.onclick = () => this.generateReport();
+                }
+
+                if (saveBtn) {
+                    saveBtn.onclick = () => this.saveResult();
+                }
+
+                if (newBtn) {
+                    newBtn.onclick = () => this.startNewDiagnosis();
+                }
+            }
+
+            generateReport() {
+                this.showToast('PDF 보고서를 생성합니다...', 'info');
+                
+                // Mock PDF 생성
+                setTimeout(() => {
+                    const result = window.PersonalColorApp.diagnosis;
+                    const reportText = `
+퍼스널 컬러 진단 결과
+
+진단 날짜: ${new Date().toLocaleDateString('ko-KR')}
+계절: ${this.getSeasonDisplayName(result.season)}
+신뢰도: ${result.confidence}%
+언더톤: ${result.undertone === 'warm' ? '웜톤' : '쿨톤'}
+밝기: ${result.lightness === 'light' ? '라이트' : '딥'}
+
+Personal Color Pro v1.0.0
+                    `;
+
+                    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `퍼스널컬러_진단결과_${Date.now()}.txt`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    this.showToast('보고서가 다운로드되었습니다!', 'success');
+                }, 1000);
+            }
+
+            saveResult() {
+                try {
+                    const results = JSON.parse(localStorage.getItem('diagnosis_results') || '[]');
+                    results.push({
+                        ...window.PersonalColorApp.diagnosis,
+                        customer: window.PersonalColorApp.customer,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    if (results.length > 100) results.shift();
+                    
+                    localStorage.setItem('diagnosis_results', JSON.stringify(results));
+                    this.showToast('진단 결과가 저장되었습니다!', 'success');
+                } catch (error) {
+                    this.showToast('저장에 실패했습니다.', 'error');
+                }
+            }
+
+            startNewDiagnosis() {
+                // 상태 초기화
+                window.PersonalColorApp.currentMode = 'selection';
+                window.PersonalColorApp.diagnosis = null;
+                window.PersonalColorApp.drapingData = {
+                    selectedColors: [],
+                    notes: '',
+                    comparisons: []
+                };
+
+                // UI 초기화
+                this.switchToMode('selection');
+                
+                this.showToast('새 진단을 시작합니다.', 'info');
+            }
+
+            getModeDisplayName(mode) {
+                const names = {
+                    ai_photo: 'AI 사진 분석',
+                    draping: '전문가 드레이핑',
+                    hybrid: '하이브리드',
+                    selection: '모드 선택'
+                };
+                return names[mode] || mode;
+            }
+
+            getSeasonDisplayName(season) {
+                const names = {
+                    spring: '봄 웜톤',
+                    summer: '여름 쿨톤',
+                    autumn: '가을 웜톤',
+                    winter: '겨울 쿨톤'
+                };
+                return names[season] || season;
+            }
+
+            showToast(message, type = 'info', duration = 5000) {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                        <span class="toast-message">${message}</span>
+                        <button class="toast-close">×</button>
+                    </div>
+                `;
+
+                container.appendChild(toast);
+
+                // 표시 애니메이션
+                setTimeout(() => toast.classList.add('show'), 100);
+
+                // 자동 제거
+                const autoRemove = setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, duration);
+
+                // 수동 닫기
+                const closeBtn = toast.querySelector('.toast-close');
+                if (closeBtn) {
+                    closeBtn.onclick = () => {
+                        clearTimeout(autoRemove);
+                        toast.classList.remove('show');
+                        setTimeout(() => {
+                            if (toast.parentNode) {
+                                toast.parentNode.removeChild(toast);
+                            }
+                        }, 300);
+                    };
+                }
             }
         }
 
-        // 전역 로딩 관리자 생성
-        window.loadingManager = new LoadingManager();
+        // 전역 모드 관리자
+        window.modeManager = null;
+
+        // DOM 준비 완료 처리
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ DOM 로드 완료');
+            
+            // 모드 관리자 초기화
+            window.modeManager = new ModeManager();
+            
+            // 헤더 버튼 이벤트
+            const customerBtn = document.getElementById('customer-management');
+            const settingsBtn = document.getElementById('settings-btn');
+            const closeSidebarBtn = document.getElementById('close-sidebar');
+
+            if (customerBtn) {
+                customerBtn.onclick = () => {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.add('show');
+                    }
+                };
+            }
+
+            if (settingsBtn) {
+                settingsBtn.onclick = () => {
+                    if (window.modeManager) {
+                        window.modeManager.showToast('설정 기능은 준비 중입니다.', 'info');
+                    }
+                };
+            }
+
+            if (closeSidebarBtn) {
+                closeSidebarBtn.onclick = () => {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.remove('show');
+                    }
+                };
+            }
+
+            console.log('✅ 이벤트 리스너 설정 완료');
+        });
 
         // 에러 처리
         window.addEventListener('error', (e) => {
             console.error('전역 에러:', e.error);
-            
-            if (!window.PersonalColorApp.isLoaded) {
-                window.loadingManager.error('step-ui', '초기화 오류');
-            }
         });
-
-        // 기본 이벤트 리스너들
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('✅ DOM 로드 완료');
-            
-            // 진단 모드 카드 이벤트
-            document.querySelectorAll('.mode-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const mode = card.getAttribute('data-mode');
-                    console.log(`모드 선택: ${mode}`);
-                    
-                    // 여기서 실제 모드 전환 로직 구현
-                    window.PersonalColorApp.currentMode = mode;
-                    
-                    // 성공 메시지 표시 (임시)
-                    showMessage(`${mode} 모드가 선택되었습니다.`, 'success');
-                });
-            });
-
-            // 헤더 버튼들
-            document.getElementById('customer-management')?.addEventListener('click', () => {
-                toggleSidebar();
-            });
-
-            document.getElementById('settings-btn')?.addEventListener('click', () => {
-                showMessage('설정 기능은 준비 중입니다.', 'info');
-            });
-
-            document.getElementById('close-sidebar')?.addEventListener('click', () => {
-                toggleSidebar(false);
-            });
-        });
-
-        // 유틸리티 함수들
-        function showMessage(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            const toast = document.createElement('div');
-            toast.className = `${type}-message`;
-            toast.textContent = message;
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 1rem 1.5rem;
-                border-radius: 8px;
-                color: white;
-                font-weight: 500;
-                z-index: 10000;
-                animation: fadeInUp 0.3s ease-out;
-            `;
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
-        function toggleSidebar(show) {
-            const sidebar = document.getElementById('sidebar');
-            if (!sidebar) return;
-
-            if (show === undefined) {
-                show = sidebar.style.display === 'none';
-            }
-
-            sidebar.style.display = show ? 'block' : 'none';
-        }
 
         // 앱 로딩 시뮬레이션
         function startLoadingSequence() {
             console.log('🚀 Personal Color Pro 시작');
             
-            // 1단계: 설정 로드
+            // 1단계: 설정
             window.loadingManager.updateStep('step-config', 'active');
             setTimeout(() => {
                 window.loadingManager.updateStep('step-config', 'complete', '설정 로드 완료');
+                window.loadingManager.updateProgress(25);
                 
-                // 2단계: 모듈 로드
+                // 2단계: 모듈
                 window.loadingManager.updateStep('step-modules', 'active');
                 setTimeout(() => {
                     window.loadingManager.updateStep('step-modules', 'complete', '모듈 로드 완료');
+                    window.loadingManager.updateProgress(50);
                     
-                    // 3단계: AI 시스템
+                    // 3단계: AI
                     window.loadingManager.updateStep('step-ai', 'active');
                     setTimeout(() => {
                         window.loadingManager.updateStep('step-ai', 'complete', 'AI 시스템 준비 완료');
+                        window.loadingManager.updateProgress(75);
                         
-                        // 4단계: UI 초기화
+                        // 4단계: UI
                         window.loadingManager.updateStep('step-ui', 'active');
                         setTimeout(() => {
                             window.loadingManager.updateStep('step-ui', 'complete', 'UI 초기화 완료');
+                            window.loadingManager.updateProgress(100);
                             
-                            // 로딩 완료
+                            // 완료
                             setTimeout(() => {
                                 window.loadingManager.complete();
                                 console.log('🎉 Personal Color Pro 로딩 완료!');
-                            }, 300);
+                            }, 500);
                         }, 800);
                     }, 600);
-                }, 1000);
+                }, 800);
             }, 500);
         }
 
@@ -767,7 +1612,7 @@
         startLoadingSequence();
     </script>
 
-    <!-- PWA 서비스 워커 등록 -->
+    <!-- PWA 서비스 워커 등록 (404 오류 무시) -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -776,33 +1621,33 @@
                         console.log('✅ SW 등록 성공');
                     })
                     .catch(error => {
-                        console.log('⚠️ SW 등록 실패:', error);
+                        console.log('⚠️ SW 등록 실패 (무시됨):', error);
                     });
             });
         }
     </script>
 
-    <!-- 외부 스크립트들 (비동기 로드) -->
+    <!-- 외부 스크립트들 (404 오류 방지) -->
     <script>
-        // 앱 로딩 완료 후 추가 스크립트들 로드
         window.addEventListener('appLoaded', () => {
             console.log('📦 추가 모듈들 로딩 시작');
             
-            // 중요하지 않은 스크립트들은 지연 로드
             const scripts = [
-                'js/config.js',
-                'js/utils/validation.js',
-                'js/utils/performance.js',
-                'js/utils/analytics.js'
+                { src: 'js/config.js', required: false },
+                { src: 'js/utils/validation.js', required: false },
+                { src: 'js/utils/performance.js', required: false },
+                { src: 'js/utils/analytics.js', required: false }
             ];
             
-            scripts.forEach((src, index) => {
+            scripts.forEach((script, index) => {
                 setTimeout(() => {
-                    const script = document.createElement('script');
-                    script.src = src;
-                    script.async = true;
-                    script.onerror = () => console.warn(`스크립트 로드 실패: ${src}`);
-                    document.head.appendChild(script);
+                    const scriptEl = document.createElement('script');
+                    scriptEl.src = script.src;
+                    scriptEl.async = true;
+                    scriptEl.onerror = () => {
+                        console.warn(`스크립트 로드 실패 (무시됨): ${script.src}`);
+                    };
+                    document.head.appendChild(scriptEl);
                 }, index * 200);
             });
         });
