@@ -1,5 +1,4 @@
-<!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json"><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -14,6 +13,9 @@
     <meta property="og:type" content="website">
     <meta property="og:image" content="/assets/og-image.png">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -27,7 +29,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/styles.css">
     
-    <!-- 메타 태그 수정 -->
+    <!-- PWA 메타 태그 -->
     <meta name="theme-color" content="#8b5cf6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -170,8 +172,8 @@
         // 전역 설정과 에러 핸들링
         window.APP_CONFIG = {
             version: '2.0.0',
-            environment: 'development',
-            debug: true
+            environment: 'production',
+            debug: false
         };
         
         // 간단한 색상 데이터 (의존성 해결을 위해 먼저 정의)
@@ -190,6 +192,55 @@
             ]
         };
         
+        // 전역 함수들 (HTML에서 호출하는 함수들)
+        function selectMode(mode) {
+            if (window.app) {
+                window.app.selectAnalysisMode(mode);
+            }
+        }
+        
+        function selectColor(step, type, colorName, colorData) {
+            if (window.app) {
+                window.app.selectColor(step, type, colorName, colorData);
+            }
+        }
+        
+        function goBack() {
+            if (window.app) {
+                window.app.goBack();
+            }
+        }
+        
+        function resetApp() {
+            if (window.app) {
+                window.app.resetApp();
+            }
+        }
+        
+        function exportToPDF() {
+            if (window.app) {
+                window.app.exportToPDF();
+            }
+        }
+        
+        function shareResults() {
+            if (window.app) {
+                window.app.shareResults();
+            }
+        }
+        
+        function showExpertManual() {
+            if (window.ExpertManual && window.ExpertManual.show) {
+                window.ExpertManual.show();
+            }
+        }
+        
+        function enterFullscreenDraping(colorData) {
+            if (window.FullscreenDraping && window.FullscreenDraping.show) {
+                window.FullscreenDraping.show(colorData);
+            }
+        }
+        
         // 초기 상태 표시
         console.log('HTML 로딩 완료, JavaScript 모듈 로딩 시작');
         
@@ -207,14 +258,29 @@
     </script>
 
     <!-- 1. 데이터 모듈 먼저 로드 -->
-    <script src="js/data/seasons.js" defer></script>
-    <script src="js/data/drapingColors.js" defer></script>
+    <script src="js/data/seasons.js"></script>
+    <script src="js/data/drapingColors.js"></script>
     
     <!-- 2. 컴포넌트 모듈 로드 -->
-    <script src="js/components/FullscreenDraping.js" defer></script>
-    <script src="js/components/ExpertManual.js" defer></script>
+    <script src="js/components/FullscreenDraping.js"></script>
+    <script src="js/components/ExpertManual.js"></script>
     
     <!-- 3. 메인 애플리케이션 로드 -->
-    <script src="js/app.js" defer></script>
+    <script src="js/app.js"></script>
+
+    <!-- PWA Service Worker 등록 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
