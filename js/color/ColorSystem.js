@@ -349,3 +349,622 @@ export class ColorSystem {
         if (color.h !== undefined) {
             hsl = color;
         } else if (color.r !== undefined) {
+            hsl = this.rgbToHsl(color);
+        } else {
+            throw new Error('지원하지 않는 색상 형식입니다.');
+        }
+
+        const lightness = hsl.l;
+        const saturation = hsl.s;
+        
+        // PCCS 톤 분류 로직
+        let tone = 'dull';
+        let confidence = 0;
+        
+        // 무채색 판별
+        if (saturation < 10) {
+            if (lightness > 75) {
+                tone = 'lightGray';
+            } else if (lightness > 40) {
+                tone = 'mediumGray';
+            } else {
+                tone = 'darkGray';
+            }
+            confidence = 0.9;
+        } else {
+            // 유채색 톤 분류
+            const toneScores = {};
+            
+            Object.entries(this.pccsTones).forEach(([toneName, toneData]) => {
+                if (toneName.includes('Gray')) return; // 무채색 제외
+                
+                const lightnessDiff = Math.abs(lightness - toneData.lightness);
+                const saturationDiff = Math.abs(saturation - toneData.saturation);
+                
+                // 가중평균으로 점수 계산
+                const score = 100 - (lightnessDiff * 0.6 + saturationDiff * 0.4);
+                toneScores[toneName] = Math.max(0, score);
+            });
+            
+            // 가장 높은 점수의 톤 선택
+            const bestTone = Object.entries(toneScores)
+                .reduce((best, [toneName, score]) => 
+                    score > best.score ? { tone: toneName, score } : best,
+                    { tone: 'dull', score: 0 });
+            
+            tone = bestTone.tone;
+            confidence = bestTone.score / 100;
+        }
+        
+        return {
+            tone,
+            confidence,
+            description: this.pccsTones[tone].description,
+            lightness,
+            saturation,
+            scores: toneScores || {}
+        };
+    }
+
+    // 계절 색상 매핑
+    mapToSeason(color, options = {}) {
+        const temperature = this.analyzeColorTemperature(color);
+        const tone = this.classifyPccsTone(color);
+        const hsl = color.h !== undefined ? color : this.rgbToHsl(color);
+        
+        const seasonScores = {
+            spring: 0,
+            summer: 0,
+            autumn: 0,
+            winter: 0
+        };
+        
+        // 색온도 기반 점수
+        if (temperature.temperature === 'warm') {
+            seasonScores.spring += 40;
+            seasonScores.autumn += 40;
+        } else if (temperature.temperature === 'cool') {
+            seasonScores.summer += 40;
+            seasonScores.winter += 40;
+        } else {
+            // 중성 색온도는 모든 계절에 약간씩 점수
+            Object.keys(seasonScores).forEach(season => seasonScores[season] += 20);
+        }
+        
+        // 명도 기반 점수
+        if (hsl.l > 60) {
+            seasonScores.spring += 30;
+            seasonScores.summer += 30;
+        } else {
+            seasonScores.autumn += 30;
+            seasonScores.winter += 30;
+        }
+        
+        // 채도 기반 점수
+        if (hsl.s > 60) {
+            seasonScores.spring += 25;
+            seasonScores.winter += 25;
+        } else {
+            seasonScores.summer += 25;
+            seasonScores.autumn += 25;
+        }
+        
+        // 톤 기반 세부 조정
+        switch (tone.tone) {
+            case 'vivid':
+            case 'bright':
+                seasonScores.spring += 15;
+                seasonScores.winter += 10;
+                break;
+            case 'pale':
+            case 'light':
+                seasonScores.spring += 10;
+                seasonScores.summer += 15;
+                break;
+            case 'soft':
+            case 'dull':
+                seasonScores.summer += 15;
+                seasonScores.autumn += 10;
+                break;
+            case 'strong':
+            case 'deep':
+                seasonScores.autumn += 15;
+                seasonScores.winter += 10;
+                break;
+            case 'dark':
+                seasonScores.autumn += 10;
+                seasonScores.winter += 15;
+                break;
+        }
+        
+        // 색상(Hue) 기반 세부 조정
+        const hueAdjustment = this.getHueSeasonAdjustment(hsl.h);
+        Object.entries(hueAdjustment).forEach(([season, adjustment]) => {
+            seasonScores[season] += adjustment;
+        });
+        
+        // 점수 정규화
+        const totalScore = Object.values(seasonScores).reduce((sum, score) => sum + score, 0);
+        const probabilities = {};
+        
+        Object.entries(seasonScores).forEach(([season, score]) => {
+            probabilities[season] = totalScore > 0 ? score / totalScore : 0.25;
+        });
+        
+        // 최적 계절 선택
+        const bestSeason = Object.entries(probabilities)
+            .reduce((best, [season, prob]) => 
+                prob > best.probability ? { season, probability: prob } : best,
+                { season: 'spring', probability: 0 });
+        
+        return {
+            season: bestSeason.season,
+            confidence: bestSeason.probability,
+            probabilities,
+            scores: seasonScores,
+            temperature,
+            tone,
+            analysis: {
+                warmth: temperature.warmness,
+                lightness: hsl.l,
+                saturation: hsl.s,
+                hue: hsl.h
+            }
+        };
+    }
+
+    getHueSeasonAdjustment(hue) {
+        const adjustment = { spring: 0, summer: 0, autumn: 0, winter: 0 };
+        
+        // 색상환 기준 계절 성향
+        if (hue >= 0 && hue < 60) { // 빨강-주황
+            adjustment.spring += 10;
+            adjustment.autumn += 15;
+        } else if (hue >= 60 && hue < 120) { // 주황-노랑
+            adjustment.spring += 15;
+            adjustment.autumn += 10;
+        } else if (hue >= 120 && hue < 180) { // 노랑-녹색
+            adjustment.spring += 5;
+            adjustment.summer += 10;
+        } else if (hue >= 180 && hue < 240) { // 녹색-파랑
+            adjustment.summer += 15;
+            adjustment.winter += 10;
+        } else if (hue >= 240 && hue < 300) { // 파랑-보라
+            adjustment.summer += 10;
+            adjustment.winter += 15;
+        } else { // 보라-빨강
+            adjustment.winter += 10;
+            adjustment.autumn += 5;
+        }
+        
+        return adjustment;
+    }
+
+    // 색상 조화 분석
+    analyzeColorHarmony(colors) {
+        if (!Array.isArray(colors) || colors.length < 2) {
+            return null;
+        }
+        
+        const hslColors = colors.map(color => 
+            color.h !== undefined ? color : this.rgbToHsl(color));
+        
+        const harmony = {
+            type: this.identifyHarmonyType(hslColors),
+            balance: this.calculateColorBalance(hslColors),
+            contrast: this.calculateContrast(colors),
+            temperature: this.analyzeTemperatureHarmony(colors)
+        };
+        
+        return harmony;
+    }
+
+    identifyHarmonyType(hslColors) {
+        const hues = hslColors.map(c => c.h);
+        const hueCount = hues.length;
+        
+        if (hueCount === 2) {
+            const diff = Math.abs(hues[0] - hues[1]);
+            const minDiff = Math.min(diff, 360 - diff);
+            
+            if (minDiff < 30) return 'analogous';
+            if (minDiff > 150 && minDiff < 210) return 'complementary';
+            if (minDiff > 90 && minDiff < 150) return 'triadic';
+            return 'custom';
+        } else if (hueCount === 3) {
+            // 삼각 조화 검사
+            const sortedHues = hues.sort((a, b) => a - b);
+            const diff1 = sortedHues[1] - sortedHues[0];
+            const diff2 = sortedHues[2] - sortedHues[1];
+            const diff3 = 360 - sortedHues[2] + sortedHues[0];
+            
+            if (Math.abs(diff1 - 120) < 30 && Math.abs(diff2 - 120) < 30 && Math.abs(diff3 - 120) < 30) {
+                return 'triadic';
+            }
+            
+            return 'custom';
+        }
+        
+        return 'complex';
+    }
+
+    calculateColorBalance(hslColors) {
+        const totalLightness = hslColors.reduce((sum, c) => sum + c.l, 0);
+        const totalSaturation = hslColors.reduce((sum, c) => sum + c.s, 0);
+        
+        const avgLightness = totalLightness / hslColors.length;
+        const avgSaturation = totalSaturation / hslColors.length;
+        
+        // 분산 계산
+        const lightnessVariance = hslColors.reduce((sum, c) => sum + Math.pow(c.l - avgLightness, 2), 0) / hslColors.length;
+        const saturationVariance = hslColors.reduce((sum, c) => sum + Math.pow(c.s - avgSaturation, 2), 0) / hslColors.length;
+        
+        return {
+            lightness: avgLightness,
+            saturation: avgSaturation,
+            lightnessVariance,
+            saturationVariance,
+            balanced: lightnessVariance < 400 && saturationVariance < 400
+        };
+    }
+
+    calculateContrast(colors) {
+        if (colors.length < 2) return 0;
+        
+        // 가장 밝은 색과 가장 어두운 색 간의 대비 계산
+        const labColors = colors.map(color => 
+            color.l !== undefined ? color : this.rgbToLab(color));
+        
+        const lightnesses = labColors.map(c => c.l);
+        const maxL = Math.max(...lightnesses);
+        const minL = Math.min(...lightnesses);
+        
+        // Weber 대비 공식 변형
+        const contrast = (maxL - minL) / (maxL + minL);
+        
+        return {
+            ratio: Math.round(contrast * 100) / 100,
+            level: contrast > 0.7 ? 'high' : contrast > 0.3 ? 'medium' : 'low',
+            maxLightness: maxL,
+            minLightness: minL
+        };
+    }
+
+    analyzeTemperatureHarmony(colors) {
+        const temperatures = colors.map(color => this.analyzeColorTemperature(color));
+        
+        const warmCount = temperatures.filter(t => t.temperature === 'warm').length;
+        const coolCount = temperatures.filter(t => t.temperature === 'cool').length;
+        const neutralCount = temperatures.filter(t => t.temperature === 'neutral').length;
+        
+        let harmony = 'mixed';
+        if (warmCount === colors.length) harmony = 'warm';
+        else if (coolCount === colors.length) harmony = 'cool';
+        else if (neutralCount === colors.length) harmony = 'neutral';
+        
+        return {
+            harmony,
+            distribution: { warm: warmCount, cool: coolCount, neutral: neutralCount },
+            dominant: warmCount > coolCount ? 'warm' : coolCount > warmCount ? 'cool' : 'balanced'
+        };
+    }
+
+    // 색상 팔레트 생성
+    generatePalette(baseColor, type = 'analogous', count = 5) {
+        const baseHsl = baseColor.h !== undefined ? baseColor : this.rgbToHsl(baseColor);
+        const palette = [baseColor];
+        
+        switch (type) {
+            case 'analogous':
+                return this.generateAnalogousPalette(baseHsl, count);
+            case 'complementary':
+                return this.generateComplementaryPalette(baseHsl, count);
+            case 'triadic':
+                return this.generateTriadicPalette(baseHsl, count);
+            case 'monochromatic':
+                return this.generateMonochromaticPalette(baseHsl, count);
+            case 'split-complementary':
+                return this.generateSplitComplementaryPalette(baseHsl, count);
+            default:
+                return this.generateAnalogousPalette(baseHsl, count);
+        }
+    }
+
+    generateAnalogousPalette(baseHsl, count) {
+        const palette = [];
+        const step = 30; // 30도씩 이동
+        
+        for (let i = 0; i < count; i++) {
+            const hue = (baseHsl.h + (i - Math.floor(count / 2)) * step + 360) % 360;
+            const color = this.hslToRgb({
+                h: hue,
+                s: baseHsl.s,
+                l: baseHsl.l
+            });
+            palette.push(color);
+        }
+        
+        return palette;
+    }
+
+    generateComplementaryPalette(baseHsl, count) {
+        const palette = [this.hslToRgb(baseHsl)];
+        
+        // 보색
+        const complementaryHue = (baseHsl.h + 180) % 360;
+        palette.push(this.hslToRgb({
+            h: complementaryHue,
+            s: baseHsl.s,
+            l: baseHsl.l
+        }));
+        
+        // 나머지 색상들은 명도/채도 변형
+        for (let i = 2; i < count; i++) {
+            const useBase = i % 2 === 0;
+            const hue = useBase ? baseHsl.h : complementaryHue;
+            const lightnessMod = (i - 2) * 15 - 15;
+            
+            palette.push(this.hslToRgb({
+                h: hue,
+                s: Math.max(20, Math.min(100, baseHsl.s)),
+                l: Math.max(10, Math.min(90, baseHsl.l + lightnessMod))
+            }));
+        }
+        
+        return palette;
+    }
+
+    generateTriadicPalette(baseHsl, count) {
+        const palette = [];
+        const hues = [baseHsl.h, (baseHsl.h + 120) % 360, (baseHsl.h + 240) % 360];
+        
+        for (let i = 0; i < count; i++) {
+            const hue = hues[i % 3];
+            const lightnessMod = Math.floor(i / 3) * 20 - 10;
+            
+            palette.push(this.hslToRgb({
+                h: hue,
+                s: baseHsl.s,
+                l: Math.max(10, Math.min(90, baseHsl.l + lightnessMod))
+            }));
+        }
+        
+        return palette;
+    }
+
+    generateMonochromaticPalette(baseHsl, count) {
+        const palette = [];
+        const lightnessStep = 80 / (count - 1);
+        
+        for (let i = 0; i < count; i++) {
+            const lightness = 10 + i * lightnessStep;
+            palette.push(this.hslToRgb({
+                h: baseHsl.h,
+                s: baseHsl.s,
+                l: lightness
+            }));
+        }
+        
+        return palette;
+    }
+
+    generateSplitComplementaryPalette(baseHsl, count) {
+        const palette = [this.hslToRgb(baseHsl)];
+        
+        // 분할 보색 (보색의 양쪽 30도)
+        const comp1 = (baseHsl.h + 150) % 360;
+        const comp2 = (baseHsl.h + 210) % 360;
+        
+        palette.push(this.hslToRgb({ h: comp1, s: baseHsl.s, l: baseHsl.l }));
+        palette.push(this.hslToRgb({ h: comp2, s: baseHsl.s, l: baseHsl.l }));
+        
+        // 나머지는 명도 변형
+        for (let i = 3; i < count; i++) {
+            const hue = [baseHsl.h, comp1, comp2][i % 3];
+            const lightnessMod = (i - 3) * 15;
+            
+            palette.push(this.hslToRgb({
+                h: hue,
+                s: baseHsl.s,
+                l: Math.max(10, Math.min(90, baseHsl.l + lightnessMod))
+            }));
+        }
+        
+        return palette;
+    }
+
+    // 색상 유사도 계산
+    calculateColorSimilarity(color1, color2, method = 'euclidean') {
+        switch (method) {
+            case 'euclidean':
+                return this.calculateEuclideanDistance(color1, color2);
+            case 'lab':
+                return this.calculateLabDistance(color1, color2);
+            case 'hsl':
+                return this.calculateHslDistance(color1, color2);
+            default:
+                return this.calculateEuclideanDistance(color1, color2);
+        }
+    }
+
+    calculateEuclideanDistance(color1, color2) {
+        const rgb1 = color1.r !== undefined ? color1 : this.hexToRgb(color1);
+        const rgb2 = color2.r !== undefined ? color2 : this.hexToRgb(color2);
+        
+        const dr = rgb1.r - rgb2.r;
+        const dg = rgb1.g - rgb2.g;
+        const db = rgb1.b - rgb2.b;
+        
+        return Math.sqrt(dr * dr + dg * dg + db * db);
+    }
+
+    calculateLabDistance(color1, color2) {
+        const lab1 = color1.l !== undefined ? color1 : this.rgbToLab(color1);
+        const lab2 = color2.l !== undefined ? color2 : this.rgbToLab(color2);
+        
+        const dl = lab1.l - lab2.l;
+        const da = lab1.a - lab2.a;
+        const db = lab1.b - lab2.b;
+        
+        return Math.sqrt(dl * dl + da * da + db * db);
+    }
+
+    calculateHslDistance(color1, color2) {
+        const hsl1 = color1.h !== undefined ? color1 : this.rgbToHsl(color1);
+        const hsl2 = color2.h !== undefined ? color2 : this.rgbToHsl(color2);
+        
+        // 색상환에서의 거리 (원형이므로 특별 처리)
+        let dh = Math.abs(hsl1.h - hsl2.h);
+        dh = Math.min(dh, 360 - dh);
+        
+        const ds = Math.abs(hsl1.s - hsl2.s);
+        const dl = Math.abs(hsl1.l - hsl2.l);
+        
+        // 가중 평균 (색상을 더 중요하게)
+        return Math.sqrt(dh * dh * 2 + ds * ds + dl * dl);
+    }
+
+    // 색상 접근성 검사
+    checkAccessibility(foregroundColor, backgroundColor) {
+        const fgLab = foregroundColor.l !== undefined ? foregroundColor : this.rgbToLab(foregroundColor);
+        const bgLab = backgroundColor.l !== undefined ? backgroundColor : this.rgbToLab(backgroundColor);
+        
+        // 상대 휘도 계산
+        const fgLuminance = this.calculateRelativeLuminance(fgLab);
+        const bgLuminance = this.calculateRelativeLuminance(bgLab);
+        
+        const lighter = Math.max(fgLuminance, bgLuminance);
+        const darker = Math.min(fgLuminance, bgLuminance);
+        
+        const contrastRatio = (lighter + 0.05) / (darker + 0.05);
+        
+        return {
+            ratio: Math.round(contrastRatio * 100) / 100,
+            level: this.getWCAGLevel(contrastRatio),
+            passes: {
+                aa: contrastRatio >= 4.5,
+                aaa: contrastRatio >= 7,
+                aaLarge: contrastRatio >= 3,
+                aaaLarge: contrastRatio >= 4.5
+            }
+        };
+    }
+
+    calculateRelativeLuminance(lab) {
+        // LAB에서 상대 휘도 근사 계산
+        return lab.l / 100;
+    }
+
+    getWCAGLevel(ratio) {
+        if (ratio >= 7) return 'AAA';
+        if (ratio >= 4.5) return 'AA';
+        if (ratio >= 3) return 'AA Large';
+        return 'Fail';
+    }
+
+    // 색상 정보 요약
+    getColorInfo(color) {
+        const rgb = color.r !== undefined ? color : this.hexToRgb(color);
+        const hsl = this.rgbToHsl(rgb);
+        const lab = this.rgbToLab(rgb);
+        const hex = this.rgbToHex(rgb);
+        
+        const temperature = this.analyzeColorTemperature(lab);
+        const tone = this.classifyPccsTone(hsl);
+        const season = this.mapToSeason(rgb);
+        
+        return {
+            rgb,
+            hsl,
+            lab,
+            hex,
+            temperature,
+            tone,
+            season,
+            name: this.getColorName(rgb),
+            description: this.getColorDescription(temperature, tone, season)
+        };
+    }
+
+    getColorName(rgb) {
+        // 기본적인 색상 이름 매핑
+        const hsl = this.rgbToHsl(rgb);
+        const hue = hsl.h;
+        const sat = hsl.s;
+        const light = hsl.l;
+        
+        if (sat < 10) {
+            if (light > 90) return '화이트';
+            if (light > 70) return '라이트 그레이';
+            if (light > 30) return '그레이';
+            return '블랙';
+        }
+        
+        let baseName = '';
+        if (hue < 15 || hue >= 345) baseName = '레드';
+        else if (hue < 45) baseName = '오렌지';
+        else if (hue < 75) baseName = '옐로우';
+        else if (hue < 105) baseName = '라이트 그린';
+        else if (hue < 135) baseName = '그린';
+        else if (hue < 165) baseName = '시안';
+        else if (hue < 195) baseName = '라이트 블루';
+        else if (hue < 225) baseName = '블루';
+        else if (hue < 255) baseName = '퍼플';
+        else if (hue < 285) baseName = '마젠타';
+        else if (hue < 315) baseName = '핑크';
+        else baseName = '로즈';
+        
+        // 명도/채도에 따른 수식어
+        let prefix = '';
+        if (light < 25) prefix = '다크 ';
+        else if (light > 75) prefix = '라이트 ';
+        
+        if (sat < 30) prefix += '페일 ';
+        else if (sat > 80) prefix += '비비드 ';
+        
+        return prefix + baseName;
+    }
+
+    getColorDescription(temperature, tone, season) {
+        const tempDesc = temperature.description;
+        const toneDesc = tone.description;
+        const seasonDesc = season.season === 'spring' ? '봄' :
+                          season.season === 'summer' ? '여름' :
+                          season.season === 'autumn' ? '가을' : '겨울';
+        
+        return `${tempDesc}, ${toneDesc} 톤, ${seasonDesc} 타입`;
+    }
+
+    // 유틸리티 메서드
+    clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    // 성능 최적화를 위한 캐싱
+    enableCache() {
+        this.cache = new Map();
+    }
+
+    disableCache() {
+        this.cache = null;
+    }
+
+    getCachedResult(key, computeFn) {
+        if (!this.cache) return computeFn();
+        
+        if (this.cache.has(key)) {
+            return this.cache.get(key);
+        }
+        
+        const result = computeFn();
+        this.cache.set(key, result);
+        
+        // 캐시 크기 제한
+        if (this.cache.size > 1000) {
+            const firstKey = this.cache.keys().next().value;
+            this.cache.delete(firstKey);
+        }
+        
+        return result;
+    }
+}
