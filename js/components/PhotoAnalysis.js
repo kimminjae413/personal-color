@@ -90,8 +90,8 @@ class PhotoAnalysis {
     async initializeCamera() {
         try {
             // 카메라 권한 확인
-            const hasPermissionResult = await this.checkCameraPermission();
-            if (!hasPermissionResult) {
+            const hasPermission = await this.checkCameraPermission();
+            if (!hasPermission) {
                 throw new Error('카메라 권한이 필요합니다');
             }
             
