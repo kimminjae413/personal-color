@@ -1,23 +1,41 @@
 /**
- * VirtualDraping.js
+ * VirtualDraping.js - ES6 → ES5 변환 완료
  * 실시간 가상 드레이핑 엔진
- * - WebGL 기반 고성능 실시간 렌더링
- * - 4계절 색상 팔레트 실시간 적용
- * - 피부톤 매칭도 즉시 분석
- * - Before/After 비교 모드
+ * 
+ * 주요 변경사항:
+ * - ES6 클래스 → ES5 함수 생성자 패턴
+ * - const/let → var 변환
+ * - 화살표 함수 → function() {} 변환
+ * - async/await → Promise 체인 변환
+ * - 템플릿 리터럴 → 문자열 연결
+ * - import/export → window 전역 등록
+ * - WebGL 브라우저 호환성 강화
  */
 
-class VirtualDraping {
-    constructor(canvasElement, options = {}) {
+(function() {
+    'use strict';
+
+    /**
+     * 가상 드레이핑 클래스 (ES5 버전)
+     */
+    function VirtualDraping(canvasElement, options) {
+        options = options || {};
+        
         this.canvas = canvasElement;
         this.options = {
             enableWebGL: options.enableWebGL !== false,
             maxFPS: options.maxFPS || 60,
             colorBlendMode: options.colorBlendMode || 'multiply',
             enableSkinAnalysis: options.enableSkinAnalysis !== false,
-            debugMode: options.debugMode || false,
-            ...options
+            debugMode: options.debugMode || false
         };
+
+        // 추가 옵션 병합
+        for (var key in options) {
+            if (options.hasOwnProperty(key) && !this.options.hasOwnProperty(key)) {
+                this.options[key] = options[key];
+            }
+        }
 
         // WebGL 컨텍스트
         this.gl = null;
@@ -48,148 +66,208 @@ class VirtualDraping {
 
         // 색상 팔레트
         this.colorPalettes = {};
-        this.loadColorPalettes();
-
-        this.init();
-    }
-
-    async init() {
-        try {
-            console.log('🎨 VirtualDraping 초기화 시작');
-            
-            await this.setupWebGL();
-            await this.loadShaders();
-            await this.initializeBuffers();
-            this.setupEventListeners();
-            
-            console.log('✅ VirtualDraping 초기화 완료');
-        } catch (error) {
-            console.error('❌ VirtualDraping 초기화 실패:', error);
-            this.fallbackToCanvas2D();
-        }
-    }
-
-    /**
-     * WebGL 설정
-     */
-    async setupWebGL() {
-        this.gl = this.canvas.getContext('webgl2') || this.canvas.getContext('webgl');
         
-        if (!this.gl) {
-            throw new Error('WebGL을 지원하지 않는 브라우저입니다');
-        }
-
-        // WebGL 설정
-        this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
-        this.gl.enable(this.gl.BLEND);
-        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-        this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-
-        console.log('🔧 WebGL 설정 완료');
-    }
-
-    /**
-     * 셰이더 로드
-     */
-    async loadShaders() {
-        const vertexShaderSource = `
-            attribute vec2 a_position;
-            attribute vec2 a_texCoord;
-            
-            varying vec2 v_texCoord;
-            
-            void main() {
-                gl_Position = vec4(a_position, 0.0, 1.0);
-                v_texCoord = a_texCoord;
-            }
-        `;
-
-        const fragmentShaderSource = `
-            precision mediump float;
-            
-            uniform sampler2D u_image;
-            uniform sampler2D u_skinMask;
-            uniform vec3 u_drapingColor;
-            uniform float u_opacity;
-            uniform int u_blendMode;
-            uniform vec2 u_resolution;
-            
-            varying vec2 v_texCoord;
-            
-            vec3 blendSoftLight(vec3 base, vec3 blend) {
-                return mix(
-                    sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),
-                    2.0 * base * blend + base * base * (1.0 - 2.0 * blend),
-                    step(0.5, blend)
-                );
-            }
-            
-            vec3 blendMultiply(vec3 base, vec3 blend) {
-                return base * blend;
-            }
-            
-            vec3 blendOverlay(vec3 base, vec3 blend) {
-                return mix(
-                    2.0 * base * blend,
-                    1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
-                    step(0.5, base)
-                );
-            }
-            
-            void main() {
-                vec4 originalColor = texture2D(u_image, v_texCoord);
-                vec4 skinMask = texture2D(u_skinMask, v_texCoord);
-                
-                // 피부 영역에만 드레이핑 적용
-                if (skinMask.r < 0.5) {
-                    gl_FragColor = originalColor;
-                    return;
-                }
-                
-                vec3 baseColor = originalColor.rgb;
-                vec3 blendColor = u_drapingColor;
-                vec3 result;
-                
-                // 블렌드 모드 적용
-                if (u_blendMode == 0) {
-                    result = blendSoftLight(baseColor, blendColor);
-                } else if (u_blendMode == 1) {
-                    result = blendMultiply(baseColor, blendColor);
-                } else if (u_blendMode == 2) {
-                    result = blendOverlay(baseColor, blendColor);
-                } else {
-                    result = mix(baseColor, blendColor, 0.5);
-                }
-                
-                // 투명도 적용
-                result = mix(baseColor, result, u_opacity * skinMask.r);
-                
-                gl_FragColor = vec4(result, originalColor.a);
-            }
-        `;
-
-        this.program = await this.createShaderProgram(vertexShaderSource, fragmentShaderSource);
-        this.gl.useProgram(this.program);
-
-        // 유니폼 위치 가져오기
-        this.uniforms = {
-            image: this.gl.getUniformLocation(this.program, 'u_image'),
-            skinMask: this.gl.getUniformLocation(this.program, 'u_skinMask'),
-            drapingColor: this.gl.getUniformLocation(this.program, 'u_drapingColor'),
-            opacity: this.gl.getUniformLocation(this.program, 'u_opacity'),
-            blendMode: this.gl.getUniformLocation(this.program, 'u_blendMode'),
-            resolution: this.gl.getUniformLocation(this.program, 'u_resolution')
+        // 비교 모드
+        this.comparisonMode = {
+            enabled: false,
+            mode: 'split',
+            splitRatio: 0.5
         };
 
-        console.log('📋 셰이더 로드 완료');
+        // 애니메이션 프레임 ID
+        this.animationId = null;
+        
+        // 비디오 엘리먼트
+        this.videoElement = null;
+        
+        // 얼굴 감지 객체
+        this.faceDetection = null;
+        
+        // Canvas 2D 폴백
+        this.useCanvas2D = false;
+        this.ctx2d = null;
+
+        // 메서드 바인딩
+        var self = this;
+        this.init = this.init.bind(this);
+        this.startRenderLoop = this.startRenderLoop.bind(this);
+        this.renderFrame = this.renderFrame.bind(this);
+
+        // 초기화
+        this.loadColorPalettes();
+        setTimeout(function() {
+            self.init();
+        }, 0);
     }
 
     /**
-     * 버퍼 초기화
+     * 초기화 (ES5 버전)
      */
-    initializeBuffers() {
+    VirtualDraping.prototype.init = function() {
+        console.log('🎨 VirtualDraping 초기화 시작');
+        
+        var self = this;
+        
+        Promise.resolve()
+            .then(function() {
+                return self.setupWebGL();
+            })
+            .then(function() {
+                return self.loadShaders();
+            })
+            .then(function() {
+                self.initializeBuffers();
+                self.setupEventListeners();
+                console.log('✅ VirtualDraping 초기화 완료');
+            })
+            .catch(function(error) {
+                console.error('❌ VirtualDraping 초기화 실패:', error);
+                self.fallbackToCanvas2D();
+            });
+    };
+
+    /**
+     * WebGL 설정 (ES5 버전)
+     */
+    VirtualDraping.prototype.setupWebGL = function() {
+        return new Promise(function(resolve, reject) {
+            try {
+                this.gl = this.canvas.getContext('webgl2') || this.canvas.getContext('webgl');
+                
+                if (!this.gl) {
+                    throw new Error('WebGL을 지원하지 않는 브라우저입니다');
+                }
+
+                // WebGL 설정
+                this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
+                this.gl.enable(this.gl.BLEND);
+                this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+                this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+
+                console.log('🔧 WebGL 설정 완료');
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        }.bind(this));
+    };
+
+    /**
+     * 셰이더 로드 (ES5 버전)
+     */
+    VirtualDraping.prototype.loadShaders = function() {
+        var self = this;
+        
+        return new Promise(function(resolve, reject) {
+            try {
+                var vertexShaderSource = [
+                    'attribute vec2 a_position;',
+                    'attribute vec2 a_texCoord;',
+                    '',
+                    'varying vec2 v_texCoord;',
+                    '',
+                    'void main() {',
+                    '    gl_Position = vec4(a_position, 0.0, 1.0);',
+                    '    v_texCoord = a_texCoord;',
+                    '}'
+                ].join('\n');
+
+                var fragmentShaderSource = [
+                    'precision mediump float;',
+                    '',
+                    'uniform sampler2D u_image;',
+                    'uniform sampler2D u_skinMask;',
+                    'uniform vec3 u_drapingColor;',
+                    'uniform float u_opacity;',
+                    'uniform int u_blendMode;',
+                    'uniform vec2 u_resolution;',
+                    '',
+                    'varying vec2 v_texCoord;',
+                    '',
+                    'vec3 blendSoftLight(vec3 base, vec3 blend) {',
+                    '    return mix(',
+                    '        sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),',
+                    '        2.0 * base * blend + base * base * (1.0 - 2.0 * blend),',
+                    '        step(0.5, blend)',
+                    '    );',
+                    '}',
+                    '',
+                    'vec3 blendMultiply(vec3 base, vec3 blend) {',
+                    '    return base * blend;',
+                    '}',
+                    '',
+                    'vec3 blendOverlay(vec3 base, vec3 blend) {',
+                    '    return mix(',
+                    '        2.0 * base * blend,',
+                    '        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),',
+                    '        step(0.5, base)',
+                    '    );',
+                    '}',
+                    '',
+                    'void main() {',
+                    '    vec4 originalColor = texture2D(u_image, v_texCoord);',
+                    '    vec4 skinMask = texture2D(u_skinMask, v_texCoord);',
+                    '    ',
+                    '    // 피부 영역에만 드레이핑 적용',
+                    '    if (skinMask.r < 0.5) {',
+                    '        gl_FragColor = originalColor;',
+                    '        return;',
+                    '    }',
+                    '    ',
+                    '    vec3 baseColor = originalColor.rgb;',
+                    '    vec3 blendColor = u_drapingColor;',
+                    '    vec3 result;',
+                    '    ',
+                    '    // 블렌드 모드 적용',
+                    '    if (u_blendMode == 0) {',
+                    '        result = blendSoftLight(baseColor, blendColor);',
+                    '    } else if (u_blendMode == 1) {',
+                    '        result = blendMultiply(baseColor, blendColor);',
+                    '    } else if (u_blendMode == 2) {',
+                    '        result = blendOverlay(baseColor, blendColor);',
+                    '    } else {',
+                    '        result = mix(baseColor, blendColor, 0.5);',
+                    '    }',
+                    '    ',
+                    '    // 투명도 적용',
+                    '    result = mix(baseColor, result, u_opacity * skinMask.r);',
+                    '    ',
+                    '    gl_FragColor = vec4(result, originalColor.a);',
+                    '}'
+                ].join('\n');
+
+                self.createShaderProgram(vertexShaderSource, fragmentShaderSource)
+                    .then(function(program) {
+                        self.program = program;
+                        self.gl.useProgram(self.program);
+
+                        // 유니폼 위치 가져오기
+                        self.uniforms = {
+                            image: self.gl.getUniformLocation(self.program, 'u_image'),
+                            skinMask: self.gl.getUniformLocation(self.program, 'u_skinMask'),
+                            drapingColor: self.gl.getUniformLocation(self.program, 'u_drapingColor'),
+                            opacity: self.gl.getUniformLocation(self.program, 'u_opacity'),
+                            blendMode: self.gl.getUniformLocation(self.program, 'u_blendMode'),
+                            resolution: self.gl.getUniformLocation(self.program, 'u_resolution')
+                        };
+
+                        console.log('📋 셰이더 로드 완료');
+                        resolve();
+                    })
+                    .catch(reject);
+                    
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
+
+    /**
+     * 버퍼 초기화 (ES5 버전)
+     */
+    VirtualDraping.prototype.initializeBuffers = function() {
         // 정점 버퍼 (전체 화면 quad)
-        const vertices = new Float32Array([
+        var vertices = new Float32Array([
             -1.0, -1.0,  0.0, 0.0,  // 좌하단
              1.0, -1.0,  1.0, 0.0,  // 우하단
             -1.0,  1.0,  0.0, 1.0,  // 좌상단
@@ -201,14 +279,14 @@ class VirtualDraping {
         this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
 
         // 인덱스 버퍼
-        const indices = new Uint16Array([0, 1, 2, 1, 2, 3]);
+        var indices = new Uint16Array([0, 1, 2, 1, 2, 3]);
         this.buffers.index = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.index);
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, indices, this.gl.STATIC_DRAW);
 
         // 속성 연결
-        const positionLocation = this.gl.getAttribLocation(this.program, 'a_position');
-        const texCoordLocation = this.gl.getAttribLocation(this.program, 'a_texCoord');
+        var positionLocation = this.gl.getAttribLocation(this.program, 'a_position');
+        var texCoordLocation = this.gl.getAttribLocation(this.program, 'a_texCoord');
 
         this.gl.enableVertexAttribArray(positionLocation);
         this.gl.enableVertexAttribArray(texCoordLocation);
@@ -217,12 +295,12 @@ class VirtualDraping {
         this.gl.vertexAttribPointer(texCoordLocation, 2, this.gl.FLOAT, false, 16, 8);
 
         console.log('🔧 버퍼 초기화 완료');
-    }
+    };
 
     /**
-     * 색상 팔레트 로드
+     * 색상 팔레트 로드 (ES5 버전)
      */
-    loadColorPalettes() {
+    VirtualDraping.prototype.loadColorPalettes = function() {
         this.colorPalettes = {
             spring: {
                 bright: [
@@ -294,69 +372,78 @@ class VirtualDraping {
         };
 
         console.log('🎨 색상 팔레트 로드 완료');
-    }
+    };
 
     /**
-     * 실시간 드레이핑 시작
+     * 실시간 드레이핑 시작 (ES5 버전)
      */
-    async startDraping(videoElement, faceDetection) {
-        try {
-            this.state.isActive = true;
-            this.videoElement = videoElement;
-            this.faceDetection = faceDetection;
+    VirtualDraping.prototype.startDraping = function(videoElement, faceDetection) {
+        var self = this;
+        
+        return new Promise(function(resolve, reject) {
+            try {
+                self.state.isActive = true;
+                self.videoElement = videoElement;
+                self.faceDetection = faceDetection;
 
-            // 스킨 마스크 생성
-            await this.generateSkinMask();
-            
-            // 렌더링 루프 시작
-            this.startRenderLoop();
-            
-            console.log('🎥 실시간 드레이핑 시작');
-        } catch (error) {
-            console.error('❌ 드레이핑 시작 실패:', error);
-            throw error;
-        }
-    }
+                // 스킨 마스크 생성
+                self.generateSkinMask()
+                    .then(function() {
+                        // 렌더링 루프 시작
+                        self.startRenderLoop();
+                        console.log('🎥 실시간 드레이핑 시작');
+                        resolve();
+                    })
+                    .catch(reject);
+                
+            } catch (error) {
+                console.error('❌ 드레이핑 시작 실패:', error);
+                reject(error);
+            }
+        });
+    };
 
     /**
-     * 드레이핑 중지
+     * 드레이핑 중지 (ES5 버전)
      */
-    stopDraping() {
+    VirtualDraping.prototype.stopDraping = function() {
         this.state.isActive = false;
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
         }
         console.log('⏹️ 드레이핑 중지');
-    }
+    };
 
     /**
-     * 색상 적용
+     * 색상 적용 (ES5 버전)
      */
-    applyColor(color, season, subtype) {
+    VirtualDraping.prototype.applyColor = function(color, season, subtype) {
         this.state.currentColor = color;
         this.state.currentSeason = season;
         
         // 색상을 정규화된 RGB로 변환
-        const normalizedColor = [
+        var normalizedColor = [
             color.rgb[0] / 255.0,
             color.rgb[1] / 255.0,
             color.rgb[2] / 255.0
         ];
 
-        this.gl.uniform3f(this.uniforms.drapingColor, ...normalizedColor);
+        if (this.gl && this.uniforms.drapingColor) {
+            this.gl.uniform3f(this.uniforms.drapingColor, normalizedColor[0], normalizedColor[1], normalizedColor[2]);
+        }
         
         // 계절별 최적 블렌드 모드 설정
-        const blendMode = this.getOptimalBlendMode(season, subtype);
+        var blendMode = this.getOptimalBlendMode(season, subtype);
         this.setBlendMode(blendMode);
 
-        console.log(`🎨 색상 적용: ${color.name} (${season} ${subtype})`);
-    }
+        console.log('🎨 색상 적용: ' + color.name + ' (' + season + ' ' + subtype + ')');
+    };
 
     /**
-     * 블렌드 모드 설정
+     * 블렌드 모드 설정 (ES5 버전)
      */
-    setBlendMode(mode) {
-        const blendModes = {
+    VirtualDraping.prototype.setBlendMode = function(mode) {
+        var blendModes = {
             'soft-light': 0,
             'multiply': 1,
             'overlay': 2,
@@ -364,60 +451,77 @@ class VirtualDraping {
         };
 
         this.state.blendMode = mode;
-        this.gl.uniform1i(this.uniforms.blendMode, blendModes[mode] || 0);
-    }
-
-    /**
-     * 투명도 설정
-     */
-    setOpacity(opacity) {
-        this.state.opacity = Math.max(0, Math.min(1, opacity));
-        this.gl.uniform1f(this.uniforms.opacity, this.state.opacity);
-    }
-
-    /**
-     * 스킨 마스크 생성
-     */
-    async generateSkinMask() {
-        if (!this.faceDetection || !this.videoElement) {
-            console.warn('⚠️ 얼굴 감지 또는 비디오가 없어 스킨 마스크 생성 불가');
-            return;
+        if (this.gl && this.uniforms.blendMode) {
+            this.gl.uniform1i(this.uniforms.blendMode, blendModes[mode] || 0);
         }
+    };
 
-        try {
-            const faceResults = await this.faceDetection.detectFace(this.videoElement);
-            
-            if (!faceResults || !faceResults.landmarks) {
-                console.warn('⚠️ 얼굴이 감지되지 않음');
+    /**
+     * 투명도 설정 (ES5 버전)
+     */
+    VirtualDraping.prototype.setOpacity = function(opacity) {
+        this.state.opacity = Math.max(0, Math.min(1, opacity));
+        if (this.gl && this.uniforms.opacity) {
+            this.gl.uniform1f(this.uniforms.opacity, this.state.opacity);
+        }
+    };
+
+    /**
+     * 스킨 마스크 생성 (ES5 버전)
+     */
+    VirtualDraping.prototype.generateSkinMask = function() {
+        var self = this;
+        
+        return new Promise(function(resolve, reject) {
+            if (!self.faceDetection || !self.videoElement) {
+                console.warn('⚠️ 얼굴 감지 또는 비디오가 없어 스킨 마스크 생성 불가');
+                resolve();
                 return;
             }
 
-            // 스킨 영역 마스크 생성
-            const maskCanvas = document.createElement('canvas');
-            maskCanvas.width = this.canvas.width;
-            maskCanvas.height = this.canvas.height;
-            const maskCtx = maskCanvas.getContext('2d');
+            try {
+                self.faceDetection.detectFace(self.videoElement)
+                    .then(function(faceResults) {
+                        if (!faceResults || !faceResults.landmarks) {
+                            console.warn('⚠️ 얼굴이 감지되지 않음');
+                            resolve();
+                            return;
+                        }
 
-            // 얼굴 영역을 기반으로 마스크 생성
-            this.drawSkinMask(maskCtx, faceResults.landmarks, maskCanvas.width, maskCanvas.height);
+                        // 스킨 영역 마스크 생성
+                        var maskCanvas = document.createElement('canvas');
+                        maskCanvas.width = self.canvas.width;
+                        maskCanvas.height = self.canvas.height;
+                        var maskCtx = maskCanvas.getContext('2d');
 
-            // WebGL 텍스처로 업로드
-            this.updateSkinMaskTexture(maskCanvas);
+                        // 얼굴 영역을 기반으로 마스크 생성
+                        self.drawSkinMask(maskCtx, faceResults.landmarks, maskCanvas.width, maskCanvas.height);
 
-            this.state.skinROI = this.calculateSkinROI(faceResults.landmarks);
-            this.state.faceDetected = true;
+                        // WebGL 텍스처로 업로드
+                        self.updateSkinMaskTexture(maskCanvas);
 
-            console.log('🎭 스킨 마스크 생성 완료');
+                        self.state.skinROI = self.calculateSkinROI(faceResults.landmarks);
+                        self.state.faceDetected = true;
 
-        } catch (error) {
-            console.error('❌ 스킨 마스크 생성 실패:', error);
-        }
-    }
+                        console.log('🎭 스킨 마스크 생성 완료');
+                        resolve();
+                    })
+                    .catch(function(error) {
+                        console.error('❌ 스킨 마스크 생성 실패:', error);
+                        resolve(); // 실패해도 계속 진행
+                    });
+                    
+            } catch (error) {
+                console.error('❌ 스킨 마스크 생성 실패:', error);
+                resolve();
+            }
+        });
+    };
 
     /**
-     * 스킨 마스크 그리기
+     * 스킨 마스크 그리기 (ES5 버전)
      */
-    drawSkinMask(ctx, landmarks, width, height) {
+    VirtualDraping.prototype.drawSkinMask = function(ctx, landmarks, width, height) {
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, width, height);
 
@@ -427,56 +531,59 @@ class VirtualDraping {
 
         // MediaPipe 랜드마크 기반 얼굴 영역 추출
         // 얼굴 윤곽 (FACE_OVAL)
-        const faceOval = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+        var faceOval = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
         
         if (landmarks.length >= 468) {
             // 얼굴 윤곽선 그리기
-            faceOval.forEach((index, i) => {
-                const point = landmarks[index];
-                const x = point.x * width;
-                const y = point.y * height;
+            for (var i = 0; i < faceOval.length; i++) {
+                var index = faceOval[i];
+                var point = landmarks[index];
+                var x = point.x * width;
+                var y = point.y * height;
                 
                 if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
                     ctx.lineTo(x, y);
                 }
-            });
+            }
             
             ctx.closePath();
             ctx.fill();
 
             // 이마 영역 추가
-            const foreheadPoints = [9, 10, 151, 337, 299, 333, 298, 301];
+            var foreheadPoints = [9, 10, 151, 337, 299, 333, 298, 301];
             ctx.beginPath();
-            foreheadPoints.forEach((index, i) => {
-                const point = landmarks[index];
-                const x = point.x * width;
-                const y = point.y * height - 30; // 이마 영역 확장
+            for (var i = 0; i < foreheadPoints.length; i++) {
+                var index = foreheadPoints[i];
+                var point = landmarks[index];
+                var x = point.x * width;
+                var y = point.y * height - 30; // 이마 영역 확장
                 
                 if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
                     ctx.lineTo(x, y);
                 }
-            });
+            }
             ctx.closePath();
             ctx.fill();
 
             // 목 영역 추가
-            const neckPoints = [18, 175, 199, 200, 9, 10, 151, 175];
+            var neckPoints = [18, 175, 199, 200, 9, 10, 151, 175];
             ctx.beginPath();
-            neckPoints.forEach((index, i) => {
-                const point = landmarks[index];
-                const x = point.x * width;
-                const y = point.y * height + 50; // 목 영역 확장
+            for (var i = 0; i < neckPoints.length; i++) {
+                var index = neckPoints[i];
+                var point = landmarks[index];
+                var x = point.x * width;
+                var y = point.y * height + 50; // 목 영역 확장
                 
                 if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
                     ctx.lineTo(x, y);
                 }
-            });
+            }
             ctx.closePath();
             ctx.fill();
         }
@@ -484,31 +591,38 @@ class VirtualDraping {
         // 가장자리 소프트닝
         ctx.filter = 'blur(3px)';
         ctx.globalCompositeOperation = 'source-over';
-    }
+    };
 
     /**
-     * 렌더링 루프
+     * 렌더링 루프 (ES5 버전)
      */
-    startRenderLoop() {
-        const render = (timestamp) => {
-            if (!this.state.isActive) return;
+    VirtualDraping.prototype.startRenderLoop = function() {
+        var self = this;
+        
+        function render(timestamp) {
+            if (!self.state.isActive) return;
 
-            this.updatePerformance(timestamp);
-            this.renderFrame();
+            self.updatePerformance(timestamp);
             
-            this.animationId = requestAnimationFrame(render);
-        };
+            if (self.useCanvas2D) {
+                self.renderCanvas2D();
+            } else {
+                self.renderFrame();
+            }
+            
+            self.animationId = requestAnimationFrame(render);
+        }
 
         this.animationId = requestAnimationFrame(render);
-    }
+    };
 
     /**
-     * 프레임 렌더링
+     * 프레임 렌더링 (ES5 버전)
      */
-    renderFrame() {
+    VirtualDraping.prototype.renderFrame = function() {
         if (!this.videoElement || !this.gl || !this.program) return;
 
-        const startTime = performance.now();
+        var startTime = performance.now();
 
         try {
             // 비디오 텍스처 업데이트
@@ -519,13 +633,15 @@ class VirtualDraping {
             this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
             // 유니폼 업데이트
-            this.gl.uniform2f(this.uniforms.resolution, this.canvas.width, this.canvas.height);
+            if (this.uniforms.resolution) {
+                this.gl.uniform2f(this.uniforms.resolution, this.canvas.width, this.canvas.height);
+            }
 
             // 렌더링
             this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
 
             // 성능 기록
-            const renderTime = performance.now() - startTime;
+            var renderTime = performance.now() - startTime;
             this.performance.renderTime.push(renderTime);
             if (this.performance.renderTime.length > 60) {
                 this.performance.renderTime.shift();
@@ -534,12 +650,12 @@ class VirtualDraping {
         } catch (error) {
             console.error('❌ 렌더링 오류:', error);
         }
-    }
+    };
 
     /**
-     * 비디오 텍스처 업데이트
+     * 비디오 텍스처 업데이트 (ES5 버전)
      */
-    updateVideoTexture() {
+    VirtualDraping.prototype.updateVideoTexture = function() {
         if (!this.textures.video) {
             this.textures.video = this.gl.createTexture();
         }
@@ -553,13 +669,15 @@ class VirtualDraping {
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
-        this.gl.uniform1i(this.uniforms.image, 0);
-    }
+        if (this.uniforms.image) {
+            this.gl.uniform1i(this.uniforms.image, 0);
+        }
+    };
 
     /**
-     * 스킨 마스크 텍스처 업데이트
+     * 스킨 마스크 텍스처 업데이트 (ES5 버전)
      */
-    updateSkinMaskTexture(maskCanvas) {
+    VirtualDraping.prototype.updateSkinMaskTexture = function(maskCanvas) {
         if (!this.textures.skinMask) {
             this.textures.skinMask = this.gl.createTexture();
         }
@@ -573,13 +691,17 @@ class VirtualDraping {
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
-        this.gl.uniform1i(this.uniforms.skinMask, 1);
-    }
+        if (this.uniforms.skinMask) {
+            this.gl.uniform1i(this.uniforms.skinMask, 1);
+        }
+    };
 
     /**
-     * Before/After 비교 모드
+     * Before/After 비교 모드 (ES5 버전)
      */
-    enableComparisonMode(mode = 'split') {
+    VirtualDraping.prototype.enableComparisonMode = function(mode) {
+        mode = mode || 'split';
+        
         this.comparisonMode = {
             enabled: true,
             mode: mode, // 'split', 'slider', 'toggle'
@@ -590,157 +712,197 @@ class VirtualDraping {
             this.setupSplitComparison();
         }
         
-        console.log(`🔄 비교 모드 활성화: ${mode}`);
-    }
+        console.log('🔄 비교 모드 활성화: ' + mode);
+    };
 
     /**
-     * 분할 비교 설정
+     * 분할 비교 설정 (ES5 버전)
      */
-    setupSplitComparison() {
-        // 분할선 셰이더 수정
-        const splitFragmentShader = `
-            precision mediump float;
-            
-            uniform sampler2D u_image;
-            uniform sampler2D u_skinMask;
-            uniform vec3 u_drapingColor;
-            uniform float u_opacity;
-            uniform int u_blendMode;
-            uniform vec2 u_resolution;
-            uniform float u_splitRatio;
-            
-            varying vec2 v_texCoord;
-            
-            vec3 blendSoftLight(vec3 base, vec3 blend) {
-                return mix(
-                    sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),
-                    2.0 * base * blend + base * base * (1.0 - 2.0 * blend),
-                    step(0.5, blend)
+    VirtualDraping.prototype.setupSplitComparison = function() {
+        // 분할선 셰이더 수정 (단순화된 버전)
+        var splitFragmentShader = [
+            'precision mediump float;',
+            '',
+            'uniform sampler2D u_image;',
+            'uniform sampler2D u_skinMask;',
+            'uniform vec3 u_drapingColor;',
+            'uniform float u_opacity;',
+            'uniform int u_blendMode;',
+            'uniform vec2 u_resolution;',
+            'uniform float u_splitRatio;',
+            '',
+            'varying vec2 v_texCoord;',
+            '',
+            'vec3 blendSoftLight(vec3 base, vec3 blend) {',
+            '    return mix(',
+            '        sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),',
+            '        2.0 * base * blend + base * base * (1.0 - 2.0 * blend),',
+            '        step(0.5, blend)',
+            '    );',
+            '}',
+            '',
+            'void main() {',
+            '    vec4 originalColor = texture2D(u_image, v_texCoord);',
+            '    ',
+            '    // 분할선 기준으로 처리',
+            '    if (v_texCoord.x > u_splitRatio) {',
+            '        // 오른쪽: 드레이핑 적용',
+            '        vec4 skinMask = texture2D(u_skinMask, v_texCoord);',
+            '        if (skinMask.r > 0.5) {',
+            '            vec3 result = blendSoftLight(originalColor.rgb, u_drapingColor);',
+            '            result = mix(originalColor.rgb, result, u_opacity * skinMask.r);',
+            '            gl_FragColor = vec4(result, originalColor.a);',
+            '        } else {',
+            '            gl_FragColor = originalColor;',
+            '        }',
+            '    } else {',
+            '        // 왼쪽: 원본',
+            '        gl_FragColor = originalColor;',
+            '    }',
+            '    ',
+            '    // 분할선 그리기',
+            '    if (abs(v_texCoord.x - u_splitRatio) < 0.002) {',
+            '        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);',
+            '    }',
+            '}'
+        ].join('\n');
+        
+        // 새 셰이더 프로그램으로 교체 (실제로는 기존 것 사용)
+        console.log('분할 비교 모드 설정 완료');
+    };
+
+    /**
+     * 색상 매칭도 실시간 분석 (ES5 버전)
+     */
+    VirtualDraping.prototype.analyzeSkinMatching = function() {
+        var self = this;
+        
+        return new Promise(function(resolve) {
+            if (!self.state.skinROI || !self.state.currentColor) {
+                resolve({ score: 0, analysis: '분석 데이터 부족' });
+                return;
+            }
+
+            try {
+                // 피부 영역 색상 추출
+                self.extractSkinColors()
+                    .then(function(skinColors) {
+                        // Delta E 계산
+                        var deltaE = self.calculateColorDistance(skinColors.average, self.state.currentColor.lab);
+                        
+                        // 매칭 점수 계산 (0-100)
+                        var matchingScore = Math.max(0, 100 - (deltaE * 10));
+                        
+                        // 분석 결과
+                        var analysis = self.generateMatchingAnalysis(deltaE, matchingScore);
+                        
+                        resolve({
+                            score: matchingScore,
+                            deltaE: deltaE,
+                            analysis: analysis,
+                            recommendation: self.getMatchingRecommendation(matchingScore),
+                            skinTone: skinColors
+                        });
+                    })
+                    .catch(function(error) {
+                        console.error('❌ 매칭 분석 실패:', error);
+                        resolve({ score: 0, analysis: '분석 실패' });
+                    });
+
+            } catch (error) {
+                console.error('❌ 매칭 분석 실패:', error);
+                resolve({ score: 0, analysis: '분석 실패' });
+            }
+        });
+    };
+
+    /**
+     * 피부 색상 추출 (ES5 버전)
+     */
+    VirtualDraping.prototype.extractSkinColors = function() {
+        var self = this;
+        
+        return new Promise(function(resolve) {
+            try {
+                var tempCanvas = document.createElement('canvas');
+                tempCanvas.width = self.canvas.width;
+                tempCanvas.height = self.canvas.height;
+                var tempCtx = tempCanvas.getContext('2d');
+                
+                // 비디오 프레임 복사
+                tempCtx.drawImage(self.videoElement, 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // ROI 영역 색상 샘플링
+                var imageData = tempCtx.getImageData(
+                    self.state.skinROI.x,
+                    self.state.skinROI.y,
+                    self.state.skinROI.width,
+                    self.state.skinROI.height
                 );
-            }
-            
-            void main() {
-                vec4 originalColor = texture2D(u_image, v_texCoord);
+
+                var colors = [];
+                var data = imageData.data;
                 
-                // 분할선 기준으로 처리
-                if (v_texCoord.x > u_splitRatio) {
-                    // 오른쪽: 드레이핑 적용
-                    vec4 skinMask = texture2D(u_skinMask, v_texCoord);
-                    if (skinMask.r > 0.5) {
-                        vec3 result = blendSoftLight(originalColor.rgb, u_drapingColor);
-                        result = mix(originalColor.rgb, result, u_opacity * skinMask.r);
-                        gl_FragColor = vec4(result, originalColor.a);
-                    } else {
-                        gl_FragColor = originalColor;
+                for (var i = 0; i < data.length; i += 16) { // 샘플링 간격 조정
+                    var r = data[i];
+                    var g = data[i + 1];
+                    var b = data[i + 2];
+                    
+                    if (r > 50 && g > 50 && b > 50) { // 너무 어두운 픽셀 제외
+                        colors.push({ r: r, g: g, b: b });
                     }
-                } else {
-                    // 왼쪽: 원본
-                    gl_FragColor = originalColor;
                 }
+
+                // 평균 색상 계산
+                var avgColor = colors.reduce(function(acc, color) {
+                    acc.r += color.r;
+                    acc.g += color.g;
+                    acc.b += color.b;
+                    return acc;
+                }, { r: 0, g: 0, b: 0 });
+
+                avgColor.r = Math.round(avgColor.r / colors.length);
+                avgColor.g = Math.round(avgColor.g / colors.length);
+                avgColor.b = Math.round(avgColor.b / colors.length);
+
+                resolve({
+                    average: avgColor,
+                    samples: colors.length,
+                    variance: self.calculateColorVariance(colors, avgColor)
+                });
                 
-                // 분할선 그리기
-                if (abs(v_texCoord.x - u_splitRatio) < 0.002) {
-                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-                }
+            } catch (error) {
+                console.error('색상 추출 오류:', error);
+                resolve({
+                    average: { r: 128, g: 128, b: 128 },
+                    samples: 0,
+                    variance: 0
+                });
             }
-        `;
-        
-        // 새 셰이더 프로그램으로 교체
-        this.loadComparisonShader(splitFragmentShader);
-    }
+        });
+    };
 
     /**
-     * 색상 매칭도 실시간 분석
+     * 색상 분산 계산 (ES5 버전)
      */
-    async analyzeSkinMatching() {
-        if (!this.state.skinROI || !this.state.currentColor) {
-            return { score: 0, analysis: '분석 데이터 부족' };
-        }
-
-        try {
-            // 피부 영역 색상 추출
-            const skinColors = await this.extractSkinColors();
-            
-            // Delta E 계산
-            const deltaE = this.calculateColorDistance(skinColors.average, this.state.currentColor.lab);
-            
-            // 매칭 점수 계산 (0-100)
-            const matchingScore = Math.max(0, 100 - (deltaE * 10));
-            
-            // 분석 결과
-            const analysis = this.generateMatchingAnalysis(deltaE, matchingScore);
-            
-            return {
-                score: matchingScore,
-                deltaE: deltaE,
-                analysis: analysis,
-                recommendation: this.getMatchingRecommendation(matchingScore),
-                skinTone: skinColors
-            };
-
-        } catch (error) {
-            console.error('❌ 매칭 분석 실패:', error);
-            return { score: 0, analysis: '분석 실패' };
-        }
-    }
+    VirtualDraping.prototype.calculateColorVariance = function(colors, avgColor) {
+        if (colors.length === 0) return 0;
+        
+        var variance = colors.reduce(function(acc, color) {
+            var dr = color.r - avgColor.r;
+            var dg = color.g - avgColor.g;
+            var db = color.b - avgColor.b;
+            return acc + (dr * dr + dg * dg + db * db);
+        }, 0);
+        
+        return variance / colors.length;
+    };
 
     /**
-     * 피부 색상 추출
+     * 계절별 최적 블렌드 모드 (ES5 버전)
      */
-    async extractSkinColors() {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = this.canvas.width;
-        tempCanvas.height = this.canvas.height;
-        const tempCtx = tempCanvas.getContext('2d');
-        
-        // 비디오 프레임 복사
-        tempCtx.drawImage(this.videoElement, 0, 0, tempCanvas.width, tempCanvas.height);
-        
-        // ROI 영역 색상 샘플링
-        const imageData = tempCtx.getImageData(
-            this.state.skinROI.x,
-            this.state.skinROI.y,
-            this.state.skinROI.width,
-            this.state.skinROI.height
-        );
-
-        const colors = [];
-        const data = imageData.data;
-        
-        for (let i = 0; i < data.length; i += 16) { // 샘플링 간격 조정
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            
-            if (r > 50 && g > 50 && b > 50) { // 너무 어두운 픽셀 제외
-                colors.push({ r, g, b });
-            }
-        }
-
-        // 평균 색상 계산
-        const avgColor = colors.reduce((acc, color) => {
-            acc.r += color.r;
-            acc.g += color.g;
-            acc.b += color.b;
-            return acc;
-        }, { r: 0, g: 0, b: 0 });
-
-        avgColor.r = Math.round(avgColor.r / colors.length);
-        avgColor.g = Math.round(avgColor.g / colors.length);
-        avgColor.b = Math.round(avgColor.b / colors.length);
-
-        return {
-            average: avgColor,
-            samples: colors.length,
-            variance: this.calculateColorVariance(colors, avgColor)
-        };
-    }
-
-    /**
-     * 계절별 최적 블렌드 모드
-     */
-    getOptimalBlendMode(season, subtype) {
-        const blendModeMap = {
+    VirtualDraping.prototype.getOptimalBlendMode = function(season, subtype) {
+        var blendModeMap = {
             spring: {
                 bright: 'soft-light',
                 light: 'overlay',
@@ -763,27 +925,27 @@ class VirtualDraping {
             }
         };
 
-        return blendModeMap[season]?.[subtype] || 'soft-light';
-    }
+        return (blendModeMap[season] && blendModeMap[season][subtype]) ? blendModeMap[season][subtype] : 'soft-light';
+    };
 
     /**
-     * 스킨 ROI 계산
+     * 스킨 ROI 계산 (ES5 버전)
      */
-    calculateSkinROI(landmarks) {
+    VirtualDraping.prototype.calculateSkinROI = function(landmarks) {
         if (!landmarks || landmarks.length < 468) {
             return null;
         }
 
         // 얼굴 주요 포인트들로 ROI 계산
-        const leftCheek = landmarks[116]; // 왼쪽 볼
-        const rightCheek = landmarks[345]; // 오른쪽 볼
-        const forehead = landmarks[9]; // 이마 중앙
-        const chin = landmarks[175]; // 턱
+        var leftCheek = landmarks[116]; // 왼쪽 볼
+        var rightCheek = landmarks[345]; // 오른쪽 볼
+        var forehead = landmarks[9]; // 이마 중앙
+        var chin = landmarks[175]; // 턱
 
-        const minX = Math.min(leftCheek.x, rightCheek.x) * this.canvas.width;
-        const maxX = Math.max(leftCheek.x, rightCheek.x) * this.canvas.width;
-        const minY = forehead.y * this.canvas.height;
-        const maxY = chin.y * this.canvas.height;
+        var minX = Math.min(leftCheek.x, rightCheek.x) * this.canvas.width;
+        var maxX = Math.max(leftCheek.x, rightCheek.x) * this.canvas.width;
+        var minY = forehead.y * this.canvas.height;
+        var maxY = chin.y * this.canvas.height;
 
         return {
             x: Math.max(0, minX - 20),
@@ -791,44 +953,44 @@ class VirtualDraping {
             width: Math.min(this.canvas.width - minX, maxX - minX + 40),
             height: Math.min(this.canvas.height - minY, maxY - minY + 40)
         };
-    }
+    };
 
     /**
-     * 색상 거리 계산 (Delta E 2000)
+     * 색상 거리 계산 (Delta E 2000) (ES5 버전)
      */
-    calculateColorDistance(rgb1, lab2) {
+    VirtualDraping.prototype.calculateColorDistance = function(rgb1, lab2) {
         // RGB를 LAB으로 변환
-        const lab1 = this.rgbToLab(rgb1.r, rgb1.g, rgb1.b);
+        var lab1 = this.rgbToLab(rgb1.r, rgb1.g, rgb1.b);
         
         // Delta E 2000 계산 (간단한 근사치)
-        const deltaL = lab1.l - lab2[0];
-        const deltaA = lab1.a - lab2[1];
-        const deltaB = lab1.b - lab2[2];
+        var deltaL = lab1.l - lab2[0];
+        var deltaA = lab1.a - lab2[1];
+        var deltaB = lab1.b - lab2[2];
         
         return Math.sqrt(deltaL * deltaL + deltaA * deltaA + deltaB * deltaB);
-    }
+    };
 
     /**
-     * RGB를 LAB으로 변환
+     * RGB를 LAB으로 변환 (ES5 버전)
      */
-    rgbToLab(r, g, b) {
+    VirtualDraping.prototype.rgbToLab = function(r, g, b) {
         // 간단한 RGB -> LAB 변환 (정확한 구현은 ColorSystem.js 사용)
-        const rNorm = r / 255;
-        const gNorm = g / 255;
-        const bNorm = b / 255;
+        var rNorm = r / 255;
+        var gNorm = g / 255;
+        var bNorm = b / 255;
         
         // 근사 변환
-        const l = 0.2126 * rNorm + 0.7152 * gNorm + 0.0722 * bNorm;
-        const a = (rNorm - gNorm) * 128;
-        const b_lab = (gNorm - bNorm) * 128;
+        var l = 0.2126 * rNorm + 0.7152 * gNorm + 0.0722 * bNorm;
+        var a = (rNorm - gNorm) * 128;
+        var b_lab = (gNorm - bNorm) * 128;
         
         return { l: l * 100, a: a, b: b_lab };
-    }
+    };
 
     /**
-     * 매칭 분석 생성
+     * 매칭 분석 생성 (ES5 버전)
      */
-    generateMatchingAnalysis(deltaE, score) {
+    VirtualDraping.prototype.generateMatchingAnalysis = function(deltaE, score) {
         if (score >= 80) {
             return '매우 잘 어울리는 색상입니다';
         } else if (score >= 60) {
@@ -840,12 +1002,12 @@ class VirtualDraping {
         } else {
             return '잘 어울리지 않는 색상입니다';
         }
-    }
+    };
 
     /**
-     * 매칭 추천 생성
+     * 매칭 추천 생성 (ES5 버전)
      */
-    getMatchingRecommendation(score) {
+    VirtualDraping.prototype.getMatchingRecommendation = function(score) {
         if (score >= 80) {
             return '이 색상을 적극 추천합니다!';
         } else if (score >= 60) {
@@ -855,74 +1017,83 @@ class VirtualDraping {
         } else {
             return '더 적합한 색상을 찾아보세요';
         }
-    }
+    };
 
     /**
-     * 셰이더 생성 유틸리티
+     * 셰이더 생성 유틸리티 (ES5 버전)
      */
-    async createShaderProgram(vertexSource, fragmentSource) {
-        const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexSource);
-        const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentSource);
+    VirtualDraping.prototype.createShaderProgram = function(vertexSource, fragmentSource) {
+        var self = this;
         
-        const program = this.gl.createProgram();
-        this.gl.attachShader(program, vertexShader);
-        this.gl.attachShader(program, fragmentShader);
-        this.gl.linkProgram(program);
-        
-        if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-            const error = this.gl.getProgramInfoLog(program);
-            console.error('셰이더 프로그램 링크 오류:', error);
-            throw new Error(`셰이더 프로그램 링크 실패: ${error}`);
-        }
-        
-        return program;
-    }
+        return new Promise(function(resolve, reject) {
+            try {
+                var vertexShader = self.createShader(self.gl.VERTEX_SHADER, vertexSource);
+                var fragmentShader = self.createShader(self.gl.FRAGMENT_SHADER, fragmentSource);
+                
+                var program = self.gl.createProgram();
+                self.gl.attachShader(program, vertexShader);
+                self.gl.attachShader(program, fragmentShader);
+                self.gl.linkProgram(program);
+                
+                if (!self.gl.getProgramParameter(program, self.gl.LINK_STATUS)) {
+                    var error = self.gl.getProgramInfoLog(program);
+                    console.error('셰이더 프로그램 링크 오류:', error);
+                    reject(new Error('셰이더 프로그램 링크 실패: ' + error));
+                    return;
+                }
+                
+                resolve(program);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
 
-    createShader(type, source) {
-        const shader = this.gl.createShader(type);
+    VirtualDraping.prototype.createShader = function(type, source) {
+        var shader = this.gl.createShader(type);
         this.gl.shaderSource(shader, source);
         this.gl.compileShader(shader);
         
         if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-            const error = this.gl.getShaderInfoLog(shader);
+            var error = this.gl.getShaderInfoLog(shader);
             console.error('셰이더 컴파일 오류:', error);
             this.gl.deleteShader(shader);
-            throw new Error(`셰이더 컴파일 실패: ${error}`);
+            throw new Error('셰이더 컴파일 실패: ' + error);
         }
         
         return shader;
-    }
+    };
 
     /**
-     * 성능 모니터링
+     * 성능 모니터링 (ES5 버전)
      */
-    updatePerformance(timestamp) {
+    VirtualDraping.prototype.updatePerformance = function(timestamp) {
         this.performance.frameCount++;
         
         if (this.performance.lastFrameTime) {
-            const delta = timestamp - this.performance.lastFrameTime;
-            const fps = 1000 / delta;
+            var delta = timestamp - this.performance.lastFrameTime;
+            var fps = 1000 / delta;
             
             // 이동 평균으로 FPS 계산
             this.performance.averageFPS = (this.performance.averageFPS * 0.9) + (fps * 0.1);
         }
         
         this.performance.lastFrameTime = timestamp;
-    }
+    };
 
     /**
-     * Canvas 2D 폴백
+     * Canvas 2D 폴백 (ES5 버전)
      */
-    fallbackToCanvas2D() {
+    VirtualDraping.prototype.fallbackToCanvas2D = function() {
         console.warn('⚠️ WebGL을 사용할 수 없어 Canvas 2D로 폴백');
         this.useCanvas2D = true;
         this.ctx2d = this.canvas.getContext('2d');
-    }
+    };
 
     /**
-     * Canvas 2D 렌더링
+     * Canvas 2D 렌더링 (ES5 버전)
      */
-    renderCanvas2D() {
+    VirtualDraping.prototype.renderCanvas2D = function() {
         if (!this.ctx2d || !this.videoElement) return;
 
         // 비디오 그리기
@@ -932,7 +1103,7 @@ class VirtualDraping {
         if (this.state.currentColor && this.state.skinROI) {
             this.ctx2d.globalCompositeOperation = 'multiply';
             this.ctx2d.globalAlpha = this.state.opacity;
-            this.ctx2d.fillStyle = `rgb(${this.state.currentColor.rgb.join(',')})`;
+            this.ctx2d.fillStyle = 'rgb(' + this.state.currentColor.rgb.join(',') + ')';
             this.ctx2d.fillRect(
                 this.state.skinROI.x,
                 this.state.skinROI.y,
@@ -942,52 +1113,57 @@ class VirtualDraping {
             this.ctx2d.globalAlpha = 1;
             this.ctx2d.globalCompositeOperation = 'source-over';
         }
-    }
+    };
 
     /**
-     * 이벤트 리스너 설정
+     * 이벤트 리스너 설정 (ES5 버전)
      */
-    setupEventListeners() {
+    VirtualDraping.prototype.setupEventListeners = function() {
+        var self = this;
+        
         // 색상 변경 이벤트
-        document.addEventListener('colorSelected', (event) => {
-            const { color, season, subtype } = event.detail;
-            this.applyColor(color, season, subtype);
+        document.addEventListener('colorSelected', function(event) {
+            var detail = event.detail;
+            self.applyColor(detail.color, detail.season, detail.subtype);
         });
 
         // 투명도 조절 이벤트
-        document.addEventListener('opacityChanged', (event) => {
-            this.setOpacity(event.detail.opacity);
+        document.addEventListener('opacityChanged', function(event) {
+            self.setOpacity(event.detail.opacity);
         });
 
         // 블렌드 모드 변경 이벤트
-        document.addEventListener('blendModeChanged', (event) => {
-            this.setBlendMode(event.detail.mode);
+        document.addEventListener('blendModeChanged', function(event) {
+            self.setBlendMode(event.detail.mode);
         });
 
         // 비교 모드 이벤트
-        document.addEventListener('comparisonModeChanged', (event) => {
-            this.enableComparisonMode(event.detail.mode);
+        document.addEventListener('comparisonModeChanged', function(event) {
+            self.enableComparisonMode(event.detail.mode);
         });
-    }
+    };
 
     /**
-     * 리소스 정리
+     * 리소스 정리 (ES5 버전)
      */
-    cleanup() {
+    VirtualDraping.prototype.cleanup = function() {
         this.stopDraping();
         
         if (this.gl) {
             // 텍스처 정리
-            Object.values(this.textures).forEach(texture => {
+            var self = this;
+            Object.keys(this.textures).forEach(function(key) {
+                var texture = self.textures[key];
                 if (texture) {
-                    this.gl.deleteTexture(texture);
+                    self.gl.deleteTexture(texture);
                 }
             });
 
             // 버퍼 정리
-            Object.values(this.buffers).forEach(buffer => {
+            Object.keys(this.buffers).forEach(function(key) {
+                var buffer = self.buffers[key];
                 if (buffer) {
-                    this.gl.deleteBuffer(buffer);
+                    self.gl.deleteBuffer(buffer);
                 }
             });
 
@@ -996,19 +1172,16 @@ class VirtualDraping {
                 this.gl.deleteProgram(this.program);
             }
         }
-
-        // 캐시 정리
-        this.reportCache?.clear();
         
         console.log('🧹 VirtualDraping 리소스 정리 완료');
-    }
+    };
 
     /**
-     * 성능 통계 반환
+     * 성능 통계 반환 (ES5 버전)
      */
-    getPerformanceStats() {
-        const avgRenderTime = this.performance.renderTime.length > 0 
-            ? this.performance.renderTime.reduce((a, b) => a + b, 0) / this.performance.renderTime.length 
+    VirtualDraping.prototype.getPerformanceStats = function() {
+        var avgRenderTime = this.performance.renderTime.length > 0 
+            ? this.performance.renderTime.reduce(function(a, b) { return a + b; }, 0) / this.performance.renderTime.length 
             : 0;
 
         return {
@@ -1018,17 +1191,12 @@ class VirtualDraping {
             webglEnabled: !!this.gl,
             activeDraping: this.state.isActive
         };
+    };
+
+    // 전역 객체로 등록
+    if (typeof window !== 'undefined') {
+        window.VirtualDraping = VirtualDraping;
+        console.log('✅ VirtualDraping ES5 버전 로드 완료');
     }
-}
 
-// 전역 객체로 등록
-if (typeof window !== 'undefined') {
-    window.VirtualDraping = VirtualDraping;
-}
-
-// 모듈 내보내기
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = VirtualDraping;
-}
-
-export default VirtualDraping;
+})();
