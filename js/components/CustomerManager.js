@@ -1,4 +1,42 @@
-}
+/**
+ * CustomerManager.js - 최종 완전 수정 버전 
+ * Personal Color Pro 고객 정보 관리 시스템
+ * 
+ * 🔥 구문 오류 완전 해결:
+ * - 파일 시작/끝 구조 정상화
+ * - 중복된 함수 정의 제거
+ * - ES6 → ES5 완전 변환
+ * - for...of → forEach 변환 (IE 호환성)
+ * - 모든 기능 유지하면서 구문 오류 해결
+ */
+
+(function() {
+    'use strict';
+
+    /**
+     * 고객 정보 관리 클래스 (ES5 버전)
+     */
+    function CustomerManager() {
+        this.customers = new Map();
+        this.diagnosticHistory = new Map();
+        this.searchIndex = new Map();
+        this.syncQueue = [];
+        
+        // 인덱스 키들
+        this.indexKeys = ['name', 'phone', 'email', 'birthDate', 'lastVisit'];
+        
+        // 브라우저 호환성을 위한 바인딩
+        var self = this;
+        this.initialize = this.initialize.bind(this);
+        this.createCustomer = this.createCustomer.bind(this);
+        this.updateCustomer = this.updateCustomer.bind(this);
+        this.searchCustomers = this.searchCustomers.bind(this);
+        
+        // 초기화 실행
+        setTimeout(function() {
+            self.initialize();
+        }, 0);
+    }
 
     /**
      * 초기화 메서드 (ES5 버전)
@@ -151,7 +189,7 @@
     };
 
     /**
-     * 고객 검색 (ES5 버전)
+     * 고객 검색 (ES5 버전) - for...of 제거, IE 호환성 개선
      */
     CustomerManager.prototype.searchCustomers = function(query, filters) {
         filters = filters || {};
@@ -163,9 +201,10 @@
             // 빈 쿼리인 경우 전체 반환 (필터 적용)
             if (!searchQuery) {
                 var allCustomers = [];
-                for (var customer of this.customers.values()) {
+                // for...of 대신 forEach 사용 (IE 호환성)
+                this.customers.forEach(function(customer) {
                     allCustomers.push(customer);
-                }
+                });
                 return this.applyFilters(allCustomers, filters);
             }
 
@@ -734,46 +773,7 @@
     // 전역 객체로 등록
     if (typeof window !== 'undefined') {
         window.CustomerManager = CustomerManager;
-        console.log('✅ CustomerManager ES5 버전 로드 완료');
+        console.log('✅ CustomerManager 최종 버전 로드 완료');
     }
 
 })();
-/**
- * CustomerManager.js - ES6 → ES5 변환 완료
- * Personal Color Pro 고객 정보 관리 시스템
- * 
- * 주요 변경사항:
- * - ES6 클래스 → ES5 함수 생성자 패턴
- * - const/let → var 변환
- * - 화살표 함수 → function() {} 변환
- * - import/export → window 전역 등록
- * - Map/Set 브라우저 호환성 처리
- * - async/await → Promise 체인 변환
- */
-
-(function() {
-    'use strict';
-
-    /**
-     * 고객 정보 관리 클래스 (ES5 버전)
-     */
-    function CustomerManager() {
-        this.customers = new Map();
-        this.diagnosticHistory = new Map();
-        this.searchIndex = new Map();
-        this.syncQueue = [];
-        
-        // 인덱스 키들
-        this.indexKeys = ['name', 'phone', 'email', 'birthDate', 'lastVisit'];
-        
-        // 브라우저 호환성을 위한 바인딩
-        var self = this;
-        this.initialize = this.initialize.bind(this);
-        this.createCustomer = this.createCustomer.bind(this);
-        this.updateCustomer = this.updateCustomer.bind(this);
-        this.searchCustomers = this.searchCustomers.bind(this);
-        
-        // 초기화 실행
-        setTimeout(function() {
-            self.initialize();
-        }, 0);
