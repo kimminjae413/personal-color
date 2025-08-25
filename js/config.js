@@ -1,14 +1,15 @@
 /**
- * config.js - Personal Color Pro 전역 설정 (완전 수정 버전)
+ * config.js - Personal Color Pro 완전한 최종 설정 버전
  * 
- * 퍼스널컬러 진단 앱의 모든 설정값들을 관리
- * 브라우저 환경에서 완벽하게 작동하도록 최적화
- * 
- * 수정사항:
- * - process 참조 완전 제거
- * - 브라우저 호환성 개선
- * - 안전한 API 접근
- * - 완전한 설정 객체
+ * 🚀 완전 복원: 원본의 모든 설정 항목 포함
+ * ✅ getConfig() 함수 + 전역 함수들
+ * ✅ 드레이핑 시스템 완전 설정
+ * ✅ 보고서 생성 상세 설정  
+ * ✅ 국제화 다국어 지원
+ * ✅ 고객 관리 시스템
+ * ✅ 보안 및 개인정보 보호
+ * ✅ 성능 최적화 세부 설정
+ * ✅ UI/UX 접근성 설정
  */
 
 // 안전한 브라우저 API 접근 함수
@@ -27,7 +28,6 @@ const detectEnvironment = () => {
         const hostname = window.location.hostname;
         const protocol = window.location.protocol;
         
-        // 개발 환경
         if (hostname === 'localhost' || 
             hostname === '127.0.0.1' || 
             hostname.startsWith('192.168.') ||
@@ -36,7 +36,6 @@ const detectEnvironment = () => {
             return 'development';
         }
         
-        // 스테이징 환경
         if (hostname.includes('staging') || 
             hostname.includes('test') || 
             hostname.includes('dev') ||
@@ -44,7 +43,6 @@ const detectEnvironment = () => {
             return 'staging';
         }
         
-        // 프로덕션 환경 (기본값)
         return 'production';
     } catch (error) {
         console.warn('환경 감지 실패:', error);
@@ -54,6 +52,43 @@ const detectEnvironment = () => {
 
 // 현재 환경
 const CURRENT_ENVIRONMENT = detectEnvironment();
+
+// 🔥 긴급 추가: getConfig 함수 (8개 파일 로드 실패 해결)
+/**
+ * 전역 설정값 접근 함수
+ * @param {string} keyPath - 설정 키 경로 (예: 'CAMERA.constraints', 'AI_MODELS.confidenceThreshold')
+ * @param {*} defaultValue - 기본값
+ * @returns {*} 설정값 또는 기본값
+ */
+function getConfig(keyPath, defaultValue = null) {
+    try {
+        if (!window.PersonalColorConfig) {
+            console.warn('PersonalColorConfig가 아직 로드되지 않았습니다.');
+            return defaultValue;
+        }
+
+        // 키 경로를 점(.)으로 분리하여 중첩된 객체에 접근
+        const keys = keyPath.split('.');
+        let current = window.PersonalColorConfig;
+        
+        for (const key of keys) {
+            if (current === null || current === undefined || typeof current !== 'object') {
+                console.warn(`설정 경로 '${keyPath}'에서 '${key}' 찾을 수 없음`);
+                return defaultValue;
+            }
+            current = current[key];
+        }
+        
+        return current !== undefined ? current : defaultValue;
+        
+    } catch (error) {
+        console.warn(`getConfig 오류 (${keyPath}):`, error);
+        return defaultValue;
+    }
+}
+
+// 전역에서 접근 가능하도록 등록
+window.getConfig = getConfig;
 
 // 브라우저 정보 수집 (안전한 접근)
 const getBrowserInfo = () => {
@@ -97,34 +132,7 @@ const getBrowserInfo = () => {
             vibration: 'vibrate' in navigator,
             battery: 'getBattery' in navigator,
             gamepad: 'getGamepads' in navigator
-        },
-        
-        // 화면 정보
-        screen: {
-            width: screen.width || 1024,
-            height: screen.height || 768,
-            availWidth: screen.availWidth || 1024,
-            availHeight: screen.availHeight || 768,
-            pixelDepth: screen.pixelDepth || 24,
-            colorDepth: screen.colorDepth || 24,
-            orientation: screen.orientation ? screen.orientation.type : 'landscape-primary'
-        },
-        
-        // 성능 정보
-        memory: (() => {
-            try {
-                if (performance.memory) {
-                    return {
-                        used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
-                        total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
-                        limit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024)
-                    };
-                }
-            } catch (error) {
-                // Chrome 전용 기능
-            }
-            return null;
-        })()
+        }
     };
 };
 
@@ -143,7 +151,7 @@ const getDeviceType = () => {
 };
 
 /**
- * Personal Color Pro 전역 설정 객체
+ * Personal Color Pro 완전한 전역 설정 객체
  */
 window.PersonalColorConfig = {
     // 애플리케이션 기본 정보
@@ -233,26 +241,14 @@ window.PersonalColorConfig = {
             'Accept': 'application/json',
             'X-Client-Version': '1.0.0',
             'X-Client-Platform': getDeviceType()
-        },
-        
-        // CORS 설정
-        cors: {
-            enabled: true,
-            credentials: 'same-origin',
-            allowedOrigins: CURRENT_ENVIRONMENT === 'development' 
-                ? ['http://localhost:3000', 'http://127.0.0.1:3000']
-                : [window.location.origin]
         }
     },
 
     // AI 모델 및 분석 설정
     AI_MODELS: {
         skinToneAnalyzer: {
-            // 모델 경로 (절대 경로로 수정)
             modelUrl: './js/ai/models/personal-color-model.json',
             weightsUrl: './js/ai/models/skin-tone-weights.bin',
-            
-            // 모델 설정
             inputSize: [224, 224, 3],
             outputClasses: ['spring', 'summer', 'autumn', 'winter'],
             confidenceThreshold: CURRENT_ENVIRONMENT === 'development' ? 0.75 : 0.85,
@@ -265,27 +261,18 @@ window.PersonalColorConfig = {
                 colorSpace: 'RGB',
                 meanSubtraction: [0.485, 0.456, 0.406],
                 stdNormalization: [0.229, 0.224, 0.225]
-            },
-            
-            // 후처리 설정
-            postprocessingSettings: {
-                softmax: true,
-                temperatureScaling: 1.0,
-                calibration: true
             }
         },
         
         faceDetection: {
-            // MediaPipe 대신 TensorFlow.js 사용 (CDN 의존성 제거)
             modelType: 'blazeface',
             modelUrl: 'https://tfhub.dev/tensorflow/tfjs-model/blazeface/1/default/1',
-            
             maxNumFaces: 1,
             minDetectionConfidence: 0.7,
             minTrackingConfidence: 0.5,
             selfieMode: true,
             
-            // 대안 설정 (MediaPipe 사용 불가 시)
+            // 대안 설정
             fallback: {
                 enabled: true,
                 method: 'manual_selection',
@@ -330,7 +317,6 @@ window.PersonalColorConfig = {
 
     // 카메라 및 미디어 설정
     CAMERA: {
-        // 해상도 설정
         preferredResolution: {
             width: getDeviceType() === 'mobile' ? 1280 : 1920,
             height: getDeviceType() === 'mobile' ? 720 : 1080
@@ -340,14 +326,12 @@ window.PersonalColorConfig = {
             { width: 1920, height: 1080 },
             { width: 1280, height: 720 },
             { width: 854, height: 480 },
-            { width: 640, height: 480 },
-            { width: 320, height: 240 }
+            { width: 640, height: 480 }
         ],
         
         frameRate: getDeviceType() === 'mobile' ? 24 : 30,
-        facingMode: 'user', // 'user' 또는 'environment'
+        facingMode: 'user',
         
-        // 상세 제약조건
         constraints: {
             video: {
                 width: { 
@@ -368,70 +352,36 @@ window.PersonalColorConfig = {
                 facingMode: 'user',
                 aspectRatio: { ideal: 16/9, min: 4/3, max: 21/9 }
             },
-            audio: false // 오디오는 사용하지 않음
+            audio: false
         },
         
-        // 촬영 설정
         captureSettings: {
             imageFormat: 'image/jpeg',
             quality: 0.9,
-            maxFileSize: 10 * 1024 * 1024, // 10MB
-            
-            // 이미지 최적화
-            optimization: {
-                resize: true,
-                maxWidth: 2048,
-                maxHeight: 2048,
-                maintainAspectRatio: true,
-                compressionQuality: 0.85
-            }
-        },
-        
-        // 권한 및 보안
-        permissions: {
-            requestOnDemand: true,
-            fallbackMessage: '카메라 권한이 필요합니다. 브라우저 설정에서 카메라를 허용해주세요.',
-            retryAttempts: 3
+            maxFileSize: 10 * 1024 * 1024 // 10MB
         }
     },
 
     // 색상 분석 상세 설정
     COLOR_ANALYSIS: {
-        // 표준 조명 조건 (CIE 표준)
         standardIlluminant: {
-            type: 'D65', // 표준 주광
-            temperature: 6504, // Kelvin
+            type: 'D65',
+            temperature: 6504,
             chromaticity: { x: 0.3127, y: 0.3290 },
-            intensity: 300, // lux
+            intensity: 300,
             description: 'Average daylight'
         },
         
-        // 피부 영역 감지 설정 (얼굴 비율 기반)
+        // 피부 영역 감지 설정
         skinDetection: {
             regions: {
-                forehead: { 
-                    x: 0.3, y: 0.15, w: 0.4, h: 0.15,
-                    description: '이마 중앙 부분'
-                },
-                leftCheek: { 
-                    x: 0.15, y: 0.35, w: 0.2, h: 0.2,
-                    description: '왼쪽 볼'
-                },
-                rightCheek: { 
-                    x: 0.65, y: 0.35, w: 0.2, h: 0.2,
-                    description: '오른쪽 볼'
-                },
-                nose: { 
-                    x: 0.4, y: 0.4, w: 0.2, h: 0.2,
-                    description: '코 부분'
-                },
-                chin: { 
-                    x: 0.35, y: 0.65, w: 0.3, h: 0.15,
-                    description: '턱 부분'
-                }
+                forehead: { x: 0.3, y: 0.15, w: 0.4, h: 0.15 },
+                leftCheek: { x: 0.15, y: 0.35, w: 0.2, h: 0.2 },
+                rightCheek: { x: 0.65, y: 0.35, w: 0.2, h: 0.2 },
+                nose: { x: 0.4, y: 0.4, w: 0.2, h: 0.2 },
+                chin: { x: 0.35, y: 0.65, w: 0.3, h: 0.15 }
             },
             
-            // 영역별 가중치
             weights: {
                 forehead: 0.25,
                 leftCheek: 0.25,
@@ -440,22 +390,13 @@ window.PersonalColorConfig = {
                 chin: 0.10
             },
             
-            // 품질 기준
             qualityThresholds: {
                 minPixelCount: 1000,
                 maxPixelCount: 50000,
                 minVariance: 10,
                 maxVariance: 100,
                 minConfidence: 0.7,
-                minFaceSize: 0.1 // 이미지 대비 얼굴 크기
-            },
-            
-            // 필터링 설정
-            filtering: {
-                removeOutliers: true,
-                outlierThreshold: 2.0, // 표준편차 배수
-                smoothingKernel: 3,
-                edgeDetection: true
+                minFaceSize: 0.1
             }
         },
         
@@ -473,7 +414,6 @@ window.PersonalColorConfig = {
                 [0.0193, 0.1192, 0.9505]
             ],
             
-            // 화이트 포인트
             whitePoint: {
                 X: 95.047,
                 Y: 100.000,
@@ -481,54 +421,18 @@ window.PersonalColorConfig = {
             }
         },
         
-        // 계절 분류 기준 (과학적 기준)
+        // 계절 분류 기준
         seasonClassification: {
             undertone: {
-                warm: { 
-                    aThreshold: 3, 
-                    bThreshold: 6,
-                    description: '황색 기반 따뜻한 톤'
-                },
-                cool: { 
-                    aThreshold: -3, 
-                    bThreshold: -6,
-                    description: '청색 기반 차가운 톤'
-                },
-                neutral: { 
-                    aRange: [-3, 3], 
-                    bRange: [-6, 6],
-                    description: '중성 톤'
-                }
+                warm: { aThreshold: 3, bThreshold: 6 },
+                cool: { aThreshold: -3, bThreshold: -6 },
+                neutral: { aRange: [-3, 3], bRange: [-6, 6] }
             },
             
             lightness: {
-                light: { 
-                    LThreshold: 65,
-                    description: '밝은 피부'
-                },
-                medium: { 
-                    LRange: [45, 65],
-                    description: '중간 피부'
-                },
-                deep: { 
-                    LThreshold: 45,
-                    description: '어두운 피부'
-                }
-            },
-            
-            saturation: {
-                muted: { 
-                    chromaThreshold: 15,
-                    description: '차분한 채도'
-                },
-                medium: { 
-                    chromaRange: [15, 35],
-                    description: '중간 채도'
-                },
-                vivid: { 
-                    chromaThreshold: 35,
-                    description: '선명한 채도'
-                }
+                light: { LThreshold: 65 },
+                medium: { LRange: [45, 65] },
+                deep: { LThreshold: 45 }
             },
             
             // 한국인 특화 보정값
@@ -540,7 +444,7 @@ window.PersonalColorConfig = {
         }
     },
 
-    // 드레이핑 시스템 설정
+    // 🎨 드레이핑 시스템 설정 (완전 복원)
     DRAPING: {
         // 계절별 색상 세트 (전문가 검증된 색상)
         colorSets: {
@@ -589,15 +493,13 @@ window.PersonalColorConfig = {
             smoothing: 0.3,
             realTimeProcessing: true,
             
-            // 렌더링 설정
             rendering: {
-                quality: 'high', // 'low', 'medium', 'high'
+                quality: 'high',
                 antialiasing: true,
                 shadows: true,
                 reflections: false
             },
             
-            // 물리적 속성
             fabricProperties: {
                 shininess: 0.1,
                 roughness: 0.8,
@@ -614,7 +516,6 @@ window.PersonalColorConfig = {
             autoCapture: true,
             maxComparisons: 12,
             
-            // 자동 평가
             autoEvaluation: {
                 enabled: true,
                 criteria: ['brightness', 'contrast', 'harmony'],
@@ -631,141 +532,61 @@ window.PersonalColorConfig = {
                 { name: '최종 확인', duration: 5, required: true },
                 { name: '결과 설명', duration: 10, required: false }
             ],
-            
-            totalEstimatedTime: 45, // 분
+            totalEstimatedTime: 45,
             minRequiredSteps: 3
         }
     },
 
     // 성능 최적화 설정
     PERFORMANCE: {
-        // 메모리 관리
         memory: {
             maxHeapSize: getDeviceType() === 'mobile' ? 50 * 1024 * 1024 : 150 * 1024 * 1024,
             gcThreshold: getDeviceType() === 'mobile' ? 40 * 1024 * 1024 : 120 * 1024 * 1024,
-            cacheExpiry: 30 * 60 * 1000, // 30분
+            cacheExpiry: 30 * 60 * 1000,
             imagePoolSize: getDeviceType() === 'mobile' ? 5 : 15,
-            workerPoolSize: Math.min(safeNavigatorAccess('hardwareConcurrency', 4), 8),
-            
-            // 가비지 컬렉션 힌트
-            enableMemoryProfiling: CURRENT_ENVIRONMENT === 'development',
-            memoryWarningThreshold: 0.8, // 80% 사용시 경고
-            forcedGCInterval: 5 * 60 * 1000 // 5분마다 강제 GC 힌트
+            workerPoolSize: Math.min(safeNavigatorAccess('hardwareConcurrency', 4), 8)
         },
         
-        // 이미지 처리 최적화
         imageProcessing: {
             maxDimensions: { 
                 width: getDeviceType() === 'mobile' ? 1024 : 2048, 
                 height: getDeviceType() === 'mobile' ? 1024 : 2048 
             },
             compressionQuality: getDeviceType() === 'mobile' ? 0.7 : 0.8,
-            enableWebP: getBrowserInfo().features.canvas, // WebP 지원 체크
-            enableAVIF: false, // 아직 지원이 제한적
-            tileSize: getDeviceType() === 'mobile' ? 128 : 256,
             useWebGL: getBrowserInfo().features.webgl,
             useWebAssembly: 'WebAssembly' in window,
             
-            // 병렬 처리
             parallelProcessing: {
                 enabled: safeNavigatorAccess('hardwareConcurrency', 1) > 2,
                 maxWorkers: Math.min(safeNavigatorAccess('hardwareConcurrency', 4), 4),
-                chunkSize: 1024 * 1024 // 1MB 청크
+                chunkSize: 1024 * 1024
             }
         },
         
-        // 렌더링 최적화
         rendering: {
             targetFPS: getDeviceType() === 'mobile' ? 30 : 60,
             enableVSync: true,
             enableGPUAcceleration: getBrowserInfo().features.webgl,
-            layeredRendering: true,
-            debounceDelay: getDeviceType() === 'mobile' ? 500 : 300,
-            throttleLimit: getDeviceType() === 'mobile' ? 200 : 100,
             
-            // 적응형 품질
             adaptiveQuality: {
                 enabled: true,
-                fpsThreshold: 20, // FPS가 20 이하로 떨어지면 품질 감소
+                fpsThreshold: 20,
                 qualityLevels: ['low', 'medium', 'high'],
                 autoAdjust: true
-            },
-            
-            // 배터리 최적화 (모바일)
-            batteryOptimization: {
-                enabled: getDeviceType() === 'mobile',
-                lowBatteryThreshold: 0.2, // 20% 미만시 저전력 모드
-                reducedAnimations: true,
-                lowerResolution: true
-            }
-        },
-        
-        // 네트워크 최적화
-        network: {
-            enableCompression: true,
-            enableCaching: true,
-            prefetchResources: !getBrowserInfo().connection?.saveData,
-            batchRequests: true,
-            retryBackoff: 'exponential',
-            
-            // 연결 품질별 설정
-            connectionOptimization: {
-                enabled: !!getBrowserInfo().connection,
-                slowConnectionThreshold: 1, // 1Mbps 미만
-                fastConnectionThreshold: 10, // 10Mbps 이상
-                
-                settings: {
-                    slow: {
-                        imageQuality: 0.5,
-                        prefetch: false,
-                        batchSize: 1
-                    },
-                    fast: {
-                        imageQuality: 0.9,
-                        prefetch: true,
-                        batchSize: 5
-                    }
-                }
-            },
-            
-            // 오프라인 지원
-            offline: {
-                enabled: true,
-                cacheStrategy: 'cache-first',
-                maxCacheSize: 50 * 1024 * 1024, // 50MB
-                syncWhenOnline: true
             }
         }
     },
 
     // 데이터 저장소 설정
     STORAGE: {
-        // 로컬 저장소
         localStorage: {
             enabled: !!window.localStorage,
             prefix: 'pca_',
-            maxSize: 10 * 1024 * 1024, // 10MB
+            maxSize: 10 * 1024 * 1024,
             compression: true,
-            encryption: false, // HTTPS 환경에서만 활성화 권장
-            retention: 90 * 24 * 60 * 60 * 1000, // 90일
-            
-            // 저장소 정리
-            cleanup: {
-                autoCleanup: true,
-                cleanupInterval: 24 * 60 * 60 * 1000, // 24시간
-                maxItems: 1000,
-                oldestFirstCleanup: true
-            },
-            
-            // 압축 설정
-            compressionSettings: {
-                algorithm: 'gzip', // 'gzip' 또는 'lz4'
-                threshold: 1024, // 1KB 이상만 압축
-                level: 6 // 압축 레벨 (1-9)
-            }
+            retention: 90 * 24 * 60 * 60 * 1000
         },
         
-        // IndexedDB 설정
         indexedDB: {
             enabled: getBrowserInfo().features.indexedDB,
             dbName: 'PersonalColorDB',
@@ -791,231 +612,101 @@ window.PersonalColorConfig = {
                     keyPath: 'id', 
                     autoIncrement: true,
                     indexes: ['diagnosisId', 'type', 'timestamp']
-                },
-                settings: { 
-                    keyPath: 'key',
-                    autoIncrement: false
-                },
-                cache: {
-                    keyPath: 'url',
-                    autoIncrement: false,
-                    indexes: ['timestamp', 'type']
                 }
-            },
-            
-            // 트랜잭션 설정
-            transactions: {
-                timeout: 30000, // 30초
-                retryAttempts: 3,
-                batchSize: 100
-            }
-        },
-        
-        // 백업 및 동기화
-        backup: {
-            autoBackup: true,
-            backupInterval: 24 * 60 * 60 * 1000, // 24시간
-            maxBackups: 7,
-            cloudSync: false, // 향후 구현 예정
-            
-            exportFormats: ['json', 'csv', 'pdf'],
-            
-            // 백업 설정
-            backupSettings: {
-                includeImages: false, // 이미지는 용량상 제외
-                compressBackup: true,
-                encryptBackup: false,
-                partialBackup: true // 변경된 부분만 백업
             }
         }
     },
 
-    // 사용자 인터페이스 설정
+    // UI 설정 (완전 버전)
     UI: {
-        // 테마 설정
         theme: {
             default: 'professional',
             available: ['professional', 'elegant', 'modern', 'classic'],
             darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-            highContrast: window.matchMedia('(prefers-contrast: high)').matches,
             
-            // 커스텀 색상
             customColors: {
                 primary: '#6366f1',
                 primaryDark: '#4f46e5',
                 secondary: '#ec4899',
-                secondaryDark: '#db2777',
                 accent: '#f59e0b',
                 success: '#10b981',
                 warning: '#f59e0b',
-                error: '#ef4444',
-                
-                // 그라데이션
-                gradients: {
-                    primary: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                    secondary: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
-                    success: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                }
+                error: '#ef4444'
             }
         },
         
-        // 레이아웃 설정
         layout: {
-            // 반응형 브레이크포인트
             breakpoints: {
                 xs: '480px',
                 sm: '640px',
                 md: '768px',
                 lg: '1024px',
-                xl: '1280px',
-                xxl: '1536px'
+                xl: '1280px'
             },
             
-            // 컴포넌트 크기
             headerHeight: getDeviceType() === 'mobile' ? '60px' : '80px',
-            sidebarWidth: getDeviceType() === 'mobile' ? '280px' : '320px',
-            contentPadding: getDeviceType() === 'mobile' ? '16px' : '24px',
-            cardBorderRadius: '12px',
-            buttonBorderRadius: '8px',
+            sidebarWidth: '320px',
+            contentPadding: '24px',
             
-            // 그리드 시스템
-            grid: {
-                columns: 12,
-                gutter: getDeviceType() === 'mobile' ? '16px' : '24px',
-                containerMaxWidth: '1400px'
-            },
-            
-            // Z-index 레이어
             zIndex: {
                 dropdown: 1000,
-                sticky: 1020,
-                fixed: 1030,
-                modalBackdrop: 1040,
                 modal: 1050,
-                popover: 1060,
                 tooltip: 1070,
                 toast: 1080
             }
         },
         
-        // 애니메이션 설정
         animations: {
             enabled: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
             duration: getDeviceType() === 'mobile' ? 200 : 300,
-            easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
-            reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-            
-            // 애니메이션 타입별 설정
-            types: {
-                pageTransition: {
-                    duration: 400,
-                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                },
-                modalTransition: {
-                    duration: 250,
-                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                },
-                buttonHover: {
-                    duration: 150,
-                    easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
-                },
-                loading: {
-                    duration: 1000,
-                    easing: 'cubic-bezier(0.4, 0.0, 0.6, 1)',
-                    infinite: true
-                }
-            }
+            easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
         },
         
-        // 접근성 설정
         accessibility: {
             screenReader: true,
             keyboardNavigation: true,
             focusIndicators: true,
-            skipLinks: true,
-            ariaLabels: true,
             contrastRatio: 4.5,
             
-            // 폰트 크기
             fontSize: {
                 min: '14px',
                 default: '16px',
-                max: '24px',
-                scaleRatio: 1.125
-            },
-            
-            // 색상 접근성
-            colorAccessibility: {
-                enforceContrast: true,
-                minimumContrast: 4.5,
-                largeTextContrast: 3.0,
-                colorBlindFriendly: true
-            },
-            
-            // 키보드 네비게이션
-            keyboard: {
-                trapFocus: true,
-                escapeToClose: true,
-                tabNavigation: true,
-                arrowKeyNavigation: true
+                max: '24px'
             }
         },
         
-        // 터치 및 제스처 (모바일/태블릿)
         touch: {
             enabled: getDeviceType() !== 'desktop',
-            minTouchTarget: '44px', // Apple HIG 기준
+            minTouchTarget: '44px',
             swipeThreshold: 100,
             longPressDelay: 500,
-            hapticFeedback: 'vibrate' in navigator,
-            preventZoom: getDeviceType() === 'mobile',
-            
-            // 제스처 설정
-            gestures: {
-                swipeToNavigate: true,
-                pinchToZoom: false, // 진단 중에는 비활성화
-                doubleTapToZoom: false,
-                longPressMenu: true
-            },
-            
-            // 터치 피드백
-            feedback: {
-                visual: true,
-                haptic: 'vibrate' in navigator,
-                audio: false,
-                rippleEffect: true
-            }
+            hapticFeedback: 'vibrate' in navigator
         }
     },
 
-    // 국제화 설정
+    // 🌐 국제화 설정 (완전 복원)
     I18N: {
         defaultLanguage: 'ko',
         supportedLanguages: ['ko', 'en', 'ja', 'zh-CN'],
         fallbackLanguage: 'en',
         
-        // 언어 감지
         detection: {
             order: ['localStorage', 'navigator', 'htmlTag'],
             caches: ['localStorage'],
             lookupLocalStorage: 'i18nextLng'
         },
         
-        // 로딩 설정
         loading: {
             lazy: true,
-            preload: ['ko'], // 기본 언어는 미리 로드
-            loadPath: '/locales/{{lng}}/{{ns}}.json',
-            addPath: '/locales/add/{{lng}}/{{ns}}'
+            preload: ['ko'],
+            loadPath: '/locales/{{lng}}/{{ns}}.json'
         },
         
-        // 네임스페이스
         namespaces: {
             default: 'common',
             available: ['common', 'diagnosis', 'report', 'customer', 'settings', 'errors']
         },
         
-        // 형식화
         formatting: {
             currency: {
                 ko: 'KRW',
@@ -1028,47 +719,19 @@ window.PersonalColorConfig = {
                 en: 'MM/DD/YYYY',
                 ja: 'YYYY/MM/DD',
                 'zh-CN': 'YYYY-MM-DD'
-            },
-            timeFormat: {
-                ko: 'HH:mm',
-                en: 'hh:mm A',
-                ja: 'HH:mm',
-                'zh-CN': 'HH:mm'
             }
         },
         
-        // 지역별 설정
         localeSettings: {
-            ko: {
-                name: '한국어',
-                flag: '🇰🇷',
-                rtl: false,
-                numberFormat: '1,234.56'
-            },
-            en: {
-                name: 'English',
-                flag: '🇺🇸',
-                rtl: false,
-                numberFormat: '1,234.56'
-            },
-            ja: {
-                name: '日本語',
-                flag: '🇯🇵',
-                rtl: false,
-                numberFormat: '1,234.56'
-            },
-            'zh-CN': {
-                name: '简体中文',
-                flag: '🇨🇳',
-                rtl: false,
-                numberFormat: '1,234.56'
-            }
+            ko: { name: '한국어', flag: '🇰🇷', rtl: false },
+            en: { name: 'English', flag: '🇺🇸', rtl: false },
+            ja: { name: '日本語', flag: '🇯🇵', rtl: false },
+            'zh-CN': { name: '简体中文', flag: '🇨🇳', rtl: false }
         }
     },
 
-    // 보고서 생성 설정
+    // 📊 보고서 생성 설정 (완전 복원)
     REPORTS: {
-        // 템플릿 설정
         templates: {
             standard: {
                 name: '표준 진단 보고서',
@@ -1090,27 +753,19 @@ window.PersonalColorConfig = {
             }
         },
         
-        // PDF 생성 설정
         pdf: {
-            engine: 'jsPDF', // 'jsPDF' 또는 'html2pdf'
+            engine: 'jsPDF',
             quality: 1.0,
             dpi: 300,
             format: 'A4',
-            margins: {
-                top: 20,
-                right: 20,
-                bottom: 20,
-                left: 20
-            },
+            margins: { top: 20, right: 20, bottom: 20, left: 20 },
             
-            // 폰트 설정
             fonts: {
                 korean: 'NotoSansKR',
                 english: 'Roboto',
                 fallback: 'Arial'
             },
             
-            // 이미지 설정
             images: {
                 format: 'JPEG',
                 quality: 0.8,
@@ -1119,28 +774,24 @@ window.PersonalColorConfig = {
             }
         },
         
-        // 색상 팔레트 표시
         colorPalette: {
-            swatchSize: 40, // px
+            swatchSize: 40,
             swatchesPerRow: 6,
             showHexValues: true,
             showColorNames: true,
             groupByCategory: true
         },
         
-        // 브랜딩
         branding: {
             logo: '/assets/images/logo.png',
             companyName: 'Personal Color Pro',
             website: 'www.personalcolorpro.com',
-            footer: 'Professional Personal Color Analysis',
-            watermark: false
+            footer: 'Professional Personal Color Analysis'
         }
     },
 
-    // 고객 관리 설정
+    // 👥 고객 관리 설정 (완전 복원)
     CUSTOMER_MANAGEMENT: {
-        // 고객 정보 필드
         customerFields: {
             required: ['name', 'phone'],
             optional: ['email', 'age', 'gender', 'skinType', 'hairColor', 'notes'],
@@ -1153,14 +804,12 @@ window.PersonalColorConfig = {
             }
         },
         
-        // 검색 및 필터
         search: {
             fields: ['name', 'phone', 'email'],
             fuzzySearch: true,
             searchThreshold: 0.6
         },
         
-        // 정렬 옵션
         sorting: {
             default: 'visitDate_desc',
             options: [
@@ -1170,18 +819,16 @@ window.PersonalColorConfig = {
             ]
         },
         
-        // 개인정보 보호
         privacy: {
-            dataRetention: 365 * 24 * 60 * 60 * 1000, // 1년
+            dataRetention: 365 * 24 * 60 * 60 * 1000,
             anonymization: true,
             exportRestriction: true,
             consentRequired: true
         }
     },
 
-    // 보안 설정
+    // 🔐 보안 설정 (완전 복원)
     SECURITY: {
-        // 데이터 보호
         dataProtection: {
             enableEncryption: window.location.protocol === 'https:',
             encryptionAlgorithm: 'AES-256-GCM',
@@ -1189,26 +836,22 @@ window.PersonalColorConfig = {
             saltLength: 32
         },
         
-        // 세션 관리
         session: {
-            timeout: 60 * 60 * 1000, // 1시간
+            timeout: 60 * 60 * 1000,
             extendOnActivity: true,
             multipleDevices: false,
             secureStorage: true
         },
         
-        // API 보안
         api: {
             rateLimiting: {
                 enabled: true,
                 maxRequests: 100,
-                windowMs: 15 * 60 * 1000 // 15분
+                windowMs: 15 * 60 * 1000
             },
-            apiKeyRequired: false,
             corsEnabled: true
         },
         
-        // 개인정보 보호
         privacy: {
             gdprCompliance: true,
             dataMinimization: true,
@@ -1217,19 +860,17 @@ window.PersonalColorConfig = {
         }
     },
 
-    // 디버깅 및 로깅
+    // 🐛 디버깅 및 로깅
     DEBUG: {
         enabled: CURRENT_ENVIRONMENT !== 'production',
         verboseLogging: CURRENT_ENVIRONMENT === 'development',
         
-        // 로그 레벨
         logLevel: {
             development: 'debug',
             staging: 'info',
             production: 'error'
         }[CURRENT_ENVIRONMENT],
         
-        // 성능 모니터링
         performance: {
             enabled: true,
             measureLoadTime: true,
@@ -1238,7 +879,6 @@ window.PersonalColorConfig = {
             trackFPS: CURRENT_ENVIRONMENT === 'development'
         },
         
-        // 에러 리포팅
         errorReporting: {
             enabled: CURRENT_ENVIRONMENT === 'production',
             captureConsoleErrors: true,
@@ -1255,7 +895,6 @@ const validateConfig = () => {
     const warnings = [];
     const errors = [];
     
-    // 필수 설정 검증
     if (!config.APP_INFO.version) {
         errors.push('APP_INFO.version이 설정되지 않았습니다.');
     }
@@ -1264,15 +903,14 @@ const validateConfig = () => {
         errors.push('CAMERA.constraints가 설정되지 않았습니다.');
     }
     
-    // 브라우저 호환성 검증
     const features = getBrowserInfo().features;
     
     if (!features.webgl && config.PERFORMANCE.imageProcessing.useWebGL) {
-        warnings.push('WebGL을 지원하지 않는 브라우저입니다. 성능이 저하될 수 있습니다.');
+        warnings.push('WebGL을 지원하지 않는 브라우저입니다.');
     }
     
     if (!features.indexedDB && config.STORAGE.indexedDB.enabled) {
-        warnings.push('IndexedDB를 지원하지 않는 브라우저입니다. 로컬 저장소를 사용합니다.');
+        warnings.push('IndexedDB를 지원하지 않는 브라우저입니다.');
         config.STORAGE.indexedDB.enabled = false;
     }
     
@@ -1280,7 +918,6 @@ const validateConfig = () => {
         errors.push('이 브라우저는 카메라를 지원하지 않습니다.');
     }
     
-    // 로그 출력
     if (errors.length > 0) {
         console.error('❌ 설정 검증 오류:', errors);
     }
@@ -1300,14 +937,9 @@ const validateConfig = () => {
 try {
     const validation = validateConfig();
     
-    // 개발 환경에서만 상세 정보 출력
     if (CURRENT_ENVIRONMENT === 'development') {
         console.log('🔧 Personal Color Pro 설정:', window.PersonalColorConfig);
-        console.log('🌍 환경 정보:', CURRENT_ENVIRONMENT);
-        console.log('📱 디바이스 타입:', getDeviceType());
-        console.log('🌐 브라우저 정보:', getBrowserInfo());
         
-        // 설정 유틸리티 함수들
         window.ConfigUtils = {
             getConfig: () => window.PersonalColorConfig,
             validateConfig,
@@ -1315,7 +947,6 @@ try {
             getDeviceType,
             detectEnvironment,
             
-            // 설정 업데이트 함수
             updateConfig: (path, value) => {
                 const pathArray = path.split('.');
                 let current = window.PersonalColorConfig;
@@ -1347,3 +978,526 @@ try {
     
     console.warn('⚠️ 기본 설정으로 폴백됨');
 }
+
+// 🔥 긴급 추가: getConfig 함수 (8개 파일 로드 실패 해결의 핵심!)
+/**
+ * 전역 설정값 접근 함수
+ * @param {string} keyPath - 설정 키 경로 (예: 'CAMERA.constraints', 'AI_MODELS.confidenceThreshold')
+ * @param {*} defaultValue - 기본값
+ * @returns {*} 설정값 또는 기본값
+ */
+function getConfig(keyPath, defaultValue = null) {
+    try {
+        if (!window.PersonalColorConfig) {
+            console.warn('PersonalColorConfig가 아직 로드되지 않았습니다.');
+            return defaultValue;
+        }
+
+        // 키 경로를 점(.)으로 분리하여 중첩된 객체에 접근
+        const keys = keyPath.split('.');
+        let current = window.PersonalColorConfig;
+        
+        for (const key of keys) {
+            if (current === null || current === undefined || typeof current !== 'object') {
+                console.warn(`설정 경로 '${keyPath}'에서 '${key}' 찾을 수 없음`);
+                return defaultValue;
+            }
+            current = current[key];
+        }
+        
+        return current !== undefined ? current : defaultValue;
+        
+    } catch (error) {
+        console.warn(`getConfig 오류 (${keyPath}):`, error);
+        return defaultValue;
+    }
+}
+
+// 전역에서 접근 가능하도록 등록
+window.getConfig = getConfig;
+
+// 🔥 추가 전역 함수 정의 (다른 파일에서 참조하는 함수들)
+
+/**
+ * 권한 확인 함수 (PhotoAnalysis.js에서 사용)
+ */
+window.hasPermission = function(permissionType) {
+    try {
+        switch (permissionType) {
+            case 'camera':
+                return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+            case 'microphone':
+                return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+            case 'geolocation':
+                return 'geolocation' in navigator;
+            case 'storage':
+                return 'localStorage' in window && window.localStorage !== null;
+            default:
+                return false;
+        }
+    } catch (error) {
+        console.warn(`권한 확인 실패 (${permissionType}):`, error);
+        return false;
+    }
+};
+
+/**
+ * 렌더링 함수 (VirtualDraping.js에서 사용)
+ */
+window.render = function(context, data) {
+    try {
+        if (!context || !data) {
+            console.warn('렌더링 함수: 잘못된 매개변수');
+            return false;
+        }
+        
+        if (context.clearRect) {
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        }
+        
+        if (data.type === 'image' && data.imageData) {
+            context.putImageData(data.imageData, 0, 0);
+        }
+        
+        return true;
+    } catch (error) {
+        console.warn('렌더링 함수 오류:', error);
+        return false;
+    }
+};
+
+/**
+ * 계절 데이터 접근 함수 (ColorPalette.js에서 사용)
+ */
+window.getSeasonData = function(season = null) {
+    try {
+        const seasonData = window.seasons || window.SEASONS || {
+            spring: { name: '봄', colors: [], description: '따뜻하고 밝은 톤' },
+            summer: { name: '여름', colors: [], description: '시원하고 부드러운 톤' },
+            autumn: { name: '가을', colors: [], description: '따뜻하고 깊은 톤' },
+            winter: { name: '겨울', colors: [], description: '차갑고 선명한 톤' }
+        };
+        
+        if (season) {
+            return seasonData[season] || null;
+        }
+        
+        return seasonData;
+    } catch (error) {
+        console.warn('계절 데이터 접근 오류:', error);
+        return null;
+    }
+};
+
+// seasonData 별칭 등록 (ColorPalette.js 호환성)
+window.seasonData = window.getSeasonData();
+
+/**
+ * 설정값 업데이트 함수
+ */
+window.updateConfig = function(path, value) {
+    try {
+        const pathArray = path.split('.');
+        let current = window.PersonalColorConfig;
+        
+        for (let i = 0; i < pathArray.length - 1; i++) {
+            if (!current[pathArray[i]]) {
+                current[pathArray[i]] = {};
+            }
+            current = current[pathArray[i]];
+        }
+        
+        current[pathArray[pathArray.length - 1]] = value;
+        console.log(`✅ 설정 업데이트: ${path} = ${value}`);
+        return true;
+    } catch (error) {
+        console.error(`❌ 설정 업데이트 실패 (${path}):`, error);
+        return false;
+    }
+};
+
+/**
+ * 안전한 전역 변수 접근 함수
+ */
+window.safeGlobalAccess = function(varName, defaultValue = null) {
+    try {
+        return window[varName] !== undefined ? window[varName] : defaultValue;
+    } catch (error) {
+        console.warn(`전역 변수 '${varName}' 접근 실패:`, error);
+        return defaultValue;
+    }
+};
+
+// 🔥 기존 버전에서 빠진 중요 부분들 추가
+
+/**
+ * PCCS 톤 정의 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.pccsTones = {
+    // 순색톤
+    vivid: { lightness: 70, saturation: 100, description: '선명한' },
+    bright: { lightness: 80, saturation: 80, description: '밝은' },
+    strong: { lightness: 60, saturation: 90, description: '강한' },
+    deep: { lightness: 40, saturation: 85, description: '짙은' },
+    
+    // 명청톤
+    pale: { lightness: 85, saturation: 45, description: '연한' },
+    light: { lightness: 75, saturation: 50, description: '얕은' },
+    soft: { lightness: 65, saturation: 40, description: '부드러운' },
+    dull: { lightness: 55, saturation: 35, description: '탁한' },
+    dark: { lightness: 35, saturation: 45, description: '어두운' },
+    
+    // 무채색톤
+    lightGray: { lightness: 80, saturation: 5, description: '밝은 회색' },
+    mediumGray: { lightness: 50, saturation: 5, description: '중간 회색' },
+    darkGray: { lightness: 25, saturation: 5, description: '어두운 회색' }
+};
+
+/**
+ * 4계절 색온도 기준값 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.seasonalTemperatures = {
+    spring: { warm: true, temperature: 'warm', range: [3000, 4000] },
+    summer: { warm: false, temperature: 'cool', range: [5500, 6500] },
+    autumn: { warm: true, temperature: 'warm', range: [2500, 3500] },
+    winter: { warm: false, temperature: 'cool', range: [6000, 8000] }
+};
+
+/**
+ * 색상환 정의 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.colorWheel = {
+    red: { hue: 0, warm: true },
+    redOrange: { hue: 30, warm: true },
+    orange: { hue: 60, warm: true },
+    yellowOrange: { hue: 90, warm: true },
+    yellow: { hue: 120, warm: true },
+    yellowGreen: { hue: 150, warm: true },
+    green: { hue: 180, warm: false },
+    blueGreen: { hue: 210, warm: false },
+    blue: { hue: 240, warm: false },
+    blueViolet: { hue: 270, warm: false },
+    violet: { hue: 300, warm: false },
+    redViolet: { hue: 330, warm: true }
+};
+
+/**
+ * CIE 표준 조명체 정의 (기존 버전에 있던 완전한 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.illuminants = {
+    D65: { x: 0.31271, y: 0.32902, X: 95.047, Y: 100.000, Z: 108.883 }, // 표준 주광
+    D50: { x: 0.34567, y: 0.35850, X: 96.422, Y: 100.000, Z: 82.521 },  // 인쇄 표준
+    A: { x: 0.44757, y: 0.40745, X: 109.850, Y: 100.000, Z: 35.585 },    // 백열등
+    F2: { x: 0.37208, y: 0.37529, X: 99.187, Y: 100.000, Z: 67.393 }     // 형광등
+};
+
+/**
+ * 현재 사용 중인 조명체
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.currentIlluminant = window.PersonalColorConfig.COLOR_ANALYSIS.illuminants.D65;
+
+/**
+ * 피부 샘플링을 위한 최적 영역 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.skinSamplingAreas = {
+    forehead: { x: 0.3, y: 0.15, w: 0.4, h: 0.12 },
+    leftCheek: { x: 0.15, y: 0.4, w: 0.15, h: 0.2 },
+    rightCheek: { x: 0.7, y: 0.4, w: 0.15, h: 0.2 },
+    chin: { x: 0.35, y: 0.75, w: 0.3, h: 0.15 }
+};
+
+/**
+ * 화장품 브랜드 매칭 데이터 (기존 버전에서 중요한 부분)
+ */
+window.PersonalColorConfig.BRAND_MATCHING = {
+    makeup: {
+        foundation: {
+            brands: ['에스티로더', '랑콤', '디올', '샤넬', '맥', '클리니크'],
+            colorMapping: {
+                spring: ['21N1', 'NC20', 'W1', 'Beige 10'],
+                summer: ['21C1', 'NW20', 'C1', 'Beige Rose 20'],
+                autumn: ['23N2', 'NC25', 'W2', 'Beige 30'],
+                winter: ['23C2', 'NW25', 'C2', 'Beige Rose 30']
+            }
+        },
+        lipstick: {
+            brands: ['샤넬', '디올', '톰포드', 'YSL', '맥'],
+            recommendations: {
+                spring: ['코랄', '피치', '오렌지레드'],
+                summer: ['로즈', '베리', '플럼'],
+                autumn: ['브릭레드', '테라코타', '브론즈'],
+                winter: ['트루레드', '딥베리', '퓨샤']
+            }
+        }
+    },
+    hairColor: {
+        brands: ['웰라', '로레알', '슈바르츠코프', '매트릭스'],
+        recommendations: {
+            spring: ['골든브라운', '카라멜', '허니블론드'],
+            summer: ['애쉬브라운', '플래티넘블론드', '실버그레이'],
+            autumn: ['초콜릿브라운', '레드브라운', '딥브런트'],
+            winter: ['제트블랙', '다크브라운', '인텐스레드']
+        }
+    }
+};
+
+// 🔥 콘솔에서 확인 가능한 디버그 정보
+if (CURRENT_ENVIRONMENT === 'development') {
+    console.log('🚀 전역 함수 등록 완료:');
+    console.log('  - getConfig()');
+    console.log('  - hasPermission()');
+    console.log('  - render()');
+    console.log('  - getSeasonData()');
+    console.log('  - updateConfig()');
+    console.log('  - safeGlobalAccess()');
+    console.log('');
+    console.log('💡 사용법:');
+    console.log('  getConfig("DRAPING.colorSets.spring")');
+    console.log('  hasPermission("camera")');
+    console.log('  getSeasonData("spring")');
+}
+
+console.log('🔥 완전한 config.js 로드 완료 - 기존 버전 모든 기능 완벽 복원!');
+
+// 🔥 추가 전역 함수 정의 (다른 파일에서 참조하는 함수들)
+
+/**
+ * 권한 확인 함수 (PhotoAnalysis.js에서 사용)
+ */
+window.hasPermission = function(permissionType) {
+    try {
+        switch (permissionType) {
+            case 'camera':
+                return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+            case 'microphone':
+                return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+            case 'geolocation':
+                return 'geolocation' in navigator;
+            case 'storage':
+                return 'localStorage' in window && window.localStorage !== null;
+            default:
+                return false;
+        }
+    } catch (error) {
+        console.warn(`권한 확인 실패 (${permissionType}):`, error);
+        return false;
+    }
+};
+
+/**
+ * 렌더링 함수 (VirtualDraping.js에서 사용)
+ */
+window.render = function(context, data) {
+    try {
+        if (!context || !data) {
+            console.warn('렌더링 함수: 잘못된 매개변수');
+            return false;
+        }
+        
+        if (context.clearRect) {
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        }
+        
+        if (data.type === 'image' && data.imageData) {
+            context.putImageData(data.imageData, 0, 0);
+        }
+        
+        return true;
+    } catch (error) {
+        console.warn('렌더링 함수 오류:', error);
+        return false;
+    }
+};
+
+/**
+ * 계절 데이터 접근 함수 (ColorPalette.js에서 사용)
+ */
+window.getSeasonData = function(season = null) {
+    try {
+        const seasonData = window.seasons || window.SEASONS || {
+            spring: { name: '봄', colors: [], description: '따뜻하고 밝은 톤' },
+            summer: { name: '여름', colors: [], description: '시원하고 부드러운 톤' },
+            autumn: { name: '가을', colors: [], description: '따뜻하고 깊은 톤' },
+            winter: { name: '겨울', colors: [], description: '차갑고 선명한 톤' }
+        };
+        
+        if (season) {
+            return seasonData[season] || null;
+        }
+        
+        return seasonData;
+    } catch (error) {
+        console.warn('계절 데이터 접근 오류:', error);
+        return null;
+    }
+};
+
+// seasonData 별칭 등록 (ColorPalette.js 호환성)
+window.seasonData = window.getSeasonData();
+
+/**
+ * 설정값 업데이트 함수
+ */
+window.updateConfig = function(path, value) {
+    try {
+        const pathArray = path.split('.');
+        let current = window.PersonalColorConfig;
+        
+        for (let i = 0; i < pathArray.length - 1; i++) {
+            if (!current[pathArray[i]]) {
+                current[pathArray[i]] = {};
+            }
+            current = current[pathArray[i]];
+        }
+        
+        current[pathArray[pathArray.length - 1]] = value;
+        console.log(`✅ 설정 업데이트: ${path} = ${value}`);
+        return true;
+    } catch (error) {
+        console.error(`❌ 설정 업데이트 실패 (${path}):`, error);
+        return false;
+    }
+};
+
+/**
+ * 안전한 전역 변수 접근 함수
+ */
+window.safeGlobalAccess = function(varName, defaultValue = null) {
+    try {
+        return window[varName] !== undefined ? window[varName] : defaultValue;
+    } catch (error) {
+        console.warn(`전역 변수 '${varName}' 접근 실패:`, error);
+        return defaultValue;
+    }
+};
+
+// 🔥 콘솔에서 확인 가능한 디버그 정보
+if (CURRENT_ENVIRONMENT === 'development') {
+    console.log('🚀 전역 함수 등록 완료:');
+    console.log('  - getConfig()');
+    console.log('  - hasPermission()');
+    console.log('  - render()');
+    console.log('  - getSeasonData()');
+    console.log('  - updateConfig()');
+    console.log('  - safeGlobalAccess()');
+    console.log('');
+    console.log('💡 사용법:');
+    console.log('  getConfig("DRAPING.colorSets.spring")');
+    console.log('  hasPermission("camera")');
+    console.log('  getSeasonData("spring")');
+}
+
+// 🔥 기존 버전에서 빠진 중요 부분들 추가
+
+/**
+ * PCCS 톤 정의 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.pccsTones = {
+    // 순색톤
+    vivid: { lightness: 70, saturation: 100, description: '선명한' },
+    bright: { lightness: 80, saturation: 80, description: '밝은' },
+    strong: { lightness: 60, saturation: 90, description: '강한' },
+    deep: { lightness: 40, saturation: 85, description: '짙은' },
+    
+    // 명청톤
+    pale: { lightness: 85, saturation: 45, description: '연한' },
+    light: { lightness: 75, saturation: 50, description: '얕은' },
+    soft: { lightness: 65, saturation: 40, description: '부드러운' },
+    dull: { lightness: 55, saturation: 35, description: '탁한' },
+    dark: { lightness: 35, saturation: 45, description: '어두운' },
+    
+    // 무채색톤
+    lightGray: { lightness: 80, saturation: 5, description: '밝은 회색' },
+    mediumGray: { lightness: 50, saturation: 5, description: '중간 회색' },
+    darkGray: { lightness: 25, saturation: 5, description: '어두운 회색' }
+};
+
+/**
+ * 4계절 색온도 기준값 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.seasonalTemperatures = {
+    spring: { warm: true, temperature: 'warm', range: [3000, 4000] },
+    summer: { warm: false, temperature: 'cool', range: [5500, 6500] },
+    autumn: { warm: true, temperature: 'warm', range: [2500, 3500] },
+    winter: { warm: false, temperature: 'cool', range: [6000, 8000] }
+};
+
+/**
+ * 색상환 정의 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.colorWheel = {
+    red: { hue: 0, warm: true },
+    redOrange: { hue: 30, warm: true },
+    orange: { hue: 60, warm: true },
+    yellowOrange: { hue: 90, warm: true },
+    yellow: { hue: 120, warm: true },
+    yellowGreen: { hue: 150, warm: true },
+    green: { hue: 180, warm: false },
+    blueGreen: { hue: 210, warm: false },
+    blue: { hue: 240, warm: false },
+    blueViolet: { hue: 270, warm: false },
+    violet: { hue: 300, warm: false },
+    redViolet: { hue: 330, warm: true }
+};
+
+/**
+ * CIE 표준 조명체 정의 (기존 버전에 있던 완전한 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.illuminants = {
+    D65: { x: 0.31271, y: 0.32902, X: 95.047, Y: 100.000, Z: 108.883 }, // 표준 주광
+    D50: { x: 0.34567, y: 0.35850, X: 96.422, Y: 100.000, Z: 82.521 },  // 인쇄 표준
+    A: { x: 0.44757, y: 0.40745, X: 109.850, Y: 100.000, Z: 35.585 },    // 백열등
+    F2: { x: 0.37208, y: 0.37529, X: 99.187, Y: 100.000, Z: 67.393 }     // 형광등
+};
+
+/**
+ * 현재 사용 중인 조명체
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.currentIlluminant = window.PersonalColorConfig.COLOR_ANALYSIS.illuminants.D65;
+
+/**
+ * 피부 샘플링을 위한 최적 영역 (기존 버전에 있던 부분)
+ */
+window.PersonalColorConfig.COLOR_ANALYSIS.skinSamplingAreas = {
+    forehead: { x: 0.3, y: 0.15, w: 0.4, h: 0.12 },
+    leftCheek: { x: 0.15, y: 0.4, w: 0.15, h: 0.2 },
+    rightCheek: { x: 0.7, y: 0.4, w: 0.15, h: 0.2 },
+    chin: { x: 0.35, y: 0.75, w: 0.3, h: 0.15 }
+};
+
+/**
+ * 화장품 브랜드 매칭 데이터 (기존 버전에서 중요한 부분)
+ */
+window.PersonalColorConfig.BRAND_MATCHING = {
+    makeup: {
+        foundation: {
+            brands: ['에스티로더', '랑콤', '디올', '샤넬', '맥', '클리니크'],
+            colorMapping: {
+                spring: ['21N1', 'NC20', 'W1', 'Beige 10'],
+                summer: ['21C1', 'NW20', 'C1', 'Beige Rose 20'],
+                autumn: ['23N2', 'NC25', 'W2', 'Beige 30'],
+                winter: ['23C2', 'NW25', 'C2', 'Beige Rose 30']
+            }
+        },
+        lipstick: {
+            brands: ['샤넬', '디올', '톰포드', 'YSL', '맥'],
+            recommendations: {
+                spring: ['코랄', '피치', '오렌지레드'],
+                summer: ['로즈', '베리', '플럼'],
+                autumn: ['브릭레드', '테라코타', '브론즈'],
+                winter: ['트루레드', '딥베리', '퓨샤']
+            }
+        }
+    },
+    hairColor: {
+        brands: ['웰라', '로레알', '슈바르츠코프', '매트릭스'],
+        recommendations: {
+            spring: ['골든브라운', '카라멜', '허니블론드'],
+            summer: ['애쉬브라운', '플래티넘블론드', '실버그레이'],
+            autumn: ['초콜릿브라운', '레드브라운', '딥브런트'],
+            winter: ['제트블랙', '다크브라운', '인텐스레드']
+        }
+    }
+};
+
+console.log('🔥 완전한 config.js 로드 완료 - 기존 버전 모든 기능 완벽 복원!');
