@@ -242,71 +242,52 @@ class PersonalColorAnalyzer {
     }
     
     /**
-     * 환영 단계 생성
+     * 환영 단계 생성 - 태블릿 최적화
      */
     createWelcomeStep() {
         return `
-            <div class="text-center max-w-4xl mx-auto">
-                <div class="mb-12">
-                    <div class="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
-                        <svg class="w-16 h-16 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="text-center max-w-6xl mx-auto px-4">
+                <div class="mb-8">
+                    <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
+                        <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
                         </svg>
                     </div>
                     
-                    <h2 class="text-4xl md:text-5xl lg:text-6xl text-gray-800 mb-6 font-bold">
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl text-gray-800 mb-4 font-bold">
                         당신만의 색을 찾아보세요
                     </h2>
                     
-                    <p class="text-xl text-gray-600 mb-12 leading-relaxed max-w-2xl mx-auto">
-                        과학적 드래이핑 분석으로<br>
-                        당신에게 가장 어울리는 색상을 찾아드립니다
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+                        과학적 드래이핑 분석으로 당신에게 가장 어울리는 색상을 찾아드립니다
                     </p>
                 </div>
                 
-                <!-- 기능 소개 -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    <div class="bg-white rounded-3xl shadow-lg p-8">
-                        <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">과학적 분석</h3>
-                        <p class="text-gray-600 leading-relaxed">
-                            Munsell 색체계와 Von Kries 이론을 기반으로 한 정확한 색상 분석
-                        </p>
+                <!-- 간단한 기능 소개 - 태블릿 최적화 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+                    <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                        <div class="text-3xl mb-2">🔬</div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-1">과학적 분석</h3>
+                        <p class="text-sm text-gray-600">Munsell 색체계 기반</p>
                     </div>
                     
-                    <div class="bg-white rounded-3xl shadow-lg p-8">
-                        <div class="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">모바일 최적화</h3>
-                        <p class="text-gray-600 leading-relaxed">
-                            터치와 스와이프 제스처로 직관적이고 편리한 사용 경험
-                        </p>
+                    <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                        <div class="text-3xl mb-2">📱</div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-1">태블릿 최적화</h3>
+                        <p class="text-sm text-gray-600">직관적인 터치 UX</p>
                     </div>
                     
-                    <div class="bg-white rounded-3xl shadow-lg p-8">
-                        <div class="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4">전문가급 정확도</h3>
-                        <p class="text-gray-600 leading-relaxed">
-                            92% 정확도의 전문 드래이핑과 맞춤 상담 제공
-                        </p>
+                    <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                        <div class="text-3xl mb-2">⭐</div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-1">92% 정확도</h3>
+                        <p class="text-sm text-gray-600">전문가급 진단</p>
                     </div>
                 </div>
                 
                 <!-- 시작 버튼 -->
-                <div class="text-center">
+                <div class="text-center mb-8">
                     <button onclick="app.showStep(1)" 
-                            class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-12 py-6 rounded-2xl text-2xl font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl touch-target">
+                            class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-4 rounded-xl text-xl font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl touch-target">
                         🎨 진단 시작하기
                     </button>
                 </div>
@@ -863,108 +844,221 @@ class PersonalColorAnalyzer {
     }
     
     /**
-     * 드래이핑 분석 단계 생성
+     * 드래이핑 분석 단계 생성 - 3단계 완전 진단
      */
     createDrapingAnalysisStep() {
+        const stepTitles = {
+            'temperature': '1단계: 온도감 진단',
+            'brightness': '2단계: 명도 진단', 
+            'saturation': '3단계: 채도 진단'
+        };
+        
+        const stepDescriptions = {
+            'temperature': '따뜻한 색상과 차가운 색상 중 어떤 것이 더 잘 어울리는지 선택해주세요',
+            'brightness': '밝은 색상과 깊은 색상 중 어떤 것이 더 어울리는지 선택해주세요',
+            'saturation': '선명한 색상과 부드러운 색상 중 어떤 것이 더 어울리는지 선택해주세요'
+        };
+        
+        const stepNumber = this.getStepNumber(this.currentDrapingStep);
+        
         return `
-            <div class="max-w-4xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+            <div class="max-w-5xl mx-auto px-4">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
                         전문가급 드래이핑 진단
                     </h2>
-                    <p class="text-xl text-gray-600 mb-8">
+                    <p class="text-lg text-gray-600 mb-6">
                         3단계 체계적 분석을 통해 당신만의 색상을 찾아보겠습니다
                     </p>
                     
                     <!-- 진행 단계 표시 -->
-                    <div class="flex justify-center mb-12">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">1</div>
-                            <div class="w-16 h-1 bg-gray-200"></div>
-                            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold">2</div>
-                            <div class="w-16 h-1 bg-gray-200"></div>
-                            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-bold">3</div>
+                    <div class="flex justify-center mb-8">
+                        <div class="flex items-center space-x-3">
+                            ${[1, 2, 3].map(num => `
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full ${num <= stepNumber ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-500'} flex items-center justify-center font-bold text-sm">
+                                        ${num}
+                                    </div>
+                                    ${num < 3 ? `<div class="w-12 h-0.5 ${num < stepNumber ? 'bg-purple-600' : 'bg-gray-200'}"></div>` : ''}
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 </div>
                 
-                <div class="bg-white rounded-3xl shadow-xl p-8">
-                    <h3 class="text-2xl font-bold text-center mb-8">1단계: 온도감 진단</h3>
-                    <p class="text-gray-600 text-center mb-12">
-                        따뜻한 색상과 차가운 색상 중 어떤 것이 더 잘 어울리는지 선택해주세요
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                    <h3 class="text-xl font-bold text-center mb-2">${stepTitles[this.currentDrapingStep]}</h3>
+                    <p class="text-gray-600 text-center mb-8">
+                        ${stepDescriptions[this.currentDrapingStep]}
                     </p>
                     
-                    <!-- 온도감 색상 선택 -->
-                    <div class="grid grid-cols-2 gap-8 mb-8">
-                        <div class="text-center">
-                            <h4 class="text-xl font-bold mb-6 text-orange-600">따뜻한 색상</h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                ${this.generateColorOptions('warm')}
-                            </div>
-                        </div>
-                        
-                        <div class="text-center">
-                            <h4 class="text-xl font-bold mb-6 text-blue-600">차가운 색상</h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                ${this.generateColorOptions('cool')}
-                            </div>
-                        </div>
+                    <!-- 색상 선택 영역 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        ${this.generateDrapingColorGroups()}
                     </div>
-                    
-                    <div class="text-center">
-                        <button onclick="app.showStep(3)" 
-                                class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
-                            결과 보기 (임시)
-                        </button>
-                    </div>
+                </div>
+                
+                <!-- 진행 상황 -->
+                <div class="text-center text-sm text-gray-500">
+                    단계 ${stepNumber}/3 진행 중
                 </div>
             </div>
         `;
     }
     
     /**
-     * 색상 옵션 생성
+     * 현재 드래이핑 단계의 숫자 반환
+     */
+    getStepNumber(step) {
+        const stepMap = { 'temperature': 1, 'brightness': 2, 'saturation': 3 };
+        return stepMap[step] || 1;
+    }
+    
+    /**
+     * 드래이핑 색상 그룹 생성 - 개선된 버전
+     */
+    generateDrapingColorGroups() {
+        if (this.currentDrapingStep === 'temperature') {
+            return `
+                <div class="text-center">
+                    <h4 class="text-lg font-bold mb-6 text-orange-600 flex items-center justify-center">
+                        <span class="text-2xl mr-2">🔥</span> 따뜻한 색상
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${this.generateColorOptions('warm')}
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <h4 class="text-lg font-bold mb-6 text-blue-600 flex items-center justify-center">
+                        <span class="text-2xl mr-2">❄️</span> 차가운 색상
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${this.generateColorOptions('cool')}
+                    </div>
+                </div>
+            `;
+        } else if (this.currentDrapingStep === 'brightness') {
+            return `
+                <div class="text-center">
+                    <h4 class="text-lg font-bold mb-6 text-yellow-600 flex items-center justify-center">
+                        <span class="text-2xl mr-2">☀️</span> 밝은 색상
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${this.generateColorOptions('bright')}
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <h4 class="text-lg font-bold mb-6 text-gray-700 flex items-center justify-center">
+                        <span class="text-2xl mr-2">🌙</span> 깊은 색상
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${this.generateColorOptions('deep')}
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="text-center">
+                    <h4 class="text-lg font-bold mb-6 text-red-600 flex items-center justify-center">
+                        <span class="text-2xl mr-2">✨</span> 선명한 색상
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${this.generateColorOptions('vivid')}
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <h4 class="text-lg font-bold mb-6 text-purple-600 flex items-center justify-center">
+                        <span class="text-2xl mr-2">🌸</span> 부드러운 색상
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        ${this.generateColorOptions('muted')}
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    /**
+     * 색상 옵션 생성 - 완전히 개선된 버전
      */
     generateColorOptions(type) {
-        const colors = window.SIMPLE_COLORS && window.SIMPLE_COLORS[type] 
-            ? window.SIMPLE_COLORS[type] 
-            : this.getDefaultColors(type);
+        const colors = this.getColorsForType(type);
             
         return colors.map(colorData => `
-            <div class="cursor-pointer touch-target transform hover:scale-105 transition-all duration-200"
-                 onclick="selectColor('temperature', '${type}', '${colorData.name}', ${JSON.stringify(colorData).replace(/"/g, '&quot;')})">
-                <div class="w-full h-24 rounded-xl shadow-md mb-3" 
-                     style="background: ${colorData.color};"
+            <div class="cursor-pointer transform hover:scale-105 transition-all duration-200 touch-target"
+                 onclick="selectColor('${this.currentDrapingStep}', '${type}', '${colorData.name}', ${JSON.stringify(colorData).replace(/"/g, '&quot;')})">
+                <div class="w-full aspect-square rounded-xl shadow-lg mb-2 relative overflow-hidden border-2 border-gray-200 hover:border-purple-400 transition-colors" 
+                     style="background: linear-gradient(135deg, ${colorData.color}, ${colorData.shadow || colorData.color});"
                      title="${colorData.description}">
+                    <!-- 색상 이름을 박스 안에 표시 -->
+                    <div class="absolute inset-0 flex items-end p-2">
+                        <div class="bg-black bg-opacity-60 text-white text-xs font-medium px-2 py-1 rounded backdrop-blur-sm">
+                            ${colorData.name}
+                        </div>
+                    </div>
+                    <!-- 선택 효과 -->
+                    <div class="absolute inset-0 bg-purple-500 bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 rounded-xl"></div>
                 </div>
-                <p class="text-sm font-medium text-gray-700">${colorData.name}</p>
             </div>
         `).join('');
     }
     
     /**
-     * 기본 색상 제공 (데이터가 없을 경우)
+     * 타입별 색상 데이터 제공 - 확장된 버전
      */
-    getDefaultColors(type) {
-        if (type === 'warm') {
-            return [
-                { name: '골든 옐로우', color: '#FFD700', description: '따뜻한 황금색' },
-                { name: '코랄 오렌지', color: '#FF7F50', description: '산호색 오렌지' },
-                { name: '피치', color: '#FFCBA4', description: '복숭아색' },
-                { name: '올리브', color: '#8FBC8F', description: '따뜻한 올리브' }
-            ];
-        } else {
-            return [
-                { name: '아이시 핑크', color: '#FF1493', description: '차가운 핑크' },
-                { name: '로얄 블루', color: '#4169E1', description: '깊은 파란색' },
-                { name: '에메랄드', color: '#50C878', description: '청록색' },
-                { name: '라벤더', color: '#E6E6FA', description: '연한 보라색' }
-            ];
-        }
+    getColorsForType(type) {
+        const colorSets = {
+            // 온도감 - 1단계
+            'warm': [
+                { name: '골든 옐로우', color: '#FFD700', shadow: '#E6C200', description: '따뜻한 황금색' },
+                { name: '코랄 오렌지', color: '#FF7F50', shadow: '#E6723D', description: '산호색 오렌지' },
+                { name: '피치', color: '#FFCBA4', shadow: '#E6B891', description: '복숭아색' },
+                { name: '올리브', color: '#8FBC8F', shadow: '#7CA97C', description: '따뜻한 올리브' }
+            ],
+            'cool': [
+                { name: '아이시 핑크', color: '#FF1493', shadow: '#E60080', description: '차가운 핑크' },
+                { name: '로얄 블루', color: '#4169E1', shadow: '#365FCE', description: '깊은 파란색' },
+                { name: '에메랄드', color: '#50C878', shadow: '#47B56A', description: '청록색' },
+                { name: '라벤더', color: '#E6E6FA', shadow: '#D3D3E7', description: '연한 보라색' }
+            ],
+            
+            // 명도 - 2단계
+            'bright': [
+                { name: '라이트 핑크', color: '#FFB6C1', shadow: '#E6A3AE', description: '밝은 핑크' },
+                { name: '스카이 블루', color: '#87CEEB', shadow: '#74BBD8', description: '하늘색' },
+                { name: '민트', color: '#98FB98', shadow: '#85E885', description: '밝은 민트' },
+                { name: '레몬 옐로우', color: '#FFFACD', shadow: '#E6E7BA', description: '연한 노랑' }
+            ],
+            'deep': [
+                { name: '딥 레드', color: '#8B0000', shadow: '#780000', description: '깊은 빨강' },
+                { name: '네이비', color: '#000080', shadow: '#000070', description: '진한 남색' },
+                { name: '포레스트', color: '#228B22', shadow: '#1F7B1F', description: '숲의 초록' },
+                { name: '퍼플', color: '#800080', shadow: '#700070', description: '진한 보라' }
+            ],
+            
+            // 채도 - 3단계  
+            'vivid': [
+                { name: '비비드 레드', color: '#FF0000', shadow: '#E60000', description: '선명한 빨강' },
+                { name: '일렉트릭 블루', color: '#0080FF', shadow: '#0073E6', description: '전기 파랑' },
+                { name: '라임', color: '#00FF00', shadow: '#00E600', description: '선명한 초록' },
+                { name: '마젠타', color: '#FF00FF', shadow: '#E600E6', description: '선명한 자홍' }
+            ],
+            'muted': [
+                { name: '더스티 로즈', color: '#BC9A9A', shadow: '#A98787', description: '부드러운 장미색' },
+                { name: '세이지', color: '#9CAF88', shadow: '#899C75', description: '회색빛 초록' },
+                { name: '슬레이트', color: '#708090', shadow: '#5D6D7D', description: '슬레이트 회색' },
+                { name: '모브', color: '#E0B4D6', shadow: '#CDA1C3', description: '부드러운 보라' }
+            ]
+        };
+        
+        return colorSets[type] || [];
     }
     
     /**
-     * 색상 선택 처리
+     * 색상 선택 처리 - 3단계 진행 시스템
      */
     selectColor(step, type, colorName, colorData) {
         console.log('색상 선택:', step, type, colorName);
@@ -981,12 +1075,82 @@ class PersonalColorAnalyzer {
         // 선택 피드백 표시
         this.showColorSelectionFeedback(colorName);
         
-        // 임시: 바로 결과로 이동
+        // 다음 단계로 진행
         setTimeout(() => {
-            this.analysisData.finalSeason = 'Spring Light';
-            this.analysisData.confidence = 92;
+            this.proceedToNextDrapingStep();
+        }, 800);
+    }
+    
+    /**
+     * 다음 드래이핑 단계로 진행
+     */
+    proceedToNextDrapingStep() {
+        if (this.currentDrapingStep === 'temperature') {
+            this.currentDrapingStep = 'brightness';
+            this.showStep(2); // 2단계로 다시 렌더링
+        } else if (this.currentDrapingStep === 'brightness') {
+            this.currentDrapingStep = 'saturation';
+            this.showStep(2); // 3단계로 다시 렌더링
+        } else {
+            // 모든 단계 완료 - 결과 분석
+            this.analyzeDrapingResults();
             this.showStep(3);
-        }, 1000);
+        }
+    }
+    
+    /**
+     * 드래이핑 결과 분석
+     */
+    analyzeDrapingResults() {
+        console.log('드래이핑 결과 분석:', this.analysisData.selectedColors);
+        
+        // 간단한 분석 로직
+        let season = 'Spring Light';
+        let confidence = 85;
+        
+        // 온도감 분석
+        const tempSelection = this.analysisData.selectedColors['temperature'];
+        const isWarm = tempSelection && (tempSelection['warm'] !== undefined);
+        
+        // 명도 분석  
+        const brightSelection = this.analysisData.selectedColors['brightness'];
+        const isBright = brightSelection && (brightSelection['bright'] !== undefined);
+        
+        // 채도 분석
+        const satSelection = this.analysisData.selectedColors['saturation'];
+        const isVivid = satSelection && (satSelection['vivid'] !== undefined);
+        
+        // 계절 결정 로직
+        if (isWarm && isBright && isVivid) {
+            season = 'Spring Bright';
+            confidence = 94;
+        } else if (isWarm && isBright && !isVivid) {
+            season = 'Spring Light';
+            confidence = 92;
+        } else if (isWarm && !isBright && isVivid) {
+            season = 'Autumn Deep';
+            confidence = 90;
+        } else if (isWarm && !isBright && !isVivid) {
+            season = 'Autumn Muted';
+            confidence = 88;
+        } else if (!isWarm && isBright && isVivid) {
+            season = 'Winter Clear';
+            confidence = 93;
+        } else if (!isWarm && isBright && !isVivid) {
+            season = 'Summer Light';
+            confidence = 91;
+        } else if (!isWarm && !isBright && isVivid) {
+            season = 'Winter Deep';
+            confidence = 89;
+        } else {
+            season = 'Summer Muted';
+            confidence = 87;
+        }
+        
+        this.analysisData.finalSeason = season;
+        this.analysisData.confidence = confidence;
+        
+        console.log('분석 완료:', season, confidence + '%');
     }
     
     /**
@@ -1018,53 +1182,57 @@ class PersonalColorAnalyzer {
     }
 
     /**
-     * 기본 결과 생성
+     * 기본 결과 생성 - 깊이있는 분석 포함
      */
     createBasicResults() {
-        // 임시 결과 (실제로는 분석 결과 기반)
         const season = this.analysisData.finalSeason || 'Spring Light';
-        const seasonData = window.SEASONS && window.SEASONS[season] ? window.SEASONS[season] : {
-            name: season,
-            korean: '봄 라이트',
-            characteristics: '밝고 따뜻한 톤',
-            bestColors: ['#FFE5B4', '#FFD700', '#FFB6C1', '#98FB98'],
-            description: '밝고 화사한 색상이 잘 어울리는 타입입니다.'
-        };
+        const seasonData = this.getDetailedSeasonData(season);
         
         return `
-            <div class="max-w-4xl mx-auto">
-                <div class="text-center mb-12">
-                    <div class="w-32 h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full mx-auto mb-8 flex items-center justify-center">
-                        <span class="text-6xl">🎉</span>
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                        <span class="text-4xl">🎉</span>
                     </div>
                     
-                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
                         진단 완료!
                     </h2>
                     
-                    <div class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
-                        ${seasonData.korean || seasonData.name}
+                    <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                        ${seasonData.korean}
                     </div>
                     
-                    <p class="text-xl text-gray-600 mb-8">
+                    <p class="text-lg text-gray-600 mb-6">
                         ${seasonData.characteristics}
                     </p>
                     
-                    <div class="bg-gray-100 rounded-2xl px-6 py-3 inline-block">
+                    <div class="bg-gray-100 rounded-xl px-6 py-3 inline-block">
                         <span class="text-lg font-bold text-gray-700">
                             정확도: ${this.analysisData.confidence || 92}%
                         </span>
                     </div>
                 </div>
                 
-                <!-- 추천 컬러 팔레트 -->
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <h3 class="text-2xl font-bold text-center mb-8">🎨 추천 컬러 팔레트</h3>
-                    <div class="flex justify-center space-x-4 mb-8">
+                <!-- 추천 컬러 팔레트 - 개선된 버전 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-bold text-center mb-6 flex items-center justify-center">
+                        <span class="text-2xl mr-2">🎨</span>
+                        추천 컬러 팔레트
+                    </h3>
+                    <div class="grid grid-cols-4 md:grid-cols-6 gap-4 mb-6">
                         ${seasonData.bestColors.map(color => `
-                            <div class="w-20 h-20 rounded-full shadow-lg border-4 border-white" 
-                                 style="background: ${color};"
-                                 title="${color}">
+                            <div class="relative group cursor-pointer">
+                                <div class="aspect-square rounded-xl shadow-md border-2 border-gray-200 hover:border-purple-400 transition-all duration-200 transform hover:scale-105" 
+                                     style="background: linear-gradient(135deg, ${color.main}, ${color.shadow});"
+                                     title="${color.name}">
+                                    <!-- 그라데이션 하이라이트 -->
+                                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-xl"></div>
+                                    <!-- 색상 이름 툴팁 -->
+                                    <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                        ${color.name}
+                                    </div>
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -1074,21 +1242,269 @@ class PersonalColorAnalyzer {
                     </p>
                 </div>
                 
+                <!-- 깊이있는 분석 결과 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    
+                    <!-- 메이크업 추천 -->
+                    <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-200">
+                        <h4 class="text-lg font-bold text-pink-800 mb-4 flex items-center">
+                            <span class="text-xl mr-2">💄</span>
+                            메이크업 추천
+                        </h4>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <span class="font-semibold text-pink-700">립 컬러:</span>
+                                <span class="text-pink-600"> ${seasonData.makeup.lipColor}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-pink-700">아이섀도:</span>
+                                <span class="text-pink-600"> ${seasonData.makeup.eyeshadow}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-pink-700">블러셔:</span>
+                                <span class="text-pink-600"> ${seasonData.makeup.blush}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 헤어 추천 -->
+                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200">
+                        <h4 class="text-lg font-bold text-amber-800 mb-4 flex items-center">
+                            <span class="text-xl mr-2">💇‍♀️</span>
+                            헤어 컬러
+                        </h4>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <span class="font-semibold text-amber-700">추천 컬러:</span>
+                                <span class="text-amber-600"> ${seasonData.hair.recommended}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-amber-700">하이라이트:</span>
+                                <span class="text-amber-600"> ${seasonData.hair.highlight}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-amber-700">피해야 할 색:</span>
+                                <span class="text-amber-600"> ${seasonData.hair.avoid}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 의상 추천 -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                        <h4 class="text-lg font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-xl mr-2">👗</span>
+                            패션 스타일
+                        </h4>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <span class="font-semibold text-blue-700">베이직 컬러:</span>
+                                <span class="text-blue-600"> ${seasonData.fashion.basic}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-blue-700">포인트 컬러:</span>
+                                <span class="text-blue-600"> ${seasonData.fashion.accent}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-blue-700">스타일:</span>
+                                <span class="text-blue-600"> ${seasonData.fashion.style}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 전문가 상담 멘트 -->
+                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-purple-200">
+                    <h4 class="text-lg font-bold text-purple-800 mb-4 flex items-center">
+                        <span class="text-xl mr-2">💬</span>
+                        전문가 조언
+                    </h4>
+                    <p class="text-purple-700 leading-relaxed italic">
+                        "${seasonData.consultation}"
+                    </p>
+                </div>
+                
                 <!-- 액션 버튼들 -->
-                <div class="flex flex-col items-center space-y-4">
+                <div class="text-center space-y-4">
                     <div class="flex flex-wrap justify-center gap-4">
                         <button onclick="shareResults()" 
-                                class="bg-green-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-green-600 transition-all duration-200">
+                                class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-xl font-bold hover:from-green-600 hover:to-emerald-600 transition-all duration-300">
                             📱 결과 공유하기
                         </button>
                         <button onclick="exportToPDF()" 
-                                class="bg-blue-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-600 transition-all duration-200">
-                            📄 PDF로 저장
+                                class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-8 py-4 rounded-xl font-bold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300">
+                            📄 상세 리포트 저장
                         </button>
                     </div>
                     
                     <button onclick="resetApp()" 
                             class="bg-gray-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200">
+                        🔄 다시 진단하기
+                    </button>
+                </div>
+            </div>
+        `;-8 py-4 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200">
+                        🔄 다시 진단하기
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    /**
+     * 상세한 계절 데이터 제공
+     */
+    getDetailedSeasonData(season) {
+        const seasonDatabase = {
+            'Spring Light': {
+                korean: '봄 라이트',
+                characteristics: '밝고 따뜻한 톤, 높은 명도',
+                description: '밝고 화사한 따뜻한 색상이 특징으로, 자연스럽고 생기 넘치는 매력을 강조합니다.',
+                bestColors: [
+                    { name: '피치 핑크', main: '#FFB5BA', shadow: '#FF9AA0' },
+                    { name: '코랄', main: '#FF6B6B', shadow: '#FF5252' },
+                    { name: '라이트 옐로우', main: '#FFF59D', shadow: '#FFF176' },
+                    { name: '아쿠아', main: '#4FC3F7', shadow: '#29B6F6' },
+                    { name: '라벤더', main: '#CE93D8', shadow: '#BA68C8' },
+                    { name: '민트', main: '#80CBC4', shadow: '#4DB6AC' }
+                ],
+                makeup: {
+                    lipColor: '코랄 핑크, 피치 오렌지',
+                    eyeshadow: '골드, 피치, 라이트 브라운',
+                    blush: '코랄, 피치 톤'
+                },
+                hair: {
+                    recommended: '골든 브라운, 허니 블론드',
+                    highlight: '캐러멜, 골드',
+                    avoid: '애쉬 톤, 다크 브라운'
+                },
+                fashion: {
+                    basic: '크림, 아이보리, 카키',
+                    accent: '코랄, 터콰이즈, 피치',
+                    style: '내츄럴, 로맨틱'
+                },
+                consultation: '당신의 밝고 따뜻한 피부톤에는 봄의 생기를 닮은 색상들이 완벽하게 어울립니다. 코랄과 피치 계열의 메이크업으로 자연스러운 혈색을 살리고, 골든 톤의 헤어 컬러로 전체적인 하모니를 완성해보세요.'
+            },
+            'Spring Bright': {
+                korean: '봄 브라이트',
+                characteristics: '따뜻하고 선명한 톤',
+                description: '화사하고 생동감 있는 색상이 매력적인 봄 브라이트 타입입니다.',
+                bestColors: [
+                    { name: '브라이트 오렌지', main: '#FF8A50', shadow: '#FF7043' },
+                    { name: '터콰이즈', main: '#40E0D0', shadow: '#26D0CE' },
+                    { name: '옐로우 그린', main: '#9CCC65', shadow: '#8BC34A' },
+                    { name: '핫 핑크', main: '#E91E63', shadow: '#C2185B' },
+                    { name: '골든 옐로우', main: '#FFD54F', shadow: '#FFCA28' },
+                    { name: '로얄 블루', main: '#2196F3', shadow: '#1976D2' }
+                ],
+                makeup: {
+                    lipColor: '브라이트 코랄, 오렌지 레드',
+                    eyeshadow: '브론즈, 골드, 터콰이즈',
+                    blush: '브라이트 피치, 코랄'
+                },
+                hair: {
+                    recommended: '골든 브라운, 구리빛 브라운',
+                    highlight: '골드, 구리',
+                    avoid: '차가운 블론드, 애쉬 톤'
+                },
+                fashion: {
+                    basic: '크림, 따뜻한 베이지',
+                    accent: '터콰이즈, 브라이트 코랄',
+                    style: '다이나믹, 활동적'
+                },
+                consultation: '생동감 넘치는 당신에게는 강렬하고 따뜻한 색상이 완벽합니다. 브라이트한 색상으로 당당하고 에너지 넘치는 매력을 표현해보세요.'
+            },
+            // 다른 계절들도 추가...
+            'Summer Light': {
+                korean: '여름 라이트',
+                characteristics: '차갑고 밝은 톤, 부드러운 느낌',
+                description: '청순하고 우아한 분위기의 차가운 색상이 잘 어울리는 타입입니다.',
+                bestColors: [
+                    { name: '라이트 핑크', main: '#F8BBD9', shadow: '#F48FB1' },
+                    { name: '스카이 블루', main: '#81D4FA', shadow: '#4FC3F7' },
+                    { name: '라벤더 그레이', main: '#D1C4E9', shadow: '#B39DDB' },
+                    { name: '소프트 옐로우', main: '#FFF9C4', shadow: '#FFF59D' },
+                    { name: '더스티 로즈', main: '#F8BBD9', shadow: '#F48FB1' },
+                    { name: '민트 그린', main: '#B2DFDB', shadow: '#80CBC4' }
+                ],
+                makeup: {
+                    lipColor: '로즈 핑크, 베리 틴트',
+                    eyeshadow: '소프트 브라운, 로즈 골드',
+                    blush: '핑크, 로즈 톤'
+                },
+                hair: {
+                    recommended: '애쉬 브라운, 쿨 블론드',
+                    highlight: '애쉬, 플래티넘',
+                    avoid: '골든 톤, 레드 브라운'
+                },
+                fashion: {
+                    basic: '네이비, 그레이, 화이트',
+                    accent: '라벤더, 소프트 핑크',
+                    style: '엘레간트, 페미닌'
+                },
+                consultation: '당신의 차갑고 섬세한 피부톤에는 부드러운 파스텔 톤이 가장 잘 어울립니다. 로즈 핑크와 라벤더 컬러로 우아하고 여성스러운 매력을 완성해보세요.'
+            },
+            'Autumn Deep': {
+                korean: '가을 딥',
+                characteristics: '깊고 따뜻한 톤, 중후한 매력',
+                description: '성숙하고 깊이 있는 따뜻한 색상이 매력적인 타입입니다.',
+                bestColors: [
+                    { name: '딥 오렌지', main: '#FF5722', shadow: '#E64A19' },
+                    { name: '올리브 그린', main: '#689F38', shadow: '#558B2F' },
+                    { name: '버건디', main: '#AD1457', shadow: '#880E4F' },
+                    { name: '골든 브라운', main: '#8D6E63', shadow: '#6D4C41' },
+                    { name: '딥 골드', main: '#FF8F00', shadow: '#FF6F00' },
+                    { name: '테라코타', main: '#BF360C', shadow: '#A62100' }
+                ],
+                makeup: {
+                    lipColor: '딥 레드, 브라운 레드',
+                    eyeshadow: '브론즈, 골드, 브라운',
+                    blush: '테라코타, 딥 피치'
+                },
+                hair: {
+                    recommended: '딥 브라운, 체스넛',
+                    highlight: '구리, 골드',
+                    avoid: '애쉬 톤, 라이트 컬러'
+                },
+                fashion: {
+                    basic: '브라운, 카키, 크림',
+                    accent: '버건디, 올리브, 딥 오렌지',
+                    style: '클래식, 빈티지'
+                },
+                consultation: '깊이 있는 따뜻한 색상이 당신의 성숙한 매력을 극대화합니다. 딥한 컬러로 우아하고 세련된 분위기를 연출해보세요.'
+            },
+            'Winter Clear': {
+                korean: '겨울 클리어',
+                characteristics: '차갑고 선명한 톤, 강렬한 대비',
+                description: '선명하고 강렬한 차가운 색상이 돋보이는 드라마틱한 타입입니다.',
+                bestColors: [
+                    { name: '퓨어 화이트', main: '#FFFFFF', shadow: '#F5F5F5' },
+                    { name: '블랙', main: '#000000', shadow: '#212121' },
+                    { name: '로얄 블루', main: '#1565C0', shadow: '#0D47A1' },
+                    { name: '에메랄드', main: '#00695C', shadow: '#004D40' },
+                    { name: '퓨어 레드', main: '#D32F2F', shadow: '#B71C1C' },
+                    { name: '바이올렛', main: '#7B1FA2', shadow: '#4A148C' }
+                ],
+                makeup: {
+                    lipColor: '트루 레드, 딥 베리',
+                    eyeshadow: '실버, 블랙, 네이비',
+                    blush: '로즈, 퓨어 핑크'
+                },
+                hair: {
+                    recommended: '제트 블랙, 다크 브라운',
+                    highlight: '실버, 애쉬',
+                    avoid: '골든 톤, 따뜻한 브라운'
+                },
+                fashion: {
+                    basic: '블랙, 화이트, 네이비',
+                    accent: '로얄 블루, 에메랄드',
+                    style: '모던, 시크'
+                },
+                consultation: '강렬한 대비가 당신의 매력입니다. 선명한 컬러와 클리어한 톤으로 세련되고 임팩트 있는 스타일을 완성해보세요.'
+            }
+        };
+        
+        return seasonDatabase[season] || seasonDatabase['Spring Light'];
+    }-8 py-4 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200">
                         🔄 다시 진단하기
                     </button>
                 </div>
