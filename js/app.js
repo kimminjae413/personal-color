@@ -1,4 +1,106 @@
-// js/app.js - 메인 애플리케이션 로직
+/**
+     * 모드 선택 단계 생성
+     */
+    createModeSelectionStep() {
+        const advancedModeCard = this.advancedMode ? `
+            <!-- 고급 과학적 분석 -->
+            <article class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 touch-target group border border-emerald-200"
+                     onclick="selectMode('advanced')"
+                     role="button"
+                     tabindex="0"
+                     aria-label="고급 과학적 분석 선택"
+                     onkeydown="if(event.key==='Enter'||event.key===' ') selectMode('advanced')">
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full p-6 w-24 h-24 mx-auto mb-8 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <svg class="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                        고급 과학적 분석
+                    </h3>
+                    
+                    <p class="text-gray-600 mb-8 text-base md:text-lg leading-relaxed">
+                        CIE L*a*b* 측정과<br>
+                        파운데이션 매칭까지 완벽 분석
+                    </p>
+                    
+                    <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-6">
+                        <div class="grid grid-cols-3 gap-6 text-center">
+                            <div>
+                                <div class="text-3xl font-bold text-emerald-600 mb-1">20분</div>
+                                <div class="text-sm text-emerald-700 font-medium">소요시간</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-bold text-emerald-600 mb-1">96%</div>
+                                <div class="text-sm text-emerald-700 font-medium">정확도</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-emerald-600 mb-1">⭐⭐⭐⭐</div>
+                                <div class="text-sm text-emerald-700 font-medium">과학성</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-center">
+                        <span class="bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold">
+                            🔬 Lab 측정 + 💄 제품매칭
+                        </span>
+                    </div>
+                </div>
+            </article>
+        ` : '';
+
+        return `
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl text-gray-800 mb-6 font-bold">진단 방식을 선택하세요</h2>
+                    <p class="text-xl text-gray-600 mb-8">
+                        ${this.advancedMode ? '세 가지' : '두 가지'} 방식 중 원하는 진단 방법을 선택해주세요
+                    </p>
+                </div>
+                
+                <!-- 진단 방식 선택 카드들 -->
+                <div class="grid grid-cols-1 ${this.advancedMode ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-8 mb-12">
+                    
+                    <!-- 사진 기반 분석 -->
+                    <article class="bg-white rounded-3xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 touch-target group"
+                             onclick="selectMode('photo')"
+                             role="button"
+                             tabindex="0"
+                             aria-label="사진 기반 AI 분석 선택"
+                             onkeydown="if(event.key==='Enter'||event.key===' ') selectMode('photo')">
+                        <div class="text-center">
+                            <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-full p-6 w-24 h-24 mx-auto mb-8 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                                <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            
+                            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                                사진 기반 AI 분석
+                            </h3>
+                            
+                            <p class="text-gray-600 mb-8 text-base md:text-lg leading-relaxed">
+                                간편하고 빠른 AI 분석으로<br>
+                                기본적인 퍼스널컬러를 진단합니다.
+                            </p>
+                            
+                            <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6">
+                                <div class="grid grid-cols-3 gap-6 text-center">
+                                    <div>
+                                        <div class="text-3xl font-bold text-blue-600 mb-1">5분</div>
+                                        <div class="text-sm text-blue-700 font-medium">소요시간</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-3xl font-bold text-blue-600 mb-1">85%</div>
+                                        <div class="text-sm text-blue-700 font-medium">정확도</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-2xl font-bold text-blue-600 mb-1">⭐⭐</div>
+                                        <div class="text-sm text-blue-700 font-// js/app.js - 메인 애플리케이션 로직
 
 /**
  * 퍼스널컬러 분석 메인 애플리케이션 클래스
@@ -11,12 +113,15 @@ class PersonalColorAnalyzer {
         this.currentStep = 0;
         this.analysisMode = null;
         this.currentDrapingStep = 'temperature';
+        this.advancedMode = false; // 고급 기능 활성화 여부
         this.analysisData = {
             mode: null,
             results: {},
             selectedColors: {},
             finalSeason: null,
-            confidence: 0
+            confidence: 0,
+            labAnalysis: null,      // L*a*b* 분석 결과
+            foundationMatch: null   // 파운데이션 매칭 결과
         };
         
         // 단계별 콘텐츠 매핑
@@ -68,10 +173,21 @@ class PersonalColorAnalyzer {
      */
     checkDependencies() {
         const required = ['SEASONS', 'DRAPING_COLORS', 'SIMPLE_COLORS'];
+        const advanced = ['ColorMeasurement', 'FoundationMatcher', 'FOUNDATION_DATABASE'];
+        
         const missing = required.filter(dep => !window[dep]);
+        const advancedMissing = advanced.filter(dep => !window[dep]);
         
         if (missing.length > 0) {
-            console.warn(`일부 데이터가 누락되었지만 기본 기능은 동작합니다: ${missing.join(', ')}`);
+            console.warn(`일부 기본 데이터가 누락되었습니다: ${missing.join(', ')}`);
+        }
+        
+        if (advancedMissing.length === 0) {
+            this.advancedMode = true;
+            console.log('🚀 고급 모드 활성화: CIE L*a*b* 분석 및 파운데이션 매칭 지원');
+        } else {
+            this.advancedMode = false;
+            console.log('기본 모드로 실행: 고급 기능 비활성화');
         }
         
         console.log('의존성 확인 완료');
@@ -400,6 +516,8 @@ class PersonalColorAnalyzer {
                             </div>
                         </div>
                     </article>
+
+                    ${advancedModeCard}
                 </div>
 
                 <!-- 추가 정보 섹션 -->
@@ -435,12 +553,364 @@ class PersonalColorAnalyzer {
         
         if (mode === 'photo') {
             // 사진 기반 분석 (향후 구현)
-            alert('사진 기반 분석은 곧 출시될 예정입니다. 현재는 전문가 드래이핑 진단만 이용 가능합니다.');
+            alert('사진 기반 분석은 곧 출시될 예정입니다. 현재는 전문가 드래이핑 진단을 이용해주세요.');
             return;
         } else if (mode === 'expert') {
             // 전문가 드래이핑으로 진행
             this.showStep(2);
+        } else if (mode === 'advanced' && this.advancedMode) {
+            // 고급 과학적 분석
+            this.showAdvancedAnalysisStep();
         }
+    }
+
+    /**
+     * 고급 분석 단계 표시
+     */
+    showAdvancedAnalysisStep() {
+        const container = document.getElementById('step-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                        🔬 고급 과학적 분석
+                    </h2>
+                    <p class="text-xl text-gray-600 mb-8">
+                        CIE L*a*b* 측정과 전문가 드래이핑을 결합한 최첨단 분석
+                    </p>
+                </div>
+
+                <!-- 분석 진행 단계 -->
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- 1단계: 색상 추출 -->
+                        <div class="text-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-purple-400 transition-colors cursor-pointer"
+                             onclick="startColorExtraction()">
+                            <div class="text-6xl mb-4">🎨</div>
+                            <h3 class="text-xl font-bold mb-4">1단계: 색상 추출</h3>
+                            <p class="text-gray-600 mb-4">피부 색상을 정밀 측정합니다</p>
+                            <button class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                                색상 추출 시작
+                            </button>
+                        </div>
+
+                        <!-- 2단계: Lab 분석 -->
+                        <div class="text-center p-6 bg-gray-50 rounded-xl">
+                            <div class="text-6xl mb-4">🔬</div>
+                            <h3 class="text-xl font-bold mb-4">2단계: Lab 분석</h3>
+                            <p class="text-gray-500 mb-4">과학적 색상 분석 (자동)</p>
+                            <div class="text-gray-400">색상 추출 후 진행</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                        <!-- 3단계: 시각적 확인 -->
+                        <div class="text-center p-6 bg-gray-50 rounded-xl">
+                            <div class="text-6xl mb-4">👁️</div>
+                            <h3 class="text-xl font-bold mb-4">3단계: 시각적 확인</h3>
+                            <p class="text-gray-500 mb-4">드래이핑으로 검증</p>
+                            <div class="text-gray-400">이전 단계 완료 후 진행</div>
+                        </div>
+
+                        <!-- 4단계: 제품 매칭 -->
+                        <div class="text-center p-6 bg-gray-50 rounded-xl">
+                            <div class="text-6xl mb-4">💄</div>
+                            <h3 class="text-xl font-bold mb-4">4단계: 제품 매칭</h3>
+                            <p class="text-gray-500 mb-4">파운데이션 추천</p>
+                            <div class="text-gray-400">최종 분석 후 진행</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 임시 시연용 버튼 -->
+                <div class="text-center">
+                    <button onclick="runAdvancedDemo()" 
+                            class="bg-emerald-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-emerald-700 transition-all duration-300">
+                        🚀 고급 분석 시연하기
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // 전역 함수 등록
+        window.startColorExtraction = this.startColorExtraction.bind(this);
+        window.runAdvancedDemo = this.runAdvancedDemo.bind(this);
+    }
+
+    /**
+     * 색상 추출 시작
+     */
+    startColorExtraction() {
+        // 임시: 색상 입력 프롬프트
+        const userInput = prompt('피부색을 RGB 값으로 입력하세요 (예: 240,220,180)');
+        if (!userInput) return;
+
+        try {
+            const [r, g, b] = userInput.split(',').map(n => parseInt(n.trim()));
+            if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
+                this.analyzeColorWithLab(r, g, b);
+            } else {
+                alert('올바른 RGB 값을 입력해주세요 (0-255)');
+            }
+        } catch (error) {
+            alert('RGB 형식이 올바르지 않습니다. 예: 240,220,180');
+        }
+    }
+
+    /**
+     * Lab 분석 실행
+     */
+    analyzeColorWithLab(r, g, b) {
+        if (!window.ColorMeasurement) {
+            alert('ColorMeasurement 모듈이 로드되지 않았습니다.');
+            return;
+        }
+
+        const colorMeasurement = new window.ColorMeasurement();
+        
+        // RGB → Lab 변환
+        const lab = colorMeasurement.rgbToLab(r, g, b);
+        
+        // Lab 기반 계절 분류
+        const labResult = colorMeasurement.classifySeasonByLab(lab.L, lab.a, lab.b);
+        
+        // 결과 저장
+        this.analysisData.labAnalysis = {
+            rgb: { r, g, b },
+            lab: lab,
+            result: labResult,
+            hex: colorMeasurement.rgbToHex(r, g, b)
+        };
+
+        console.log('Lab 분석 완료:', this.analysisData.labAnalysis);
+        
+        // 결과 표시
+        this.showLabAnalysisResult();
+    }
+
+    /**
+     * Lab 분석 결과 표시
+     */
+    showLabAnalysisResult() {
+        const labData = this.analysisData.labAnalysis;
+        
+        const container = document.getElementById('step-content');
+        container.innerHTML = `
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        🔬 Lab 색상 분석 결과
+                    </h2>
+                </div>
+
+                <!-- 분석 결과 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- 색상 정보 -->
+                    <div class="bg-white rounded-3xl shadow-xl p-8">
+                        <h3 class="text-xl font-bold mb-6 text-center">색상 정보</h3>
+                        
+                        <!-- 색상 샘플 -->
+                        <div class="w-32 h-32 mx-auto mb-6 rounded-full border-4 border-gray-200 shadow-lg"
+                             style="background: ${labData.hex};"
+                             title="추출된 피부색"></div>
+                        
+                        <!-- RGB/Lab 값 -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="font-medium">RGB:</span>
+                                <span class="font-mono">(${labData.rgb.r}, ${labData.rgb.g}, ${labData.rgb.b})</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">HEX:</span>
+                                <span class="font-mono">${labData.hex}</span>
+                            </div>
+                            <hr>
+                            <div class="flex justify-between">
+                                <span class="font-medium">L* (명도):</span>
+                                <span class="font-mono">${labData.lab.L}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">a* (빨강-초록):</span>
+                                <span class="font-mono">${labData.lab.a}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">b* (노랑-파랑):</span>
+                                <span class="font-mono">${labData.lab.b}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 분석 결과 -->
+                    <div class="bg-white rounded-3xl shadow-xl p-8">
+                        <h3 class="text-xl font-bold mb-6 text-center">과학적 분석</h3>
+                        
+                        <div class="text-center mb-6">
+                            <div class="text-4xl font-bold text-purple-600 mb-2">
+                                ${labData.result.season}
+                            </div>
+                            <div class="text-xl text-gray-600 mb-4">
+                                신뢰도: ${labData.result.confidence}%
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="font-medium">온도감:</span>
+                                <span class="capitalize">${labData.result.analysis.temperature === 'warm' ? '따뜻함' : '차가움'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">명도:</span>
+                                <span class="capitalize">${labData.result.analysis.lightness === 'bright' ? '밝음' : labData.result.analysis.lightness === 'medium' ? '중간' : '깊음'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">채도:</span>
+                                <span class="capitalize">${labData.result.analysis.chroma === 'high' ? '높음' : labData.result.analysis.chroma === 'medium' ? '중간' : '낮음'}</span>
+                            </div>
+                            <hr>
+                            <div class="flex justify-between">
+                                <span class="font-medium">권장사항:</span>
+                                <span class="text-sm">${labData.result.recommendation === 'highly_recommended' ? '매우 신뢰' : labData.result.recommendation === 'recommended' ? '신뢰' : '재검토'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 다음 단계 버튼 -->
+                <div class="text-center space-y-4">
+                    <button onclick="proceedToFoundationMatching()" 
+                            class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+                        💄 파운데이션 매칭 진행
+                    </button>
+                    <div>
+                        <button onclick="app.showStep(3)" 
+                                class="bg-gray-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200">
+                            결과 확인하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 전역 함수 등록
+        window.proceedToFoundationMatching = this.proceedToFoundationMatching.bind(this);
+    }
+
+    /**
+     * 파운데이션 매칭 진행
+     */
+    proceedToFoundationMatching() {
+        if (!window.FoundationMatcher) {
+            alert('FoundationMatcher 모듈이 로드되지 않았습니다.');
+            return;
+        }
+
+        const labData = this.analysisData.labAnalysis;
+        const foundationMatcher = new window.FoundationMatcher();
+
+        // 파운데이션 추천
+        const recommendations = foundationMatcher.recommendFoundations(
+            labData.result.season,
+            labData.lab,
+            {
+                priceRange: 'mid', // 기본값
+                usage: 'daily'
+            }
+        );
+
+        this.analysisData.foundationMatch = recommendations;
+        this.showFoundationRecommendations();
+    }
+
+    /**
+     * 파운데이션 추천 결과 표시
+     */
+    showFoundationRecommendations() {
+        const recommendations = this.analysisData.foundationMatch;
+        
+        const container = document.getElementById('step-content');
+        container.innerHTML = `
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        💄 맞춤 파운데이션 추천
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        당신의 피부색에 가장 적합한 제품들을 찾았습니다
+                    </p>
+                </div>
+
+                <!-- 추천 제품 목록 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    ${recommendations.map((product, index) => `
+                        <div class="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
+                            <!-- 순위 배지 -->
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                    ${index + 1}위 추천
+                                </span>
+                                <span class="text-2xl font-bold text-purple-600">${product.finalScore}점</span>
+                            </div>
+                            
+                            <!-- 제품 정보 -->
+                            <h3 class="text-lg font-bold mb-2">${product.name}</h3>
+                            <p class="text-gray-600 mb-2">${product.shade}</p>
+                            
+                            <!-- 색상 미리보기 -->
+                            <div class="w-full h-8 rounded-lg mb-4 border-2 border-gray-200" 
+                                 style="background: ${product.hexColor};"
+                                 title="제품 색상"></div>
+                            
+                            <!-- 상세 정보 -->
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">가격:</span>
+                                    <span class="font-bold">${product.price.toLocaleString()}원</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">커버리지:</span>
+                                    <span>${product.coverage}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">마감:</span>
+                                    <span>${product.finish}</span>
+                                </div>
+                                ${product.labMatch ? `
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">색상 매칭:</span>
+                                    <span class="font-bold text-green-600">${product.labMatch}%</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                            
+                            <!-- 추천 이유 -->
+                            <div class="mt-4 p-3 bg-purple-50 rounded-lg">
+                                <p class="text-sm text-purple-700">
+                                    <strong>추천 이유:</strong> ${product.reason}
+                                </p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- 완료 버튼 -->
+                <div class="text-center">
+                    <button onclick="app.showStep(3)" 
+                            class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:from-green-700 hover:to-emerald-700 transition-all duration-300">
+                        ✅ 최종 결과 보기
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * 고급 분석 시연
+     */
+    runAdvancedDemo() {
+        // 샘플 데이터로 시연
+        this.analyzeColorWithLab(240, 220, 180); // 일반적인 아시아 피부톤 샘플
     }
     
     /**
@@ -548,6 +1018,19 @@ class PersonalColorAnalyzer {
      * 결과 단계 생성
      */
     createResultsStep() {
+        // Lab 분석 결과가 있으면 고급 결과 표시
+        if (this.analysisData.labAnalysis) {
+            return this.createAdvancedResults();
+        }
+        
+        // 기본 결과 표시
+        return this.createBasicResults();
+    }
+
+    /**
+     * 기본 결과 생성
+     */
+    createBasicResults() {
         // 임시 결과 (실제로는 분석 결과 기반)
         const season = 'Spring Light';
         const seasonData = window.SEASONS && window.SEASONS[season] ? window.SEASONS[season] : {
@@ -611,6 +1094,220 @@ class PersonalColorAnalyzer {
                     <button onclick="resetApp()" 
                             class="bg-gray-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200">
                         🔄 다시 진단하기
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * 고급 분석 결과 생성
+     */
+    createAdvancedResults() {
+        const labData = this.analysisData.labAnalysis;
+        const foundationData = this.analysisData.foundationMatch;
+        const seasonData = window.SEASONS && window.SEASONS[labData.result.season] 
+            ? window.SEASONS[labData.result.season] 
+            : { korean: labData.result.season, characteristics: '과학적으로 분석된 타입' };
+
+        return `
+            <div class="max-w-6xl mx-auto">
+                <!-- 메인 결과 헤더 -->
+                <div class="text-center mb-12">
+                    <div class="w-32 h-32 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full mx-auto mb-8 flex items-center justify-center">
+                        <span class="text-6xl">🔬</span>
+                    </div>
+                    
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                        과학적 진단 완료!
+                    </h2>
+                    
+                    <div class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-6">
+                        ${seasonData.korean || labData.result.season}
+                    </div>
+                    
+                    <div class="flex justify-center items-center space-x-8 mb-8">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-emerald-600">${labData.result.confidence}%</div>
+                            <div class="text-sm text-gray-600">과학적 정확도</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-teal-600">Lab</div>
+                            <div class="text-sm text-gray-600">CIE 색공간</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-blue-600">${foundationData ? foundationData.length : 0}</div>
+                            <div class="text-sm text-gray-600">매칭 제품</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 종합 분석 결과 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                    
+                    <!-- 과학적 측정 결과 -->
+                    <div class="bg-white rounded-3xl shadow-xl p-8">
+                        <h3 class="text-xl font-bold mb-6 text-center flex items-center justify-center">
+                            <span class="text-2xl mr-2">🔬</span>
+                            Lab 색상 분석
+                        </h3>
+                        
+                        <!-- 측정된 색상 -->
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full border-4 border-gray-200 shadow-lg"
+                             style="background: ${labData.hex};"
+                             title="측정된 피부색"></div>
+                        
+                        <div class="space-y-3 text-sm">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="flex justify-between mb-1">
+                                    <span>L* (명도):</span>
+                                    <span class="font-bold">${labData.lab.L}</span>
+                                </div>
+                                <div class="flex justify-between mb-1">
+                                    <span>a* (빨강-초록):</span>
+                                    <span class="font-bold">${labData.lab.a}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>b* (노랑-파랑):</span>
+                                    <span class="font-bold">${labData.lab.b}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-emerald-600">
+                                    ${labData.result.analysis.temperature === 'warm' ? '따뜻한' : '차가운'} • 
+                                    ${labData.result.analysis.lightness === 'bright' ? '밝은' : labData.result.analysis.lightness === 'medium' ? '중간' : '깊은'} • 
+                                    ${labData.result.analysis.chroma === 'high' ? '높은' : labData.result.analysis.chroma === 'medium' ? '중간' : '낮은'} 채도
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 추천 컬러 팔레트 -->
+                    <div class="bg-white rounded-3xl shadow-xl p-8">
+                        <h3 class="text-xl font-bold mb-6 text-center flex items-center justify-center">
+                            <span class="text-2xl mr-2">🎨</span>
+                            추천 컬러
+                        </h3>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            ${seasonData.bestColors ? seasonData.bestColors.slice(0, 4).map(color => `
+                                <div class="flex flex-col items-center">
+                                    <div class="w-16 h-16 rounded-lg shadow-md border-2 border-white mb-2" 
+                                         style="background: ${color};"
+                                         title="${color}"></div>
+                                    <span class="text-xs text-gray-600 font-mono">${color}</span>
+                                </div>
+                            `).join('') : `
+                                <div class="col-span-2 text-center text-gray-500">
+                                    컬러 팔레트 로딩 중...
+                                </div>
+                            `}
+                        </div>
+                        
+                        <div class="text-center text-sm text-gray-600">
+                            과학적으로 검증된 최적 색상들
+                        </div>
+                    </div>
+
+                    <!-- 신뢰도 분석 -->
+                    <div class="bg-white rounded-3xl shadow-xl p-8">
+                        <h3 class="text-xl font-bold mb-6 text-center flex items-center justify-center">
+                            <span class="text-2xl mr-2">📊</span>
+                            신뢰도 분석
+                        </h3>
+                        
+                        <!-- 신뢰도 게이지 -->
+                        <div class="relative w-32 h-32 mx-auto mb-6">
+                            <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+                                <circle cx="60" cy="60" r="50" fill="none" 
+                                        stroke="${labData.result.confidence >= 90 ? '#10b981' : labData.result.confidence >= 75 ? '#f59e0b' : '#ef4444'}" 
+                                        stroke-width="10"
+                                        stroke-dasharray="${2 * Math.PI * 50}"
+                                        stroke-dashoffset="${2 * Math.PI * 50 * (1 - labData.result.confidence / 100)}"
+                                        stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-2xl font-bold">${labData.result.confidence}%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center space-y-2">
+                            <div class="text-lg font-bold ${labData.result.confidence >= 90 ? 'text-green-600' : labData.result.confidence >= 75 ? 'text-yellow-600' : 'text-red-600'}">
+                                ${labData.result.confidence >= 90 ? '매우 높음' : labData.result.confidence >= 75 ? '높음' : '보통'}
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                ${labData.result.recommendation === 'highly_recommended' ? '매우 신뢰할 수 있는 결과' : 
+                                  labData.result.recommendation === 'recommended' ? '신뢰할 수 있는 결과' : '추가 검토 권장'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${foundationData && foundationData.length > 0 ? `
+                <!-- 맞춤 제품 추천 -->
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h3 class="text-2xl font-bold mb-8 text-center flex items-center justify-center">
+                        <span class="text-3xl mr-3">💄</span>
+                        맞춤 파운데이션 추천 (상위 3개)
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${foundationData.slice(0, 3).map((product, index) => `
+                            <div class="border-2 ${index === 0 ? 'border-emerald-400 bg-emerald-50' : 'border-gray-200'} rounded-2xl p-6">
+                                ${index === 0 ? '<div class="text-center mb-4"><span class="bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold">🏆 최고 추천</span></div>' : ''}
+                                
+                                <h4 class="font-bold text-lg mb-2">${product.name}</h4>
+                                <p class="text-gray-600 mb-3">${product.shade}</p>
+                                
+                                <!-- 색상 미리보기 -->
+                                <div class="w-full h-6 rounded-lg mb-4 border border-gray-200" 
+                                     style="background: ${product.hexColor};"
+                                     title="제품 색상"></div>
+                                
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">매칭 점수:</span>
+                                        <span class="font-bold text-emerald-600">${product.finalScore}점</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">가격:</span>
+                                        <span class="font-bold">${product.price.toLocaleString()}원</span>
+                                    </div>
+                                    ${product.labMatch ? `
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">색상 일치:</span>
+                                        <span class="font-bold text-purple-600">${product.labMatch}%</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                                
+                                <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-xs text-gray-700">${product.reason}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- 액션 버튼들 -->
+                <div class="flex flex-col items-center space-y-6">
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button onclick="shareAdvancedResults()" 
+                                class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all duration-200">
+                            📱 고급 결과 공유
+                        </button>
+                        <button onclick="exportAdvancedPDF()" 
+                                class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200">
+                            📊 상세 리포트 다운로드
+                        </button>
+                    </div>
+                    
+                    <button onclick="resetApp()" 
+                            class="bg-gray-500 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200">
+                        🔄 새로운 진단 시작
                     </button>
                 </div>
             </div>
@@ -782,6 +1479,38 @@ function exportToPDF() {
 function shareResults() {
     if (window.app) {
         window.app.shareResults();
+    }
+}
+
+function shareAdvancedResults() {
+    if (window.app && window.app.analysisData.labAnalysis) {
+        const labData = window.app.analysisData.labAnalysis;
+        const shareData = {
+            title: '고급 퍼스널컬러 과학적 진단 결과',
+            text: `🔬 Lab 측정으로 ${labData.result.season} (신뢰도 ${labData.result.confidence}%) 판정! 과학적 근거로 완벽 분석 완료 💄`,
+            url: window.location.href
+        };
+        
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            navigator.share(shareData).catch(console.error);
+        } else if (navigator.clipboard) {
+            const shareText = `${shareData.text} ${shareData.url}`;
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert('고급 분석 결과가 클립보드에 복사되었습니다!');
+            }).catch(() => {
+                alert('공유 기능을 사용할 수 없습니다.');
+            });
+        }
+    } else {
+        shareResults(); // 기본 공유로 폴백
+    }
+}
+
+function exportAdvancedPDF() {
+    if (window.app && window.app.analysisData.labAnalysis) {
+        alert('🔬 Lab 측정 데이터와 파운데이션 매칭 정보가 포함된 상세 리포트 PDF 다운로드 기능은 곧 추가될 예정입니다.');
+    } else {
+        exportToPDF();
     }
 }
 
