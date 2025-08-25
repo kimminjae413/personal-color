@@ -1,4 +1,4 @@
-// js/app.js - 퍼스널컬러 진단 시스템 메인 애플리케이션
+// js/app.js - 퍼스널컬러 진단 시스템 메인 애플리케이션 (완전 수정 버전)
 
 console.log('퍼스널컬러 진단 시스템 v3.0 로딩 시작');
 
@@ -11,7 +11,7 @@ class PersonalColorAnalyzer {
         
         // 앱 상태
         this.currentStep = 0;
-        this.analysisMode = null; // 'simple' | 'expert'
+        this.analysisMode = null; // 'photo' | 'expert'
         this.currentDrapingStep = 'temperature';
         this.maxSteps = 4;
         
@@ -39,7 +39,347 @@ class PersonalColorAnalyzer {
     }
     
     /**
-     * 앱 초기화
+     * 현재 날짜 시간 반환
+     */
+    getCurrentDateTime() {
+        return new Date().toLocaleString('ko-KR', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    /**
+     * 색상명을 hex 코드로 변환
+     */
+    getColorHex(colorName) {
+        const colorMap = {
+            '아이보리': '#FFFFF0',
+            '크림': '#FFF8DC', 
+            '베이지': '#F5F5DC',
+            '캐멀': '#C19A6B',
+            '코랄 핑크': '#FF7F7F',
+            '피치': '#FFCBA4',
+            '라벤더': '#E6E6FA',
+            '민트': '#98FF98',
+            '라이트 골드': '#FFD700',
+            '허니': '#FFA500',
+            '복숭아': '#FFCBA4',
+            '연한 터키석': '#AFEEEE',
+            '순백색': '#FFFFFF',
+            '검정색': '#000000',
+            '네이비': '#000080',
+            '와인 레드': '#722F37',
+            '골든 옐로우': '#FFD700',
+            '코랄': '#FF7F50',
+            '터키석': '#40E0D0',
+            '라임': '#32CD32',
+            '따뜻한 핑크': '#FFB6C1',
+            '오렌지': '#FFA500',
+            '아쿠아': '#00FFFF',
+            '그린': '#008000',
+            '골드': '#FFD700',
+            '구리색': '#B87333',
+            '따뜻한 레드': '#DC143C',
+            '밝은 네이비': '#4682B4'
+        };
+        
+        return colorMap[colorName] || '#CCCCCC';
+    }
+    
+    /**
+     * 색상 밝기 조절
+     */
+    adjustColorBrightness(hex, percent) {
+        const num = parseInt(hex.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+        const G = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amt));
+        const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+        
+        return "#" + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+    }
+    
+    /**
+     * 터치 피드백 생성
+     */
+    createTouchFeedback(event) {
+        if (!event || !event.currentTarget) return;
+        
+        const ripple = document.createElement('div');
+        const rect = event.currentTarget.getBoundingClientRect();
+        const size = 50;
+        
+        ripple.classList.add('touch-feedback');
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (event.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (event.clientY - rect.top - size / 2) + 'px';
+        
+        event.currentTarget.appendChild(ripple);
+        
+        setTimeout(() => {
+            if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+            }
+        }, 600);
+    }
+    
+    /**
+     * 토글 콘텐츠
+     */
+    toggleContent(targetId) {
+        const content = document.getElementById(targetId);
+        const button = document.querySelector(`[data-target="${targetId}"]`);
+        
+        if (!content || !button) return;
+        
+        const arrow = button.querySelector('.toggle-arrow');
+        
+        if (content.classList.contains('expanded')) {
+            content.classList.remove('expanded');
+            if (arrow) arrow.classList.remove('rotated');
+        } else {
+            content.classList.add('expanded');
+            if (arrow) arrow.classList.add('rotated');
+        }
+    }
+    
+    /**
+     * 뒤로가기
+     */
+    goBack() {
+        console.log('뒤로가기, 현재 단계:', this.currentStep);
+        
+        if (this.currentStep === 2 && this.analysisMode === 'expert') {
+            // 전문가 진단 중이면 이전 드래이핑 단계로
+            const steps = ['temperature', 'brightness', 'saturation'];
+            const currentIndex = steps.indexOf(this.currentDrapingStep);
+            
+            if (currentIndex > 0) {
+                this.currentDrapingStep = steps[currentIndex - 1];
+                this.renderExpertAnalysis();
+                return;
+            }
+        }
+        
+        if (this.currentStep > 0) {
+            this.showStep(this.currentStep - 1);
+            
+            // 상태 초기화
+            if (this.currentStep === 1) {
+                this.analysisData = {
+                    mode: null,
+                    results: {},
+                    selectedColors: {},
+                    finalSeason: null,
+                    confidence: 0
+                };
+                this.currentDrapingStep = 'temperature';
+            }
+        }
+    }
+    
+    /**
+     * 다음으로
+     */
+    goNext() {
+        console.log('다음 단계로');
+    }
+    
+    /**
+     * 앱 리셋
+     */
+    resetApp() {
+        console.log('앱 완전 리셋');
+        
+        this.currentStep = 0;
+        this.analysisMode = null;
+        this.currentDrapingStep = 'temperature';
+        this.analysisData = {
+            mode: null,
+            results: {},
+            selectedColors: {},
+            finalSeason: null,
+            confidence: 0
+        };
+        
+        this.showStep(0);
+    }
+    
+    /**
+     * PDF 내보내기
+     */
+    exportToPDF() {
+        console.log('PDF 내보내기 시작');
+        
+        const printContent = document.getElementById('step-3');
+        if (printContent) {
+            window.print();
+        }
+    }
+    
+    /**
+     * 결과 공유
+     */
+    shareResults() {
+        console.log('결과 공유');
+        
+        const shareData = {
+            title: '퍼스널컬러 진단 결과',
+            text: `내 퍼스널컬러는 ${this.analysisData.finalSeason}입니다! (정확도: ${this.analysisData.confidence}%)`,
+            url: window.location.href
+        };
+        
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            navigator.share(shareData).catch(console.error);
+        } else if (navigator.clipboard) {
+            const shareText = `${shareData.text} ${shareData.url}`;
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert('결과가 클립보드에 복사되었습니다!');
+            }).catch(() => {
+                alert('공유 기능을 사용할 수 없습니다.');
+            });
+        }
+    }
+    
+    /**
+     * 모달 상태 확인
+     */
+    isModalOpen() {
+        const fullscreenModal = document.getElementById('fullscreenModal');
+        const expertModal = document.getElementById('expertManualModal');
+        
+        return (fullscreenModal && !fullscreenModal.classList.contains('hidden')) ||
+               (expertModal && !expertModal.classList.contains('hidden'));
+    }
+    
+    /**
+     * 모달 닫기
+     */
+    closeModal() {
+        if (window.FullscreenDraping && window.FullscreenDraping.hide) {
+            window.FullscreenDraping.hide();
+        }
+        if (window.ExpertManual && window.ExpertManual.hide) {
+            window.ExpertManual.hide();
+        }
+    }
+    
+    /**
+     * 오류 표시
+     */
+    showError(message) {
+        console.error('오류:', message);
+        
+        // 기존 오류 메시지 제거
+        const existingError = document.getElementById('error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // 새 오류 메시지 생성
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'error-message';
+        errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-md';
+        errorDiv.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold">오류 발생</h4>
+                    <p class="text-sm">${message}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                    ✕
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(errorDiv);
+        
+        // 5초 후 자동 제거
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.parentNode.removeChild(errorDiv);
+            }
+        }, 5000);
+    }
+}
+
+// 전역 함수들 (HTML에서 직접 호출)
+function selectMode(mode) {
+    if (window.app) {
+        window.app.selectAnalysisMode(mode);
+    }
+}
+
+function selectColor(step, type, colorName, colorData) {
+    if (window.app) {
+        window.app.selectColor(step, type, colorName, colorData);
+    }
+}
+
+function selectColorGroup(step, type, groupName) {
+    if (window.app) {
+        window.app.selectColorGroup(step, type, groupName);
+    }
+}
+
+function goBack() {
+    if (window.app) {
+        window.app.goBack();
+    }
+}
+
+function resetApp() {
+    if (window.app) {
+        window.app.resetApp();
+    }
+}
+
+function exportToPDF() {
+    if (window.app) {
+        window.app.exportToPDF();
+    }
+}
+
+function shareResults() {
+    if (window.app) {
+        window.app.shareResults();
+    }
+}
+
+function enterFullscreenDraping(colorData) {
+    if (window.FullscreenDraping && window.FullscreenDraping.show) {
+        window.FullscreenDraping.show(colorData);
+    }
+}
+
+// 앱 인스턴스 생성 및 초기화
+let app = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM 로드 완료 - 앱 초기화 시작');
+    
+    try {
+        app = new PersonalColorAnalyzer();
+        window.app = app;
+        console.log('앱 인스턴스 생성 완료');
+    } catch (error) {
+        console.error('앱 초기화 실패:', error);
+        alert('애플리케이션을 초기화하는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+    }
+});
+
+// 전역 오류 핸들러
+window.addEventListener('error', function(e) {
+    console.error('전역 JavaScript 오류:', e.error);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('처리되지 않은 Promise 거부:', e.reason);
+});
+
+console.log('app.js 로딩 완료');앱 초기화
      */
     init() {
         console.log('앱 초기화 시작');
@@ -64,10 +404,26 @@ class PersonalColorAnalyzer {
             this.showStep(0);
             this.updateNavigation();
             
+            // 데이터 검증
+            this.validateSystem();
+            
             console.log('앱 초기화 완료');
         } catch (error) {
             console.error('앱 초기화 오류:', error);
             this.showError('시스템을 초기화하는 중 오류가 발생했습니다.');
+        }
+    }
+    
+    /**
+     * 시스템 검증
+     */
+    validateSystem() {
+        const requiredData = ['SEASONS', 'DRAPING_COLORS', 'CONSULTATION_MESSAGES', 'SIMPLE_COLORS'];
+        const missingData = requiredData.filter(data => !window[data]);
+        
+        if (missingData.length > 0) {
+            console.warn('누락된 데이터:', missingData);
+            this.showError(`일부 데이터가 누락되었습니다: ${missingData.join(', ')}`);
         }
     }
     
@@ -124,6 +480,11 @@ class PersonalColorAnalyzer {
         window.resetApp = () => this.resetApp();
         window.exportToPDF = () => this.exportToPDF();
         window.shareResults = () => this.shareResults();
+        window.enterFullscreenDraping = (colorData) => {
+            if (window.FullscreenDraping) {
+                window.FullscreenDraping.show(colorData);
+            }
+        };
     }
     
     /**
@@ -444,10 +805,21 @@ class PersonalColorAnalyzer {
     renderExpertAnalysis() {
         console.log('전문가 진단 렌더링');
         
-        const stepData = DRAPING_COLORS[this.currentDrapingStep];
+        const stepData = window.DRAPING_COLORS ? window.DRAPING_COLORS[this.currentDrapingStep] : null;
         const content = document.getElementById('step-2');
         
-        if (!content || !stepData) return;
+        if (!content) return;
+        
+        if (!stepData) {
+            content.innerHTML = `
+                <div class="text-center p-12">
+                    <h2 class="text-3xl font-bold text-red-600 mb-4">데이터 로딩 오류</h2>
+                    <p class="text-xl text-gray-600 mb-6">드래이핑 색상 데이터를 불러올 수 없습니다.</p>
+                    <button onclick="resetApp()" class="bg-blue-500 text-white px-8 py-4 rounded-xl">처음부터 다시</button>
+                </div>
+            `;
+            return;
+        }
         
         // 진행률 계산
         const steps = ['temperature', 'brightness', 'saturation'];
@@ -517,6 +889,8 @@ class PersonalColorAnalyzer {
      * 전문가 색상 선택 영역 렌더링
      */
     renderExpertColorSelection(stepData) {
+        if (!stepData.colors) return '<div class="text-center text-red-600">색상 데이터를 불러올 수 없습니다.</div>';
+        
         const colorGroups = Object.keys(stepData.colors);
         
         return `
@@ -618,7 +992,10 @@ class PersonalColorAnalyzer {
             }
         };
         
-        return groupInfoMap[step][groupKey];
+        return groupInfoMap[step] ? groupInfoMap[step][groupKey] : {
+            label: '알 수 없음', icon: '❓', className: 'text-gray-500',
+            hoverColor: 'gray', gradient: 'from-gray-400 to-gray-600'
+        };
     }
     
     /**
@@ -722,7 +1099,7 @@ class PersonalColorAnalyzer {
         preview.innerHTML = `
             <div class="text-center text-white bg-black bg-opacity-50 p-8 rounded-3xl">
                 <h3 class="text-4xl font-bold mb-4">${colorData.name}</h3>
-                <p class="text-xl">${colorData.munsell}</p>
+                <p class="text-xl">${colorData.munsell || ''}</p>
                 <div class="mt-4 text-lg">2초간 미리보기...</div>
             </div>
         `;
@@ -819,8 +1196,8 @@ class PersonalColorAnalyzer {
         const content = document.getElementById('step-3');
         if (!content) return;
         
-        const seasonData = SEASONS[season];
-        const consultationMsg = CONSULTATION_MESSAGES[season];
+        const seasonData = window.SEASONS ? window.SEASONS[season] : null;
+        const consultationMsg = window.CONSULTATION_MESSAGES ? window.CONSULTATION_MESSAGES[season] : null;
         
         if (!seasonData) {
             console.error('계절 데이터 없음:', season);
@@ -911,302 +1288,4 @@ class PersonalColorAnalyzer {
     }
     
     /**
-     * 현재 날짜 시간 반환
-     */
-    getCurrentDateTime() {
-        return new Date().toLocaleString('ko-KR', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-    
-    /**
-     * 색상명을 hex 코드로 변환
-     */
-    getColorHex(colorName) {
-        const colorMap = {
-            '아이보리': '#FFFFF0',
-            '크림': '#FFF8DC', 
-            '베이지': '#F5F5DC',
-            '캐멀': '#C19A6B',
-            '코랄 핑크': '#FF7F7F',
-            '피치': '#FFCBA4',
-            '라벤더': '#E6E6FA',
-            '민트': '#98FF98',
-            '라이트 골드': '#FFD700',
-            '허니': '#FFA500',
-            '복숭아': '#FFCBA4',
-            '연한 터키석': '#AFEEEE',
-            '순백색': '#FFFFFF',
-            '검정색': '#000000',
-            '네이비': '#000080',
-            '와인 레드': '#722F37'
-        };
-        
-        return colorMap[colorName] || '#CCCCCC';
-    }
-    
-    /**
-     * 색상 밝기 조절
-     */
-    adjustColorBrightness(hex, percent) {
-        const num = parseInt(hex.replace("#", ""), 16);
-        const amt = Math.round(2.55 * percent);
-        const R = Math.max(0, Math.min(255, (num >> 16) + amt));
-        const G = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amt));
-        const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
-        
-        return "#" + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
-    }
-    
-    /**
-     * 터치 피드백 생성
-     */
-    createTouchFeedback(event) {
-        if (!event || !event.currentTarget) return;
-        
-        const ripple = document.createElement('div');
-        const rect = event.currentTarget.getBoundingClientRect();
-        const size = 50;
-        
-        ripple.classList.add('touch-feedback');
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = (event.clientX - rect.left - size / 2) + 'px';
-        ripple.style.top = (event.clientY - rect.top - size / 2) + 'px';
-        
-        event.currentTarget.appendChild(ripple);
-        
-        setTimeout(() => {
-            if (ripple.parentNode) {
-                ripple.parentNode.removeChild(ripple);
-            }
-        }, 600);
-    }
-    
-    /**
-     * 토글 콘텐츠
-     */
-    toggleContent(targetId) {
-        const content = document.getElementById(targetId);
-        const button = document.querySelector(`[data-target="${targetId}"]`);
-        
-        if (!content || !button) return;
-        
-        const arrow = button.querySelector('.toggle-arrow');
-        
-        if (content.classList.contains('expanded')) {
-            content.classList.remove('expanded');
-            if (arrow) arrow.classList.remove('rotated');
-        } else {
-            content.classList.add('expanded');
-            if (arrow) arrow.classList.add('rotated');
-        }
-    }
-    
-    /**
-     * 뒤로가기
-     */
-    goBack() {
-        console.log('뒤로가기, 현재 단계:', this.currentStep);
-        
-        if (this.currentStep === 2 && this.analysisMode === 'expert') {
-            // 전문가 진단 중이면 이전 드래이핑 단계로
-            const steps = ['temperature', 'brightness', 'saturation'];
-            const currentIndex = steps.indexOf(this.currentDrapingStep);
-            
-            if (currentIndex > 0) {
-                this.currentDrapingStep = steps[currentIndex - 1];
-                this.renderExpertAnalysis();
-                return;
-            }
-        }
-        
-        if (this.currentStep > 0) {
-            this.showStep(this.currentStep - 1);
-            
-            // 상태 초기화
-            if (this.currentStep === 1) {
-                this.analysisData = {
-                    mode: null,
-                    results: {},
-                    selectedColors: {},
-                    finalSeason: null,
-                    confidence: 0
-                };
-                this.currentDrapingStep = 'temperature';
-            }
-        }
-    }
-    
-    /**
-     * 다음으로
-     */
-    goNext() {
-        console.log('다음 단계로');
-    }
-    
-    /**
-     * 앱 리셋
-     */
-    resetApp() {
-        console.log('앱 완전 리셋');
-        
-        this.currentStep = 0;
-        this.analysisMode = null;
-        this.currentDrapingStep = 'temperature';
-        this.analysisData = {
-            mode: null,
-            results: {},
-            selectedColors: {},
-            finalSeason: null,
-            confidence: 0
-        };
-        
-        this.showStep(0);
-    }
-    
-    /**
-     * PDF 내보내기
-     */
-    exportToPDF() {
-        console.log('PDF 내보내기 시작');
-        
-        const printContent = document.getElementById('step-3');
-        if (printContent) {
-            window.print();
-        }
-    }
-    
-    /**
-     * 결과 공유
-     */
-    shareResults() {
-        console.log('결과 공유');
-        
-        const shareData = {
-            title: '퍼스널컬러 진단 결과',
-            text: `내 퍼스널컬러는 ${this.analysisData.finalSeason}입니다! (정확도: ${this.analysisData.confidence}%)`,
-            url: window.location.href
-        };
-        
-        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-            navigator.share(shareData).catch(console.error);
-        } else if (navigator.clipboard) {
-            const shareText = `${shareData.text} ${shareData.url}`;
-            navigator.clipboard.writeText(shareText).then(() => {
-                alert('결과가 클립보드에 복사되었습니다!');
-            }).catch(() => {
-                alert('공유 기능을 사용할 수 없습니다.');
-            });
-        }
-    }
-    
-    /**
-     * 모달 상태 확인
-     */
-    isModalOpen() {
-        const fullscreenModal = document.getElementById('fullscreenModal');
-        const expertModal = document.getElementById('expertManualModal');
-        
-        return (fullscreenModal && !fullscreenModal.classList.contains('hidden')) ||
-               (expertModal && !expertModal.classList.contains('hidden'));
-    }
-    
-    /**
-     * 모달 닫기
-     */
-    closeModal() {
-        if (window.FullscreenDraping && window.FullscreenDraping.hide) {
-            window.FullscreenDraping.hide();
-        }
-        if (window.ExpertManual && window.ExpertManual.hide) {
-            window.ExpertManual.hide();
-        }
-    }
-    
-    /**
-     * 오류 표시
-     */
-    showError(message) {
-        console.error('오류:', message);
-        alert(message);
-    }
-}
-
-// 전역 함수들 (HTML에서 직접 호출)
-function selectMode(mode) {
-    if (window.app) {
-        window.app.selectAnalysisMode(mode);
-    }
-}
-
-function selectColor(step, type, colorName, colorData) {
-    if (window.app) {
-        window.app.selectColor(step, type, colorName, colorData);
-    }
-}
-
-function selectColorGroup(step, type, groupName) {
-    if (window.app) {
-        window.app.selectColorGroup(step, type, groupName);
-    }
-}
-
-function goBack() {
-    if (window.app) {
-        window.app.goBack();
-    }
-}
-
-function resetApp() {
-    if (window.app) {
-        window.app.resetApp();
-    }
-}
-
-function exportToPDF() {
-    if (window.app) {
-        window.app.exportToPDF();
-    }
-}
-
-function shareResults() {
-    if (window.app) {
-        window.app.shareResults();
-    }
-}
-
-function enterFullscreenDraping(colorData) {
-    if (window.FullscreenDraping && window.FullscreenDraping.show) {
-        window.FullscreenDraping.show(colorData);
-    }
-}
-
-// 앱 인스턴스 생성 및 초기화
-let app = null;
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM 로드 완료 - 앱 초기화 시작');
-    
-    try {
-        app = new PersonalColorAnalyzer();
-        window.app = app;
-        console.log('앱 인스턴스 생성 완료');
-    } catch (error) {
-        console.error('앱 초기화 실패:', error);
-        alert('애플리케이션을 초기화하는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-    }
-});
-
-// 전역 오류 핸들러
-window.addEventListener('error', function(e) {
-    console.error('전역 JavaScript 오류:', e.error);
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    console.error('처리되지 않은 Promise 거부:', e.reason);
-});
-
-console.log('app.js 로딩 완료');
+     *
