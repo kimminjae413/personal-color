@@ -1,0 +1,516 @@
+/* ==========================================
+   태블릿 최적화 스타일
+   - 11-13인치 태블릿 전용 최적화
+   - 터치 친화적 인터페이스
+   - 가로 모드 우선 설계
+   ========================================== */
+
+/* 터치 디바이스 감지 */
+@media (pointer: coarse) {
+  /* 터치 타겟 최소 크기 44px 보장 */
+  .btn,
+  .header-btn,
+  .mode-btn,
+  .customer-item,
+  .action-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* 터치 스크롤 최적화 */
+  .customer-list,
+  .sidebar,
+  .workspace {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* 터치 피드백 */
+  .btn:active,
+  .header-btn:active,
+  .mode-btn:active,
+  .action-btn:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* ==========================================
+   태블릿 크기별 최적화
+   ========================================== */
+
+/* iPad (1024x768) 및 유사 크기 */
+@media screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  :root {
+    --sidebar-width: 340px;
+    --header-height: 85px;
+    --footer-height: 85px;
+  }
+  
+  .app-header {
+    padding: 0 var(--space-8);
+  }
+  
+  .header-left .app-title {
+    font-size: var(--text-2xl);
+  }
+  
+  .workspace {
+    padding: var(--space-6);
+  }
+}
+
+/* iPad Pro 11인치 (1194x834) */
+@media screen and (min-width: 1194px) and (max-width: 1366px) and (orientation: landscape) {
+  :root {
+    --sidebar-width: 360px;
+    --header-height: 90px;
+    --footer-height: 90px;
+  }
+  
+  .mode-btn {
+    padding: var(--space-5);
+  }
+  
+  .mode-icon {
+    font-size: var(--text-3xl);
+    width: 48px;
+    height: 48px;
+  }
+  
+  .customer-item {
+    padding: var(--space-4);
+  }
+  
+  .customer-avatar {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* iPad Pro 12.9인치 (1366x1024) */
+@media screen and (min-width: 1366px) and (max-width: 1600px) and (orientation: landscape) {
+  :root {
+    --sidebar-width: 400px;
+    --header-height: 100px;
+    --footer-height: 100px;
+    --text-base: 1.125rem; /* 18px */
+  }
+  
+  .app-header {
+    padding: 0 var(--space-12);
+  }
+  
+  .header-left .app-title {
+    font-size: var(--text-3xl);
+  }
+  
+  .workspace {
+    padding: var(--space-8);
+  }
+  
+  .mode-btn {
+    padding: var(--space-6);
+    border-radius: var(--radius-2xl);
+  }
+  
+  .mode-title {
+    font-size: var(--text-xl);
+  }
+  
+  .mode-desc {
+    font-size: var(--text-base);
+  }
+  
+  .action-btn {
+    height: 56px;
+    padding: 0 var(--space-8);
+    font-size: var(--text-lg);
+  }
+}
+
+/* Surface Pro 및 Windows 태블릿 */
+@media screen and (min-width: 1280px) and (max-width: 1920px) and (orientation: landscape) {
+  .sidebar {
+    border-right: 2px solid var(--border-color);
+  }
+  
+  .app-header {
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  .action-bar {
+    border-top: 2px solid var(--border-color);
+  }
+}
+
+/* ==========================================
+   세로 모드 대응 (제한적 지원)
+   ========================================== */
+
+@media screen and (orientation: portrait) {
+  .app-container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: var(--header-height);
+    left: -100%;
+    width: 100%;
+    height: calc(100vh - var(--header-height));
+    z-index: 1000;
+    transition: left var(--transition-normal);
+    background: var(--bg-primary);
+  }
+  
+  .sidebar.open {
+    left: 0;
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .workspace {
+    width: 100%;
+    padding: var(--space-4);
+  }
+  
+  /* 세로 모드 알림 */
+  .orientation-notice {
+    position: fixed;
+    bottom: var(--space-4);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--warning-color);
+    color: white;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-xl);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    z-index: 2000;
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* ==========================================
+   터치 제스처 지원
+   ========================================== */
+
+/* 스와이프 가능한 요소 */
+.swipeable {
+  touch-action: pan-x pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 핀치 줌 가능한 요소 */
+.zoomable {
+  touch-action: pinch-zoom;
+}
+
+/* 드래그 가능한 요소 */
+.draggable {
+  touch-action: none;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.draggable:active {
+  cursor: grabbing;
+}
+
+/* ==========================================
+   접근성 향상
+   ========================================== */
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000000;
+    --text-primary: #000000;
+    --bg-primary: #ffffff;
+  }
+  
+  .btn.btn-primary {
+    background: #0000ff;
+    border: 2px solid #000000;
+  }
+  
+  .mode-btn.active {
+    border: 3px solid #000000;
+    background: #0000ff;
+  }
+}
+
+/* 모션 감소 설정 존중 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .loading-logo {
+    animation: none;
+  }
+  
+  .loading-progress {
+    animation: none;
+    width: 100%;
+  }
+}
+
+/* ==========================================
+   햅틱 피드백 시뮬레이션
+   ========================================== */
+
+.haptic-light:active {
+  animation: hapticLight 0.1s ease-out;
+}
+
+.haptic-medium:active {
+  animation: hapticMedium 0.15s ease-out;
+}
+
+.haptic-heavy:active {
+  animation: hapticHeavy 0.2s ease-out;
+}
+
+@keyframes hapticLight {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+@keyframes hapticMedium {
+  0% { transform: scale(1); }
+  25% { transform: scale(0.95); }
+  75% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes hapticHeavy {
+  0% { transform: scale(1); }
+  20% { transform: scale(0.92); }
+  40% { transform: scale(1.05); }
+  60% { transform: scale(0.98); }
+  80% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* ==========================================
+   터치 최적화 스크롤바
+   ========================================== */
+
+/* 웹킷 브라우저 스크롤바 */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--gray-600);
+}
+
+/* Firefox 스크롤바 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-400) var(--bg-secondary);
+}
+
+/* ==========================================
+   가상 키보드 대응
+   ========================================== */
+
+/* iOS Safari 가상 키보드 대응 */
+@supports (-webkit-touch-callout: none) {
+  .keyboard-active {
+    padding-bottom: env(keyboard-inset-height, 0px);
+    transition: padding-bottom 0.3s ease-in-out;
+  }
+}
+
+/* Android Chrome 가상 키보드 대응 */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .app-header {
+    height: 60px;
+  }
+  
+  .action-bar {
+    height: 60px;
+  }
+  
+  .sidebar {
+    font-size: var(--text-sm);
+  }
+}
+
+/* ==========================================
+   성능 최적화
+   ========================================== */
+
+/* GPU 가속 활용 */
+.gpu-accelerated,
+.loading-logo,
+.mode-btn,
+.btn,
+.action-btn {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* 레이어 분리 */
+.app-header,
+.sidebar,
+.action-bar {
+  contain: layout style paint;
+}
+
+/* 메모리 최적화 */
+.workspace {
+  contain: layout style;
+}
+
+/* ==========================================
+   디바이스별 특화 스타일
+   ========================================== */
+
+/* iPad Safari 특화 */
+@supports (-webkit-touch-callout: none) {
+  .app-container {
+    /* Safari 하단 바 대응 */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Safari 선택 방지 */
+  .non-selectable {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+/* Samsung Internet 특화 */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+  .customer-avatar,
+  .mode-icon {
+    /* 고해상도 디스플레이 대응 */
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Microsoft Edge on Surface 특화 */
+@supports (-ms-ime-align: auto) {
+  .touch-target {
+    /* Surface Pen 정확도 향상 */
+    min-width: 32px;
+    min-height: 32px;
+  }
+}
+
+/* ==========================================
+   다국어 지원 최적화
+   ========================================== */
+
+/* 한글 폰트 최적화 */
+:lang(ko) {
+  word-break: keep-all;
+  line-height: 1.8;
+}
+
+/* 영문 폰트 최적화 */
+:lang(en) {
+  line-height: 1.6;
+  letter-spacing: -0.025em;
+}
+
+/* RTL 언어 지원 */
+[dir="rtl"] {
+  .sidebar {
+    right: 0;
+    left: auto;
+    border-left: 1px solid var(--border-color);
+    border-right: none;
+  }
+  
+  .workspace {
+    margin-right: var(--sidebar-width);
+    margin-left: 0;
+  }
+}
+
+/* ==========================================
+   프린트 최적화
+   ========================================== */
+
+@media print {
+  .sidebar,
+  .app-header,
+  .action-bar {
+    display: none !important;
+  }
+  
+  .workspace {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  .app-container {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ==========================================
+   실험적 기능
+   ========================================== */
+
+/* CSS Grid 지원시 향상된 레이아웃 */
+@supports (display: grid) {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-3);
+  }
+}
+
+/* Flexbox Gap 지원시 향상된 간격 */
+@supports (gap: 1rem) {
+  .header-right,
+  .action-left,
+  .action-right {
+    gap: var(--space-3);
+  }
+}
+
+/* Backdrop Filter 지원시 블러 효과 */
+@supports (backdrop-filter: blur(10px)) {
+  .sidebar {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    .sidebar {
+      background-color: rgba(17, 24, 39, 0.95);
+    }
+  }
+}
