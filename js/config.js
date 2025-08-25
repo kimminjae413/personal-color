@@ -1,584 +1,413 @@
 /**
- * Personal Color Pro - 설정 및 상수
- * 애플리케이션 전반에서 사용되는 설정값들을 관리
+ * config.js - Personal Color Pro 전역 설정
+ * 
+ * 퍼스널컬러 진단 앱의 모든 설정값들을 관리
+ * 브라우저 환경에서 직접 실행 가능하도록 최적화
  */
 
+// 환경 감지 함수 (process.env 대신 브라우저 기반)
+const detectEnvironment = () => {
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    
+    // 개발 환경
+    if (hostname === 'localhost' || 
+        hostname === '127.0.0.1' || 
+        hostname.startsWith('192.168.') ||
+        protocol === 'file:') {
+        return 'development';
+    }
+    
+    // 스테이징 환경
+    if (hostname.includes('staging') || 
+        hostname.includes('test') || 
+        hostname.includes('dev')) {
+        return 'staging';
+    }
+    
+    // 프로덕션 환경 (기본값)
+    return 'production';
+};
+
+// 현재 환경
+const CURRENT_ENVIRONMENT = detectEnvironment();
+
+// 브라우저 정보 수집
+const getBrowserInfo = () => {
+    return {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        cookieEnabled: navigator.cookieEnabled,
+        onLine: navigator.onLine,
+        hardwareConcurrency: navigator.hardwareConcurrency || 4,
+        deviceMemory: navigator.deviceMemory || 4,
+        connection: navigator.connection ? {
+            effectiveType: navigator.connection.effectiveType,
+            downlink: navigator.connection.downlink,
+            rtt: navigator.connection.rtt
+        } : null
+    };
+};
+
+/**
+ * Personal Color Pro 전역 설정 객체
+ */
 window.PersonalColorConfig = {
-    // 애플리케이션 정보
+    // 애플리케이션 기본 정보
     APP_INFO: {
-        name: 'Personal Color Pro',
+        name: 'Personal Color Analyzer Pro',
         version: '1.0.0',
-        description: '헤어디자이너용 퍼스널컬러 진단 시스템',
+        description: '헤어디자이너용 퍼스널컬러 진단 태블릿 시스템',
         author: 'Personal Color Pro Team',
-        buildDate: '2024-01-15'
+        buildDate: new Date().toISOString().split('T')[0],
+        environment: CURRENT_ENVIRONMENT,
+        browserInfo: getBrowserInfo()
     },
 
-    // API 설정
+    // 환경별 설정
+    ENVIRONMENT: {
+        current: CURRENT_ENVIRONMENT,
+        isDevelopment: CURRENT_ENVIRONMENT === 'development',
+        isStaging: CURRENT_ENVIRONMENT === 'staging',
+        isProduction: CURRENT_ENVIRONMENT === 'production'
+    },
+
+    // API 및 서버 설정
     API: {
-        baseUrl: process.env.API_BASE_URL || '/api/v1',
+        baseUrl: CURRENT_ENVIRONMENT === 'development' 
+            ? 'http://localhost:3000/api/v1' 
+            : '/api/v1',
         timeout: 30000,
         retryAttempts: 3,
+        retryDelay: 1000,
         endpoints: {
             analysis: '/analysis',
             customers: '/customers',
             reports: '/reports',
-            models: '/models'
+            models: '/models',
+            upload: '/upload',
+            export: '/export',
+            analytics: '/analytics'
         }
     },
 
-    // AI 모델 설정
+    // AI 모델 및 분석 설정
     AI_MODELS: {
         skinToneAnalyzer: {
-            modelUrl: './js/ai/models/personal-color-model.json',
-            weightsUrl: './js/ai/models/skin-tone-weights.bin',
+            modelUrl: '/js/ai/models/personal-color-model.json',
+            weightsUrl: '/js/ai/models/skin-tone-weights.bin',
             inputSize: [224, 224, 3],
+            outputClasses: ['spring', 'summer', 'autumn', 'winter'],
             confidenceThreshold: 0.85,
-            maxBatchSize: 1
+            maxBatchSize: 1,
+            preprocessingSettings: {
+                normalize: true,
+                centerCrop: true,
+                colorSpace: 'RGB'
+            }
         },
+        
         faceDetection: {
             modelType: 'mediapipe',
+            modelUrl: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection@0.4/face_detection.js',
             maxNumFaces: 1,
             minDetectionConfidence: 0.7,
-            minTrackingConfidence: 0.5
+            minTrackingConfidence: 0.5,
+            selfieMode: true
         },
+        
         colorClassifier: {
             algorithm: 'deltaE2000',
             colorSpace: 'CIELAB',
-            toleranceThreshold: 3.0
+            toleranceThreshold: 3.0,
+            referenceColors: {
+                spring: ['#FFB6C1', '#98FB98', '#F0E68C', '#FFA07A'],
+                summer: ['#E6E6FA', '#B0E0E6', '#D8BFD8', '#F0F8FF'],
+                autumn: ['#DEB887', '#CD853F', '#D2691E', '#A0522D'],
+                winter: ['#000080', '#8B0000', '#2F4F4F', '#800080']
+            }
         }
     },
 
-    // 카메라 설정
+    // 카메라 및 미디어 설정
     CAMERA: {
         preferredResolution: {
-            width: 1280,
-            height: 720
+            width: 1920,
+            height: 1080
         },
-        fallbackResolution: {
-            width: 640,
-            height: 480
-        },
+        fallbackResolutions: [
+            { width: 1280, height: 720 },
+            { width: 640, height: 480 },
+            { width: 320, height: 240 }
+        ],
         frameRate: 30,
         facingMode: 'user', // 'user' 또는 'environment'
-        autoFocus: true,
-        whiteBalance: 'auto',
-        exposureCompensation: 0
+        constraints: {
+            video: {
+                width: { ideal: 1920, min: 640 },
+                height: { ideal: 1080, min: 480 },
+                frameRate: { ideal: 30, min: 15 },
+                facingMode: 'user',
+                aspectRatio: { ideal: 16/9 }
+            }
+        },
+        captureSettings: {
+            imageFormat: 'image/jpeg',
+            quality: 0.9,
+            maxFileSize: 5 * 1024 * 1024 // 5MB
+        }
     },
 
-    // 색상 분석 설정
+    // 색상 분석 상세 설정
     COLOR_ANALYSIS: {
         // 표준 조명 조건
         standardIlluminant: {
             type: 'D65',
-            temperature: 6500, // Kelvin
+            temperature: 6504, // Kelvin
+            chromaticity: { x: 0.3127, y: 0.3290 },
             intensity: 300 // lux
         },
         
         // 피부 영역 감지 설정
         skinDetection: {
-            faceRegion: {
+            regions: {
                 forehead: { x: 0.3, y: 0.2, w: 0.4, h: 0.15 },
-                cheek: { x: 0.2, y: 0.4, w: 0.2, h: 0.2 },
-                chin: { x: 0.35, y: 0.7, w: 0.3, h: 0.15 }
+                leftCheek: { x: 0.15, y: 0.4, w: 0.2, h: 0.2 },
+                rightCheek: { x: 0.65, y: 0.4, w: 0.2, h: 0.2 },
+                nose: { x: 0.4, y: 0.45, w: 0.2, h: 0.15 },
+                chin: { x: 0.35, y: 0.65, w: 0.3, h: 0.15 }
             },
-            minSkinPixels: 1000,
-            skinColorRange: {
-                hue: { min: 0, max: 50 },
-                saturation: { min: 20, max: 80 },
-                lightness: { min: 30, max: 85 }
-            }
+            weights: {
+                forehead: 0.3,
+                leftCheek: 0.25,
+                rightCheek: 0.25,
+                nose: 0.15,
+                chin: 0.05
+            },
+            minPixelCount: 1000,
+            qualityThreshold: 0.8
         },
         
-        // 색상 공간 변환
+        // 색상 공간 설정
         colorSpaces: {
             input: 'sRGB',
             analysis: 'CIELAB',
-            display: 'Display-P3'
+            display: 'sRGB',
+            deltaE: 'CIE2000'
         },
         
-        // Delta E 계산 설정
-        deltaE: {
-            formula: 'CIE2000',
-            thresholds: {
-                identical: 1.0,
-                similar: 3.0,
-                different: 10.0
+        // 계절 분류 기준
+        seasonClassification: {
+            undertone: {
+                warm: { aThreshold: 5, bThreshold: 8 },
+                cool: { aThreshold: -5, bThreshold: -8 },
+                neutral: { aRange: [-5, 5], bRange: [-8, 8] }
             },
-            kL: 1.0, // 명도 가중치
-            kC: 1.0, // 채도 가중치
-            kH: 1.0  // 색상 가중치
+            lightness: {
+                light: { LThreshold: 65 },
+                medium: { LRange: [45, 65] },
+                deep: { LThreshold: 45 }
+            },
+            saturation: {
+                muted: { chromaThreshold: 20 },
+                medium: { chromaRange: [20, 40] },
+                vivid: { chromaThreshold: 40 }
+            }
         }
     },
 
-    // 드레이핑 설정
+    // 드레이핑 시스템 설정
     DRAPING: {
-        // 가상 드레이프 크기
-        drapeDimensions: {
-            width: 200,
-            height: 150,
-            position: { x: 0.5, y: 0.8 } // 얼굴 기준 상대 위치
-        },
-        
-        // 비교 모드
-        comparisonModes: ['single', 'split', 'slider'],
-        
-        // 색상 팔레트
-        colorPalettes: {
-            spring: 217, // 색상 수
-            summer: 217,
-            autumn: 217,
-            winter: 217
-        },
-        
-        // AR 렌더링 설정
-        arRendering: {
-            blendMode: 'multiply',
-            opacity: 0.7,
-            smoothing: true,
-            antiAliasing: true
-        }
-    },
-
-    // 퍼스널컬러 시스템
-    PERSONAL_COLOR_SYSTEM: {
-        // 기본 4계절 시스템
-        seasons: {
-            spring: {
-                name: '봄',
-                nameEn: 'Spring',
-                characteristics: {
-                    temperature: 'warm',
-                    clarity: 'clear',
-                    depth: 'light'
-                },
-                colors: {
-                    primary: ['#FF6B9D', '#FECA57', '#FF9F40', '#48CAE4'],
-                    neutral: ['#F8F9FA', '#FFFBF0', '#FFF5F5']
-                }
-            },
-            summer: {
-                name: '여름',
-                nameEn: 'Summer',
-                characteristics: {
-                    temperature: 'cool',
-                    clarity: 'soft',
-                    depth: 'light'
-                },
-                colors: {
-                    primary: ['#A8E6CF', '#B8BCFF', '#F2B5D4', '#C7CEEA'],
-                    neutral: ['#F8F9FA', '#F0F8FF', '#FFF0F5']
-                }
-            },
-            autumn: {
-                name: '가을',
-                nameEn: 'Autumn',
-                characteristics: {
-                    temperature: 'warm',
-                    clarity: 'soft',
-                    depth: 'deep'
-                },
-                colors: {
-                    primary: ['#CD853F', '#D2691E', '#A0522D', '#8B4513'],
-                    neutral: ['#FFF8DC', '#F5DEB3', '#FAEBD7']
-                }
-            },
-            winter: {
-                name: '겨울',
-                nameEn: 'Winter',
-                characteristics: {
-                    temperature: 'cool',
-                    clarity: 'clear',
-                    depth: 'deep'
-                },
-                colors: {
-                    primary: ['#FF1744', '#3F51B5', '#9C27B0', '#000000'],
-                    neutral: ['#FFFFFF', '#F5F5F5', '#E8EAF6']
-                }
-            }
-        },
-        
-        // 한국인 특화 톤 분류
-        koreanSkinTones: {
-            warmYellow: { name: '웜 옐로우', lab: [65, 8, 15] },
-            coolPink: { name: '쿨 핑크', lab: [68, 12, 5] },
-            neutralBeige: { name: '뉴트럴 베이지', lab: [66, 6, 10] },
-            warmOlive: { name: '웜 올리브', lab: [62, 5, 12] },
-            coolOlive: { name: '쿨 올리브', lab: [64, 3, 8] }
-        }
-    },
-
-    // 브랜드 데이터베이스
-    BRAND_DATABASE: {
-        // 헤어컬러 브랜드
-        hairColor: {
-            loreal: {
-                name: 'L\'Oréal Professional',
-                colorSystem: 'numeric',
-                shades: [
-                    { code: '6.66', name: 'Dark Blonde Deep Red' },
-                    { code: '7.43', name: 'Blonde Copper Golden' },
-                    { code: '8.31', name: 'Light Blonde Golden Ash' }
-                ]
-            },
-            wella: {
-                name: 'Wella Professionals',
-                colorSystem: 'mixed',
-                shades: [
-                    { code: '8/5', name: 'Light Blonde Mahogany' },
-                    { code: '7/3', name: 'Medium Blonde Gold' },
-                    { code: '6/0', name: 'Dark Blonde Natural' }
-                ]
-            },
-            milbon: {
-                name: 'Milbon',
-                colorSystem: 'hyphen',
-                shades: [
-                    { code: '8-50', name: 'Light Brown Red' },
-                    { code: '7-43', name: 'Brown Copper Gold' },
-                    { code: '6-31', name: 'Dark Brown Gold Ash' }
-                ]
-            }
-        },
-        
-        // 메이크업 브랜드
-        makeup: {
-            foundations: [
-                { brand: 'MAC', shade: 'NC25', lab: [65.2, 8.1, 14.7] },
-                { brand: 'NARS', shade: 'Light 4 Deauville', lab: [68.1, 6.2, 12.3] },
-                { brand: 'Estée Lauder', shade: '2W1 Dawn', lab: [66.8, 7.5, 13.2] }
+        colorSets: {
+            spring: [
+                { name: '코랄 핑크', hex: '#FF7F7F', lab: [65, 40, 20] },
+                { name: '피치', hex: '#FFB347', lab: [75, 15, 45] },
+                { name: '아쿠아', hex: '#7FFFD4', lab: [85, -25, 10] },
+                { name: '바이올렛', hex: '#DA70D6', lab: [60, 50, -30] }
             ],
-            lipColors: [
-                { brand: 'MAC', shade: 'Ruby Woo', hex: '#D31F3C' },
-                { brand: 'Charlotte Tilbury', shade: 'Pillow Talk', hex: '#B8859B' },
-                { brand: 'Tom Ford', shade: 'Cherry Lush', hex: '#8B2635' }
+            summer: [
+                { name: '라벤더', hex: '#E6E6FA', lab: [90, 5, -15] },
+                { name: '로즈', hex: '#F0C0C0', lab: [80, 20, 10] },
+                { name: '민트', hex: '#B0FFB0', lab: [88, -30, 25] },
+                { name: '퍼플', hex: '#9370DB', lab: [55, 35, -45] }
+            ],
+            autumn: [
+                { name: '버건디', hex: '#800020', lab: [25, 40, 20] },
+                { name: '올리브', hex: '#808000', lab: [50, -10, 40] },
+                { name: '러스트', hex: '#B7410E', lab: [45, 35, 50] },
+                { name: '포레스트', hex: '#228B22', lab: [45, -45, 35] }
+            ],
+            winter: [
+                { name: '로얄 블루', hex: '#4169E1', lab: [45, 15, -65] },
+                { name: '에메랄드', hex: '#50C878', lab: [70, -45, 35] },
+                { name: '딥 레드', hex: '#8B0000', lab: [25, 45, 40] },
+                { name: '퓨샤', hex: '#FF1493', lab: [55, 75, -10] }
             ]
+        },
+        
+        virtualDraping: {
+            enabled: true,
+            blendMode: 'multiply',
+            opacity: 0.6,
+            smoothing: 0.3,
+            realTimeProcessing: true
+        },
+        
+        comparison: {
+            enableSideBySide: true,
+            enableBeforeAfter: true,
+            autoCapture: true,
+            maxComparisons: 10
         }
     },
 
-    // UI 설정
+    // 성능 최적화 설정
+    PERFORMANCE: {
+        // 메모리 관리
+        memory: {
+            maxHeapSize: 100 * 1024 * 1024, // 100MB
+            gcThreshold: 80 * 1024 * 1024,  // 80MB
+            cacheExpiry: 30 * 60 * 1000,    // 30분
+            imagePoolSize: 10,
+            workerPoolSize: navigator.hardwareConcurrency || 4
+        },
+        
+        // 이미지 처리 최적화
+        imageProcessing: {
+            maxDimensions: { width: 2048, height: 2048 },
+            compressionQuality: 0.8,
+            enableWebP: true,
+            enableAVIF: false,
+            tileSize: 256,
+            useWebGL: true,
+            useWebAssembly: false
+        },
+        
+        // 렌더링 최적화
+        rendering: {
+            targetFPS: 60,
+            enableVSync: true,
+            enableGPUAcceleration: true,
+            layeredRendering: true,
+            debounceDelay: 300,
+            throttleLimit: 100
+        },
+        
+        // 네트워크 최적화
+        network: {
+            enableCompression: true,
+            enableCaching: true,
+            prefetchResources: true,
+            batchRequests: true,
+            retryBackoff: 'exponential'
+        }
+    },
+
+    // 데이터 저장소 설정
+    STORAGE: {
+        // 로컬 저장소
+        localStorage: {
+            enabled: true,
+            prefix: 'pca_',
+            maxSize: 10 * 1024 * 1024, // 10MB
+            compression: true,
+            encryption: false,
+            retention: 90 * 24 * 60 * 60 * 1000 // 90일
+        },
+        
+        // IndexedDB 설정
+        indexedDB: {
+            enabled: true,
+            dbName: 'PersonalColorDB',
+            version: 1,
+            stores: {
+                customers: { keyPath: 'id', autoIncrement: true },
+                diagnoses: { keyPath: 'id', autoIncrement: true },
+                reports: { keyPath: 'id', autoIncrement: true },
+                images: { keyPath: 'id', autoIncrement: true },
+                settings: { keyPath: 'key' }
+            }
+        },
+        
+        // 백업 및 동기화
+        backup: {
+            autoBackup: true,
+            backupInterval: 24 * 60 * 60 * 1000, // 24시간
+            maxBackups: 7,
+            cloudSync: false,
+            exportFormats: ['json', 'csv', 'pdf']
+        }
+    },
+
+    // 사용자 인터페이스 설정
     UI: {
-        // 태블릿 최적화
-        tablet: {
-            minWidth: 768,
-            maxWidth: 1366,
-            orientation: 'landscape',
-            touchTargetSize: 44 // px
+        // 테마 설정
+        theme: {
+            default: 'professional',
+            available: ['professional', 'elegant', 'modern', 'classic'],
+            darkMode: false,
+            highContrast: false,
+            customColors: {
+                primary: '#2C3E50',
+                secondary: '#3498DB',
+                accent: '#E74C3C',
+                success: '#27AE60',
+                warning: '#F39C12',
+                error: '#E74C3C'
+            }
+        },
+        
+        // 레이아웃 설정
+        layout: {
+            headerHeight: '80px',
+            sidebarWidth: '320px',
+            contentPadding: '24px',
+            cardBorderRadius: '12px',
+            responsive: {
+                tablet: '768px',
+                desktop: '1024px',
+                widescreen: '1440px'
+            }
         },
         
         // 애니메이션 설정
         animations: {
-            duration: {
-                fast: 150,
-                normal: 300,
-                slow: 500
-            },
-            easing: {
-                default: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
-                enter: 'cubic-bezier(0.0, 0.0, 0.2, 1)',
-                exit: 'cubic-bezier(0.4, 0.0, 1, 1)'
-            }
-        },
-        
-        // 색상 팔레트
-        colors: {
-            primary: '#6366f1',
-            secondary: '#e5e7eb',
-            accent: '#f59e0b',
-            success: '#10b981',
-            warning: '#f59e0b',
-            error: '#ef4444',
-            background: {
-                primary: '#ffffff',
-                secondary: '#f9fafb',
-                tertiary: '#f3f4f6'
-            }
-        }
-    },
-
-    // 보고서 설정
-    REPORT: {
-        // 템플릿 설정
-        templates: {
-            comprehensive: {
-                name: '종합 진단 보고서',
-                sections: ['customer_info', 'analysis_results', 'color_palette', 'makeup_recommendations', 'hair_recommendations', 'fashion_guide']
-            },
-            basic: {
-                name: '기본 진단 보고서',
-                sections: ['customer_info', 'analysis_results', 'color_palette']
-            }
-        },
-        
-        // PDF 생성 설정
-        pdf: {
-            format: 'A4',
-            orientation: 'portrait',
-            margins: {
-                top: 20,
-                right: 15,
-                bottom: 20,
-                left: 15
-            },
-            quality: 'high',
-            compress: true
-        },
-        
-        // 이미지 설정
-        images: {
-            colorSwatches: {
-                size: 40, // px
-                borderRadius: 4,
-                spacing: 8
-            },
-            customerPhoto: {
-                maxWidth: 200,
-                maxHeight: 200,
-                quality: 0.8
-            }
-        }
-    },
-
-    // 저장소 설정
-    STORAGE: {
-        // 로컬 스토리지 키
-        keys: {
-            customers: 'personalcolor_customers',
-            settings: 'personalcolor_settings',
-            session: 'personalcolor_session',
-            progress: 'personalcolor_progress',
-            cache: 'personalcolor_cache'
-        },
-        
-        // 캐시 설정
-        cache: {
-            maxAge: 24 * 60 * 60 * 1000, // 24시간
-            maxSize: 50 * 1024 * 1024,   // 50MB
-            compression: true
-        },
-        
-        // 백업 설정
-        backup: {
-            autoBackup: true,
-            interval: 30 * 60 * 1000, // 30분
-            maxBackups: 10
-        }
-    },
-
-    // 성능 모니터링
-    PERFORMANCE: {
-        // FPS 모니터링
-        fps: {
-            target: 30,
-            warning: 15,
-            critical: 10
-        },
-        
-        // 메모리 사용량 모니터링
-        memory: {
-            warning: 100 * 1024 * 1024,  // 100MB
-            critical: 200 * 1024 * 1024  // 200MB
-        },
-        
-        // 로딩 시간 모니터링
-        loading: {
-            target: 3000,  // 3초
-            warning: 5000, // 5초
-            critical: 10000 // 10초
-        }
-    },
-
-    // 분석 및 로깅
-    ANALYTICS: {
-        enabled: true,
-        events: [
-            'app_start',
-            'mode_switch',
-            'customer_selected',
-            'diagnosis_complete',
-            'report_generated',
-            'error_occurred'
-        ],
-        batchSize: 10,
-        sendInterval: 30000 // 30초
-    },
-
-    // 디버그 설정
-    DEBUG: {
-        enabled: process.env.NODE_ENV === 'development',
-        logLevel: 'info', // 'error', 'warn', 'info', 'debug'
-        showFPS: false,
-        showMemory: false,
-        colorAnalysisVerbose: false,
-        aiModelVerbose: false
-    },
-
-    // 접근성 설정
-    ACCESSIBILITY: {
-        // 키보드 내비게이션
-        keyboard: {
             enabled: true,
-            shortcuts: {
-                'Ctrl+1': 'switch_photo_mode',
-                'Ctrl+2': 'switch_draping_mode',
-                'Ctrl+S': 'save_progress',
-                'Ctrl+R': 'reset_diagnosis',
-                'Ctrl+H': 'show_help',
-                'Escape': 'close_modal'
+            duration: 300,
+            easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+            reducedMotion: false,
+            pageTransitions: true,
+            microInteractions: true
+        },
+        
+        // 접근성 설정
+        accessibility: {
+            screenReader: true,
+            keyboardNavigation: true,
+            focusIndicators: true,
+            skipLinks: true,
+            ariaLabels: true,
+            contrastRatio: 4.5,
+            fontSize: {
+                min: '14px',
+                default: '16px',
+                max: '24px'
             }
         },
         
-        // 스크린 리더 지원
-        screenReader: {
-            announcements: true,
-            liveRegions: true,
-            ariaLabels: true
-        },
-        
-        // 고대비 모드
-        highContrast: {
-            autoDetect: true,
-            override: false
+        // 터치 및 제스처
+        touch: {
+            enabled: true,
+            minTouchTarget: '44px',
+            swipeThreshold: 100,
+            longPressDelay: 500,
+            hapticFeedback: true,
+            preventZoom: true
         }
     },
 
-    // 다국어 설정
-    LOCALIZATION: {
+    // 국제화 설정
+    I18N: {
         defaultLanguage: 'ko',
-        supportedLanguages: ['ko', 'en'],
-        dateFormat: 'YYYY-MM-DD',
-        timeFormat: 'HH:mm:ss',
-        numberFormat: {
-            decimal: '.',
-            thousands: ','
-        }
-    },
-
-    // 보안 설정
-    SECURITY: {
-        // 데이터 암호화
-        encryption: {
-            algorithm: 'AES-256-GCM',
-            keyDerivation: 'PBKDF2'
-        },
-        
-        // 세션 관리
-        session: {
-            timeout: 4 * 60 * 60 * 1000, // 4시간
-            renewThreshold: 30 * 60 * 1000 // 30분
-        },
-        
-        // 입력 검증
-        validation: {
-            maxFileSize: 10 * 1024 * 1024, // 10MB
-            allowedImageTypes: ['image/jpeg', 'image/png', 'image/webp'],
-            maxImageDimensions: { width: 4000, height: 4000 }
-        }
-    }
-};
-
-// 환경별 설정 오버라이드
-if (typeof process !== 'undefined' && process.env) {
-    // 개발 환경
-    if (process.env.NODE_ENV === 'development') {
-        PersonalColorConfig.DEBUG.enabled = true;
-        PersonalColorConfig.DEBUG.showFPS = true;
-        PersonalColorConfig.ANALYTICS.enabled = false;
-    }
-    
-    // 프로덕션 환경
-    if (process.env.NODE_ENV === 'production') {
-        PersonalColorConfig.DEBUG.enabled = false;
-        PersonalColorConfig.DEBUG.logLevel = 'error';
-        PersonalColorConfig.ANALYTICS.enabled = true;
-    }
-    
-    // 테스트 환경
-    if (process.env.NODE_ENV === 'test') {
-        PersonalColorConfig.DEBUG.enabled = false;
-        PersonalColorConfig.ANALYTICS.enabled = false;
-        PersonalColorConfig.STORAGE.backup.autoBackup = false;
-    }
-}
-
-// 설정 유효성 검사
-PersonalColorConfig.validate = function() {
-    const errors = [];
-    
-    // 필수 설정 확인
-    if (!this.APP_INFO.name) {
-        errors.push('APP_INFO.name is required');
-    }
-    
-    if (!this.AI_MODELS.skinToneAnalyzer.modelUrl) {
-        errors.push('AI_MODELS.skinToneAnalyzer.modelUrl is required');
-    }
-    
-    if (!this.CAMERA.preferredResolution.width) {
-        errors.push('CAMERA.preferredResolution.width is required');
-    }
-    
-    // 값 범위 검사
-    if (this.AI_MODELS.skinToneAnalyzer.confidenceThreshold < 0 || 
-        this.AI_MODELS.skinToneAnalyzer.confidenceThreshold > 1) {
-        errors.push('AI_MODELS.skinToneAnalyzer.confidenceThreshold must be between 0 and 1');
-    }
-    
-    if (errors.length > 0) {
-        console.error('❌ 설정 검증 실패:', errors);
-        return false;
-    }
-    
-    console.log('✅ 설정 검증 성공');
-    return true;
-};
-
-// 설정 업데이트 함수
-PersonalColorConfig.update = function(path, value) {
-    const keys = path.split('.');
-    let obj = this;
-    
-    for (let i = 0; i < keys.length - 1; i++) {
-        obj = obj[keys[i]];
-        if (!obj) {
-            console.error('❌ 설정 경로를 찾을 수 없습니다:', path);
-            return false;
-        }
-    }
-    
-    obj[keys[keys.length - 1]] = value;
-    console.log(`⚙️ 설정 업데이트: ${path} = ${value}`);
-    return true;
-};
-
-// 설정 조회 함수
-PersonalColorConfig.get = function(path, defaultValue = null) {
-    const keys = path.split('.');
-    let obj = this;
-    
-    for (const key of keys) {
-        obj = obj[key];
-        if (obj === undefined) {
-            return defaultValue;
-        }
-    }
-    
-    return obj;
-};
-
-// 초기 설정 검증 실행
-PersonalColorConfig.validate();
-
-// 전역 변수로 내보내기
-window.Config = PersonalColorConfig;
-
-// 개발자 도구용 설정 디버거
-if (PersonalColorConfig.DEBUG.enabled) {
-    window.debugConfig = {
-        showAll: () => console.table(PersonalColorConfig),
-        get: (path) => PersonalColorConfig.get(path),
-        update: (path, value) => PersonalColorConfig.update(path, value),
-        validate: () => PersonalColorConfig.validate()
-    };
-    
-    console.log('🔧 설정 디버거: window.debugConfig 사용 가능');
-}
+        supportedLanguages: ['ko', 'en', 'ja', 'zh'],
