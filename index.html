@@ -7,15 +7,33 @@
     <meta name="description" content="Munsell 색체계와 Von Kries 이론 기반의 전문가급 퍼스널컬러 진단 시스템">
     <meta name="keywords" content="퍼스널컬러, 색상진단, 드래이핑, Munsell, 한국형 특화">
     
+    <!-- Open Graph -->
+    <meta property="og:title" content="과학적 퍼스널컬러 진단 시스템">
+    <meta property="og:description" content="92% 정확도의 전문가급 색상 진단">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/assets/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
     <!-- Preload Critical Resources -->
     <link rel="preload" href="css/styles.css" as="style">
-    <link rel="preload" href="js/data/seasons.js" as="script">
-    <link rel="preload" href="js/data/drapingColors.js" as="script">
     <link rel="preload" href="js/app.js" as="script">
     
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.tailwindcss.com" crossorigin="anonymous">
     <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#8b5cf6">
+    
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="퍼스널컬러 진단">
     
     <!-- Tailwind Custom Config -->
     <script>
@@ -39,7 +57,7 @@
 </head>
 <body class="bg-gradient-to-br from-pink-50 via-white to-blue-50 min-h-screen antialiased">
     <!-- 로딩 화면 -->
-    <div id="loading" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div id="loading" class="fixed inset-0 bg-white flex items-center justify-center z-50" aria-hidden="true">
         <div class="text-center">
             <div class="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
             <p class="text-gray-600 text-lg font-medium">시스템 초기화 중...</p>
@@ -49,6 +67,11 @@
 
     <!-- 메인 애플리케이션 -->
     <div id="app" class="min-h-screen w-full" style="display: none;">
+        <!-- 접근성을 위한 스킵 링크 -->
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-purple-600 text-white px-4 py-2 rounded-md z-50">
+            메인 콘텐츠로 건너뛰기
+        </a>
+
         <!-- 헤더 -->
         <header class="w-full" role="banner">
             <div class="container mx-auto px-4 py-8">
@@ -58,8 +81,10 @@
                             과학적 퍼스널컬러 진단
                         </h1>
                         <button id="manual-btn" 
-                                class="bg-blue-100 text-blue-700 px-6 py-3 rounded-lg hover:bg-blue-200 transition-all duration-200 flex items-center gap-2 font-medium shadow-sm hover:shadow-md touch-target">
-                            <span class="text-lg">📖</span>
+                                class="bg-blue-100 text-blue-700 px-6 py-3 rounded-lg hover:bg-blue-200 transition-all duration-200 flex items-center gap-2 font-medium shadow-sm hover:shadow-md touch-target"
+                                onclick="showExpertManual()"
+                                aria-label="전문가 매뉴얼 보기">
+                            <span class="text-lg" aria-hidden="true">📖</span>
                             <span class="text-sm md:text-base">설명서 보기</span>
                         </button>
                     </div>
@@ -68,19 +93,19 @@
                         Munsell 색체계 • Sci\ART 방법론 • Von Kries 이론 기반
                     </p>
                     
-                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 max-w-5xl mx-auto border border-blue-100">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm md:text-base">
-                            <div class="flex items-center justify-center gap-2">
-                                <span class="text-blue-600 text-lg">🔬</span>
-                                <span class="text-gray-700"><strong>과학적 근거:</strong> CRI 90+ 조명, 5000K 색온도</span>
+                    <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl p-6 inline-block">
+                        <div class="flex flex-wrap justify-center items-center gap-6 text-sm md:text-base">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">92% 정확도</span>
+                                <span class="text-gray-600">전문가급</span>
                             </div>
-                            <div class="flex items-center justify-center gap-2">
-                                <span class="text-purple-600 text-lg">🎨</span>
-                                <span class="text-gray-700"><strong>전문 시스템:</strong> Munsell 색체계</span>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">3단계 분석</span>
+                                <span class="text-gray-600">체계적</span>
                             </div>
-                            <div class="flex items-center justify-center gap-2">
-                                <span class="text-pink-600 text-lg">🇰🇷</span>
-                                <span class="text-gray-700"><strong>한국형 특화:</strong> 12계절 분류</span>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">12계절</span>
+                                <span class="text-gray-600">한국형</span>
                             </div>
                         </div>
                     </div>
@@ -89,146 +114,26 @@
         </header>
 
         <!-- 메인 콘텐츠 -->
-        <main id="main-content" class="flex-1 w-full" role="main">
-            <div class="container mx-auto px-4 pb-20">
-                <!-- 단계 0: 메인 선택 화면 -->
-                <section id="step-0" class="step-content w-full">
-                    <div class="max-w-6xl mx-auto">
-                        <div class="text-center mb-12">
-                            <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800">
-                                진단 방식 선택
-                            </h2>
-                            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                                과학적 이론에 기반한 두 가지 전문 방법론 중 선택하세요
-                            </p>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                            <!-- 사진 기반 진단 -->
-                            <article class="bg-white rounded-3xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 touch-target group"
-                                     onclick="selectMode('photo')"
-                                     role="button"
-                                     tabindex="0">
-                                <div class="text-center">
-                                    <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-full p-6 w-24 h-24 mx-auto mb-8 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                                        <span class="text-4xl">📸</span>
-                                    </div>
-                                    
-                                    <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-                                        사진 기반 간편 진단
-                                    </h3>
-                                    
-                                    <p class="text-gray-600 mb-8 text-base md:text-lg leading-relaxed">
-                                        업로드한 사진을 AI가 분석하여<br>
-                                        색상 특성을 자동으로 추출합니다.
-                                    </p>
-                                    
-                                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6">
-                                        <div class="grid grid-cols-3 gap-6 text-center">
-                                            <div>
-                                                <div class="text-3xl font-bold text-blue-600 mb-1">5분</div>
-                                                <div class="text-sm text-blue-700 font-medium">소요시간</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-3xl font-bold text-blue-600 mb-1">85%</div>
-                                                <div class="text-sm text-blue-700 font-medium">정확도</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-2xl font-bold text-blue-600 mb-1">⭐⭐</div>
-                                                <div class="text-sm text-blue-700 font-medium">난이도</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
-
-                            <!-- 전문가 드래이핑 진단 -->
-                            <article class="bg-white rounded-3xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 touch-target group"
-                                     onclick="selectMode('expert')"
-                                     role="button"
-                                     tabindex="0">
-                                <div class="text-center">
-                                    <div class="bg-gradient-to-br from-purple-100 to-purple-200 rounded-full p-6 w-24 h-24 mx-auto mb-8 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                                        <span class="text-4xl">🎭</span>
-                                    </div>
-                                    
-                                    <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-                                        전문가급 드래이핑 진단
-                                    </h3>
-                                    
-                                    <p class="text-gray-600 mb-8 text-base md:text-lg leading-relaxed">
-                                        Sci\ART 방법론으로<br>
-                                        3단계 체계적 분석을 진행합니다.
-                                    </p>
-                                    
-                                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6">
-                                        <div class="grid grid-cols-3 gap-6 text-center">
-                                            <div>
-                                                <div class="text-3xl font-bold text-purple-600 mb-1">15분</div>
-                                                <div class="text-sm text-purple-700 font-medium">소요시간</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-3xl font-bold text-purple-600 mb-1">92%</div>
-                                                <div class="text-sm text-purple-700 font-medium">정확도</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-2xl font-bold text-purple-600 mb-1">⭐⭐⭐</div>
-                                                <div class="text-sm text-purple-700 font-medium">난이도</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
-                        </div>
-
-                        <!-- 추가 정보 섹션 -->
-                        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div class="text-center p-6 bg-white rounded-xl shadow-lg">
-                                <div class="text-4xl mb-4">🎯</div>
-                                <h4 class="text-xl font-bold text-gray-800 mb-3">정확한 진단</h4>
-                                <p class="text-gray-600 text-sm">과학적 근거 기반으로 개인 맞춤 색상을 정확하게 분석합니다.</p>
-                            </div>
-                            <div class="text-center p-6 bg-white rounded-xl shadow-lg">
-                                <div class="text-4xl mb-4">⚡</div>
-                                <h4 class="text-xl font-bold text-gray-800 mb-3">빠른 결과</h4>
-                                <p class="text-gray-600 text-sm">최적화된 알고리즘으로 빠르고 효율적인 색상 진단을 제공합니다.</p>
-                            </div>
-                            <div class="text-center p-6 bg-white rounded-xl shadow-lg">
-                                <div class="text-4xl mb-4">🎨</div>
-                                <h4 class="text-xl font-bold text-gray-800 mb-3">실용적 가이드</h4>
-                                <p class="text-gray-600 text-sm">메이크업, 헤어, 패션까지 실생활에 바로 적용 가능한 조언을 제공합니다.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 단계 1: 사진 업로드 -->
-                <section id="step-1" class="step-content w-full" style="display: none;">
-                    <!-- 동적으로 생성될 내용 -->
-                </section>
-
-                <!-- 단계 2: 분석 진행 -->
-                <section id="step-2" class="step-content w-full" style="display: none;">
-                    <!-- 동적으로 생성될 내용 -->
-                </section>
-
-                <!-- 단계 3: 결과 화면 -->
-                <section id="step-3" class="step-content w-full" style="display: none;">
-                    <!-- 동적으로 생성될 내용 -->
-                </section>
+        <main id="main-content" class="container mx-auto px-4 pb-24" role="main">
+            <!-- 단계별 콘텐츠가 동적으로 생성됩니다 -->
+            <div id="step-content" class="w-full">
+                <!-- JavaScript로 동적 생성 -->
             </div>
         </main>
 
-        <!-- 하단 고정 네비게이션 -->
-        <nav id="thumbNavigation" class="fixed bottom-6 right-6 z-40">
-            <div class="flex flex-col space-y-3">
+        <!-- 하단 네비게이션 (모바일 최적화) -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-pb z-40" role="navigation" aria-label="네비게이션">
+            <div class="flex justify-center items-center p-4 gap-4">
                 <!-- 뒤로가기 버튼 -->
                 <button id="thumbBackBtn" 
                         onclick="goBack()" 
-                        class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 touch-target"
-                        title="뒤로가기"
-                        style="min-width: 64px; min-height: 64px; display: none;">
-                    <span class="text-2xl">←</span>
+                        class="bg-gray-500 hover:bg-gray-600 text-white p-4 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 touch-target"
+                        title="이전 단계"
+                        aria-label="이전 단계로 돌아가기"
+                        style="min-width: 64px; min-height: 64px;">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
                 </button>
                 
                 <!-- 홈 버튼 -->
@@ -236,24 +141,32 @@
                         onclick="resetApp()" 
                         class="bg-gray-500 hover:bg-gray-600 text-white p-4 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 touch-target"
                         title="처음으로"
+                        aria-label="처음 화면으로 돌아가기"
                         style="min-width: 64px; min-height: 64px;">
-                    <span class="text-2xl">🏠</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
                 </button>
             </div>
         </nav>
     </div>
 
     <!-- 전체화면 드래이핑 모달 -->
-    <div id="fullscreenModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+    <div id="fullscreenModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="fullscreen-title">
         <!-- 동적으로 생성될 내용 -->
     </div>
 
     <!-- 전문가 매뉴얼 모달 -->
-    <div id="expertManualModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+    <div id="expertManualModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="manual-title">
         <!-- 동적으로 생성될 내용 -->
     </div>
 
-    <!-- JavaScript 모듈들 (순서가 중요!) -->
+    <!-- 오류 알림 -->
+    <div id="errorNotification" class="fixed top-4 right-4 z-60 hidden" role="alert" aria-live="assertive">
+        <!-- 동적으로 생성될 내용 -->
+    </div>
+
+    <!-- JavaScript 모듈들 (의존성 순서 중요!) -->
     <script>
         // 전역 설정과 에러 핸들링
         window.APP_CONFIG = {
@@ -262,7 +175,7 @@
             debug: true
         };
         
-        // SIMPLE_COLORS 정의 (app.js보다 먼저 실행되도록)
+        // 간단한 색상 데이터 (의존성 해결을 위해 먼저 정의)
         window.SIMPLE_COLORS = {
             warm: [
                 { name: '골든 옐로우', color: '#FFD700', munsell: '5Y 8/12', description: '따뜻한 황금색' },
@@ -280,17 +193,29 @@
         
         // 초기 상태 표시
         console.log('HTML 로딩 완료, JavaScript 모듈 로딩 시작');
+        
+        // 에러 핸들링
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript 오류:', e.error);
+            if (window.APP_CONFIG?.debug) {
+                alert('오류가 발생했습니다: ' + e.message);
+            }
+        });
+
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Promise 오류:', e.reason);
+        });
     </script>
 
     <!-- 1. 데이터 모듈 먼저 로드 -->
-    <script src="js/data/seasons.js"></script>
-    <script src="js/data/drapingColors.js"></script>
+    <script src="js/data/seasons.js" defer></script>
+    <script src="js/data/drapingColors.js" defer></script>
     
     <!-- 2. 컴포넌트 모듈 로드 -->
-    <script src="js/components/FullscreenDraping.js"></script>
-    <script src="js/components/ExpertManual.js"></script>
+    <script src="js/components/FullscreenDraping.js" defer></script>
+    <script src="js/components/ExpertManual.js" defer></script>
     
     <!-- 3. 메인 애플리케이션 로드 -->
-    <script src="js/app.js"></script>
+    <script src="js/app.js" defer></script>
 </body>
 </html>
