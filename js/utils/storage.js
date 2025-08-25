@@ -1,6 +1,12 @@
 /**
- * storage.js - 헤어디자이너용 퍼스널컬러 진단 시스템
+ * storage.js - 헤어디자이너용 퍼스널컬러 진단 시스템 (무한재귀 오류 수정 완전판)
  * 고급 로컬 저장소 관리 유틸리티
+ * 
+ * 수정사항:
+ * - RangeError: Maximum call stack size exceeded 완전 해결
+ * - getItem/getMetadata 순환 참조 제거
+ * - 메타데이터 직접 접근 방식으로 변경
+ * - 비동기 처리 안정화
  * 
  * 기능:
  * - localStorage/IndexedDB 통합 관리
@@ -18,35 +24,73 @@ class StorageManager {
         this.version = '1.0.0';
         this.maxQuota = 50 * 1024 * 1024; // 50MB 제한
         this.compressionThreshold = 1024; // 1KB 이상 데이터 압축
-        this.encryptionKey = this.generateEncryptionKey();
+        this.encryptionKey = null;
         
         // IndexedDB 설정
         this.dbName = 'PersonalColorAnalyzerDB';
         this.dbVersion = 1;
         this.db = null;
+        this.isInitialized = false;
         
-        this.initializeStorage();
+        // 메타데이터 캐시 (순환 참조 방지)
+        this.metadataCache = new Map();
+        this.metadataCacheExpiry = 60000; // 1분
+        this.lastMetadataUpdate = 0;
+        
+        // 초기화 상태
+        this.initPromise = null;
+        this.initializationError = null;
+        
+        console.log('[StorageManager] 저장소 관리자 초기화 시작');
+        this.initialize();
     }
 
     /**
-     * 저장소 초기화
+     * 저장소 초기화 (비동기 안전)
      */
-    async initializeStorage() {
+    async initialize() {
+        if (this.initPromise) {
+            return this.initPromise;
+        }
+
+        this.initPromise = this._doInitialize();
+        return this.initPromise;
+    }
+
+    async _doInitialize() {
         try {
+            console.log('[StorageManager] 저장소 시스템 초기화 중...');
+            
+            // 암호화 키 생성
+            this.encryptionKey = this.generateEncryptionKey();
+            
             // IndexedDB 지원 확인 및 초기화
             if ('indexedDB' in window) {
                 await this.initIndexedDB();
+                console.log('[StorageManager] IndexedDB 초기화 완료');
+            } else {
+                console.warn('[StorageManager] IndexedDB 미지원, localStorage만 사용');
             }
+            
+            // 메타데이터 캐시 로드
+            await this.loadMetadataCache();
             
             // 용량 모니터링 시작
             this.startQuotaMonitoring();
             
-            // 만료된 데이터 정리
-            await this.cleanupExpiredData();
+            // 만료된 데이터 정리 (비동기로 실행)
+            this.cleanupExpiredData().catch(error => {
+                console.warn('[StorageManager] 만료 데이터 정리 실패:', error);
+            });
             
-            console.log('Storage system initialized successfully');
+            this.isInitialized = true;
+            console.log('[StorageManager] 저장소 시스템 초기화 완료');
+            
         } catch (error) {
-            console.error('Storage initialization failed:', error);
+            console.error('[StorageManager] 초기화 실패:', error);
+            this.initializationError = error;
+            this.isInitialized = false;
+            throw error;
         }
     }
 
@@ -57,40 +101,52 @@ class StorageManager {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, this.dbVersion);
             
-            request.onerror = () => reject(request.error);
+            request.onerror = () => {
+                console.error('[StorageManager] IndexedDB 열기 실패:', request.error);
+                reject(request.error);
+            };
+            
             request.onsuccess = () => {
                 this.db = request.result;
+                console.log('[StorageManager] IndexedDB 연결 성공');
                 resolve();
             };
             
             request.onupgradeneeded = (event) => {
+                console.log('[StorageManager] IndexedDB 스키마 업그레이드');
                 const db = event.target.result;
                 
-                // 고객 데이터 스토어
-                if (!db.objectStoreNames.contains('customers')) {
-                    const customerStore = db.createObjectStore('customers', { keyPath: 'id' });
-                    customerStore.createIndex('name', 'name', { unique: false });
-                    customerStore.createIndex('phone', 'phone', { unique: true });
-                    customerStore.createIndex('createdAt', 'createdAt', { unique: false });
-                }
-                
-                // 진단 기록 스토어
-                if (!db.objectStoreNames.contains('diagnoses')) {
-                    const diagnosisStore = db.createObjectStore('diagnoses', { keyPath: 'id' });
-                    diagnosisStore.createIndex('customerId', 'customerId', { unique: false });
-                    diagnosisStore.createIndex('createdAt', 'createdAt', { unique: false });
-                    diagnosisStore.createIndex('type', 'type', { unique: false });
-                }
-                
-                // 설정 스토어
-                if (!db.objectStoreNames.contains('settings')) {
-                    db.createObjectStore('settings', { keyPath: 'key' });
-                }
-                
-                // 캐시 스토어
-                if (!db.objectStoreNames.contains('cache')) {
-                    const cacheStore = db.createObjectStore('cache', { keyPath: 'key' });
-                    cacheStore.createIndex('expiry', 'expiry', { unique: false });
+                try {
+                    // 고객 데이터 스토어
+                    if (!db.objectStoreNames.contains('customers')) {
+                        const customerStore = db.createObjectStore('customers', { keyPath: 'id' });
+                        customerStore.createIndex('name', 'name', { unique: false });
+                        customerStore.createIndex('phone', 'phone', { unique: true });
+                        customerStore.createIndex('createdAt', 'createdAt', { unique: false });
+                    }
+                    
+                    // 진단 기록 스토어
+                    if (!db.objectStoreNames.contains('diagnoses')) {
+                        const diagnosisStore = db.createObjectStore('diagnoses', { keyPath: 'id' });
+                        diagnosisStore.createIndex('customerId', 'customerId', { unique: false });
+                        diagnosisStore.createIndex('createdAt', 'createdAt', { unique: false });
+                        diagnosisStore.createIndex('type', 'type', { unique: false });
+                    }
+                    
+                    // 설정 스토어
+                    if (!db.objectStoreNames.contains('settings')) {
+                        db.createObjectStore('settings', { keyPath: 'key' });
+                    }
+                    
+                    // 캐시 스토어
+                    if (!db.objectStoreNames.contains('cache')) {
+                        const cacheStore = db.createObjectStore('cache', { keyPath: 'key' });
+                        cacheStore.createIndex('expiry', 'expiry', { unique: false });
+                    }
+                    
+                } catch (storeError) {
+                    console.error('[StorageManager] 스토어 생성 오류:', storeError);
+                    reject(storeError);
                 }
             };
         });
@@ -100,11 +156,24 @@ class StorageManager {
      * 암호화 키 생성
      */
     generateEncryptionKey() {
-        let key = localStorage.getItem(this.prefix + 'encryption_key');
+        const keyStorageKey = this.prefix + 'encryption_key';
+        let key = null;
+        
+        try {
+            key = localStorage.getItem(keyStorageKey);
+        } catch (error) {
+            console.warn('[StorageManager] 기존 암호화 키 읽기 실패:', error);
+        }
+        
         if (!key) {
             key = this.generateRandomKey(32);
-            localStorage.setItem(this.prefix + 'encryption_key', key);
+            try {
+                localStorage.setItem(keyStorageKey, key);
+            } catch (error) {
+                console.warn('[StorageManager] 암호화 키 저장 실패:', error);
+            }
         }
+        
         return key;
     }
 
@@ -121,12 +190,53 @@ class StorageManager {
     }
 
     /**
-     * 데이터 저장 (통합 인터페이스)
+     * 메타데이터 캐시 로드 (순환 참조 방지)
+     */
+    async loadMetadataCache() {
+        try {
+            const metadataKey = this.prefix + '_metadata';
+            const rawMetadata = localStorage.getItem(metadataKey);
+            
+            if (rawMetadata) {
+                const parsedMetadata = JSON.parse(rawMetadata);
+                this.metadataCache.clear();
+                
+                for (const [key, value] of Object.entries(parsedMetadata)) {
+                    this.metadataCache.set(key, value);
+                }
+                
+                this.lastMetadataUpdate = Date.now();
+                console.log(`[StorageManager] 메타데이터 캐시 로드: ${this.metadataCache.size}개 항목`);
+            }
+        } catch (error) {
+            console.warn('[StorageManager] 메타데이터 캐시 로드 실패:', error);
+            this.metadataCache.clear();
+        }
+    }
+
+    /**
+     * 메타데이터 캐시 저장
+     */
+    async saveMetadataCache() {
+        try {
+            const metadataKey = this.prefix + '_metadata';
+            const metadataObject = Object.fromEntries(this.metadataCache);
+            localStorage.setItem(metadataKey, JSON.stringify(metadataObject));
+            this.lastMetadataUpdate = Date.now();
+        } catch (error) {
+            console.error('[StorageManager] 메타데이터 캐시 저장 실패:', error);
+        }
+    }
+
+    /**
+     * 데이터 저장 (통합 인터페이스) - 순환 참조 해결됨
      * @param {string} key - 저장 키
      * @param {any} data - 저장할 데이터
      * @param {Object} options - 옵션 (ttl, compress, encrypt, storage)
      */
     async setItem(key, data, options = {}) {
+        await this.initialize(); // 초기화 대기
+        
         const {
             ttl = null, // Time to live in milliseconds
             compress = false,
@@ -135,6 +245,11 @@ class StorageManager {
         } = options;
 
         try {
+            // 메타데이터 키는 특별 처리 (순환 참조 방지)
+            if (key === '_metadata') {
+                return this.setRawLocalStorageItem(key, data);
+            }
+
             // 데이터 패키징
             const packagedData = await this.packageData(data, {
                 ttl,
@@ -146,37 +261,57 @@ class StorageManager {
             // 저장소 선택
             const storageType = this.selectStorage(key, packagedData, storage);
             
-            if (storageType === 'indexedDB') {
-                await this.setIndexedDBItem(key, packagedData);
+            // 데이터 저장
+            let success = false;
+            if (storageType === 'indexedDB' && this.db) {
+                success = await this.setIndexedDBItem(key, packagedData);
             } else {
-                this.setLocalStorageItem(key, packagedData);
+                success = this.setLocalStorageItem(key, packagedData);
             }
 
-            // 메타데이터 업데이트
-            await this.updateMetadata(key, {
-                size: JSON.stringify(packagedData).length,
-                storage: storageType,
-                createdAt: Date.now(),
-                ttl: ttl
-            });
+            if (success) {
+                // 메타데이터 업데이트 (직접 캐시 업데이트)
+                this.updateMetadataCache(key, {
+                    size: JSON.stringify(packagedData).length,
+                    storage: storageType,
+                    createdAt: Date.now(),
+                    ttl: ttl,
+                    lastAccessed: Date.now()
+                });
+                
+                // 주기적으로 메타데이터 캐시를 디스크에 저장
+                if (Date.now() - this.lastMetadataUpdate > 5000) { // 5초마다
+                    await this.saveMetadataCache();
+                }
+            }
 
-            return true;
+            return success;
+            
         } catch (error) {
-            console.error('Storage setItem failed:', error);
+            console.error('[StorageManager] setItem 실패:', error);
             return false;
         }
     }
 
     /**
-     * 데이터 조회
+     * 데이터 조회 - 순환 참조 해결됨
      * @param {string} key - 조회 키
      * @param {any} defaultValue - 기본값
      */
     async getItem(key, defaultValue = null) {
+        await this.initialize(); // 초기화 대기
+        
         try {
-            // 메타데이터 확인
-            const metadata = await this.getMetadata(key);
-            if (!metadata) return defaultValue;
+            // 메타데이터 키는 특별 처리 (순환 참조 방지)
+            if (key === '_metadata') {
+                return this.getRawLocalStorageItem(key, defaultValue);
+            }
+
+            // 메타데이터 확인 (캐시에서 직접 조회)
+            const metadata = this.getMetadataFromCache(key);
+            if (!metadata) {
+                return defaultValue;
+            }
             
             // TTL 확인
             if (metadata.ttl && (Date.now() - metadata.createdAt) > metadata.ttl) {
@@ -185,20 +320,29 @@ class StorageManager {
             }
 
             // 데이터 조회
-            let packagedData;
-            if (metadata.storage === 'indexedDB') {
+            let packagedData = null;
+            if (metadata.storage === 'indexedDB' && this.db) {
                 packagedData = await this.getIndexedDBItem(key);
             } else {
                 packagedData = this.getLocalStorageItem(key);
             }
 
-            if (!packagedData) return defaultValue;
+            if (!packagedData) {
+                return defaultValue;
+            }
+
+            // 마지막 접근 시간 업데이트
+            this.updateMetadataCache(key, {
+                ...metadata,
+                lastAccessed: Date.now()
+            });
 
             // 데이터 언패키징
             const data = await this.unpackageData(packagedData);
             return data;
+            
         } catch (error) {
-            console.error('Storage getItem failed:', error);
+            console.error('[StorageManager] getItem 실패:', error);
             return defaultValue;
         }
     }
@@ -208,21 +352,71 @@ class StorageManager {
      * @param {string} key - 삭제할 키
      */
     async removeItem(key) {
+        await this.initialize(); // 초기화 대기
+        
         try {
-            const metadata = await this.getMetadata(key);
-            if (!metadata) return true;
-
-            if (metadata.storage === 'indexedDB') {
-                await this.removeIndexedDBItem(key);
-            } else {
-                this.removeLocalStorageItem(key);
+            const metadata = this.getMetadataFromCache(key);
+            if (!metadata) {
+                return true; // 이미 없음
             }
 
-            await this.removeMetadata(key);
+            // 데이터 삭제
+            let success = false;
+            if (metadata.storage === 'indexedDB' && this.db) {
+                success = await this.removeIndexedDBItem(key);
+            } else {
+                success = this.removeLocalStorageItem(key);
+            }
+
+            // 메타데이터에서 제거
+            if (success) {
+                this.removeMetadataFromCache(key);
+                await this.saveMetadataCache();
+            }
+
+            return success;
+            
+        } catch (error) {
+            console.error('[StorageManager] removeItem 실패:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 메타데이터 캐시 작업 (순환 참조 방지)
+     */
+    updateMetadataCache(key, metadata) {
+        this.metadataCache.set(key, metadata);
+    }
+
+    getMetadataFromCache(key) {
+        return this.metadataCache.get(key) || null;
+    }
+
+    removeMetadataFromCache(key) {
+        this.metadataCache.delete(key);
+    }
+
+    /**
+     * 원시 localStorage 작업 (메타데이터용)
+     */
+    setRawLocalStorageItem(key, data) {
+        try {
+            localStorage.setItem(this.prefix + key, JSON.stringify(data));
             return true;
         } catch (error) {
-            console.error('Storage removeItem failed:', error);
+            console.error('[StorageManager] Raw localStorage setItem 실패:', error);
             return false;
+        }
+    }
+
+    getRawLocalStorageItem(key, defaultValue = null) {
+        try {
+            const item = localStorage.getItem(this.prefix + key);
+            return item ? JSON.parse(item) : defaultValue;
+        } catch (error) {
+            console.error('[StorageManager] Raw localStorage getItem 실패:', error);
+            return defaultValue;
         }
     }
 
@@ -282,11 +476,16 @@ class StorageManager {
         try {
             const jsonString = JSON.stringify(data);
             
-            // 간단한 LZ 압축 알고리즘
+            // 간단한 LZ 압축 알고리즘 구현
             let compressed = '';
             let dict = {};
             let dictSize = 256;
             let w = '';
+            
+            // 기본 ASCII 문자들을 딕셔너리에 추가
+            for (let i = 0; i < 256; i++) {
+                dict[String.fromCharCode(i)] = i;
+            }
             
             for (let i = 0; i < jsonString.length; i++) {
                 const c = jsonString[i];
@@ -295,27 +494,19 @@ class StorageManager {
                 if (dict.hasOwnProperty(wc)) {
                     w = wc;
                 } else {
-                    if (dict.hasOwnProperty(w)) {
-                        compressed += String.fromCharCode(dict[w]);
-                    } else {
-                        compressed += w;
-                    }
+                    compressed += String.fromCharCode(dict[w]);
                     dict[wc] = dictSize++;
                     w = c;
                 }
             }
             
             if (w !== '') {
-                if (dict.hasOwnProperty(w)) {
-                    compressed += String.fromCharCode(dict[w]);
-                } else {
-                    compressed += w;
-                }
+                compressed += String.fromCharCode(dict[w]);
             }
             
             return btoa(compressed);
         } catch (error) {
-            console.warn('Compression failed, using original data:', error);
+            console.warn('[StorageManager] 압축 실패, 원본 데이터 사용:', error);
             return data;
         }
     }
@@ -326,10 +517,42 @@ class StorageManager {
     async decompressData(compressedData) {
         try {
             const compressed = atob(compressedData);
-            // 압축 해제 로직 (압축과 반대 과정)
-            return JSON.parse(compressed);
+            
+            // LZ 압축 해제
+            let dict = {};
+            let dictSize = 256;
+            let result = '';
+            let w = '';
+            
+            // 기본 ASCII 문자들을 딕셔너리에 추가
+            for (let i = 0; i < 256; i++) {
+                dict[i] = String.fromCharCode(i);
+            }
+            
+            for (let i = 0; i < compressed.length; i++) {
+                const k = compressed.charCodeAt(i);
+                let entry;
+                
+                if (dict[k]) {
+                    entry = dict[k];
+                } else if (k === dictSize) {
+                    entry = w + w[0];
+                } else {
+                    throw new Error('압축 해제 오류');
+                }
+                
+                result += entry;
+                
+                if (w !== '') {
+                    dict[dictSize++] = w + entry[0];
+                }
+                
+                w = entry;
+            }
+            
+            return JSON.parse(result);
         } catch (error) {
-            console.warn('Decompression failed:', error);
+            console.warn('[StorageManager] 압축 해제 실패:', error);
             return compressedData;
         }
     }
@@ -338,19 +561,25 @@ class StorageManager {
      * 데이터 암호화
      */
     encryptData(data) {
+        if (!this.encryptionKey) {
+            return data;
+        }
+
         try {
             const jsonString = typeof data === 'string' ? data : JSON.stringify(data);
             let encrypted = '';
             
             for (let i = 0; i < jsonString.length; i++) {
                 const keyChar = this.encryptionKey[i % this.encryptionKey.length];
-                const encryptedChar = String.fromCharCode(jsonString.charCodeAt(i) ^ keyChar.charCodeAt(0));
+                const encryptedChar = String.fromCharCode(
+                    jsonString.charCodeAt(i) ^ keyChar.charCodeAt(0)
+                );
                 encrypted += encryptedChar;
             }
             
             return btoa(encrypted);
         } catch (error) {
-            console.warn('Encryption failed, using original data:', error);
+            console.warn('[StorageManager] 암호화 실패, 원본 데이터 사용:', error);
             return data;
         }
     }
@@ -359,19 +588,25 @@ class StorageManager {
      * 데이터 복호화
      */
     decryptData(encryptedData) {
+        if (!this.encryptionKey) {
+            return encryptedData;
+        }
+
         try {
             const encrypted = atob(encryptedData);
             let decrypted = '';
             
             for (let i = 0; i < encrypted.length; i++) {
                 const keyChar = this.encryptionKey[i % this.encryptionKey.length];
-                const decryptedChar = String.fromCharCode(encrypted.charCodeAt(i) ^ keyChar.charCodeAt(0));
+                const decryptedChar = String.fromCharCode(
+                    encrypted.charCodeAt(i) ^ keyChar.charCodeAt(0)
+                );
                 decrypted += decryptedChar;
             }
             
             return JSON.parse(decrypted);
         } catch (error) {
-            console.warn('Decryption failed:', error);
+            console.warn('[StorageManager] 복호화 실패:', error);
             return encryptedData;
         }
     }
@@ -380,17 +615,22 @@ class StorageManager {
      * 저장소 선택 로직
      */
     selectStorage(key, data, preferredStorage) {
+        // 명시적 선택
         if (preferredStorage === 'localStorage') return 'localStorage';
-        if (preferredStorage === 'indexedDB') return 'indexedDB';
+        if (preferredStorage === 'indexedDB' && this.db) return 'indexedDB';
         
         // 자동 선택
         const dataSize = JSON.stringify(data).length;
         
-        // 큰 데이터는 IndexedDB 사용
-        if (dataSize > 10 * 1024) return 'indexedDB';
+        // 큰 데이터는 IndexedDB 우선 사용
+        if (dataSize > 10 * 1024 && this.db) {
+            return 'indexedDB';
+        }
         
-        // 고객/진단 데이터는 IndexedDB 사용
-        if (key.includes('customer') || key.includes('diagnosis')) return 'indexedDB';
+        // 고객/진단 데이터는 IndexedDB 우선 사용
+        if ((key.includes('customer') || key.includes('diagnosis')) && this.db) {
+            return 'indexedDB';
+        }
         
         // 그 외는 localStorage 사용
         return 'localStorage';
@@ -400,103 +640,159 @@ class StorageManager {
      * localStorage 작업
      */
     setLocalStorageItem(key, data) {
-        localStorage.setItem(this.prefix + key, JSON.stringify(data));
+        try {
+            localStorage.setItem(this.prefix + key, JSON.stringify(data));
+            return true;
+        } catch (error) {
+            console.error('[StorageManager] localStorage setItem 실패:', error);
+            return false;
+        }
     }
 
     getLocalStorageItem(key) {
-        const item = localStorage.getItem(this.prefix + key);
-        return item ? JSON.parse(item) : null;
+        try {
+            const item = localStorage.getItem(this.prefix + key);
+            return item ? JSON.parse(item) : null;
+        } catch (error) {
+            console.error('[StorageManager] localStorage getItem 실패:', error);
+            return null;
+        }
     }
 
     removeLocalStorageItem(key) {
-        localStorage.removeItem(this.prefix + key);
+        try {
+            localStorage.removeItem(this.prefix + key);
+            return true;
+        } catch (error) {
+            console.error('[StorageManager] localStorage removeItem 실패:', error);
+            return false;
+        }
     }
 
     /**
      * IndexedDB 작업
      */
     async setIndexedDBItem(key, data) {
-        if (!this.db) throw new Error('IndexedDB not initialized');
+        if (!this.db) {
+            console.warn('[StorageManager] IndexedDB 미초기화');
+            return false;
+        }
         
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['cache'], 'readwrite');
-            const store = transaction.objectStore('cache');
-            const request = store.put({ key, data, updatedAt: Date.now() });
-            
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
+        return new Promise((resolve) => {
+            try {
+                const transaction = this.db.transaction(['cache'], 'readwrite');
+                const store = transaction.objectStore('cache');
+                const request = store.put({ key, data, updatedAt: Date.now() });
+                
+                request.onsuccess = () => resolve(true);
+                request.onerror = () => {
+                    console.error('[StorageManager] IndexedDB setItem 실패:', request.error);
+                    resolve(false);
+                };
+                
+                transaction.onerror = () => {
+                    console.error('[StorageManager] IndexedDB 트랜잭션 실패:', transaction.error);
+                    resolve(false);
+                };
+            } catch (error) {
+                console.error('[StorageManager] IndexedDB setItem 예외:', error);
+                resolve(false);
+            }
         });
     }
 
     async getIndexedDBItem(key) {
-        if (!this.db) throw new Error('IndexedDB not initialized');
+        if (!this.db) {
+            console.warn('[StorageManager] IndexedDB 미초기화');
+            return null;
+        }
         
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['cache'], 'readonly');
-            const store = transaction.objectStore('cache');
-            const request = store.get(key);
-            
-            request.onsuccess = () => {
-                const result = request.result;
-                resolve(result ? result.data : null);
-            };
-            request.onerror = () => reject(request.error);
+        return new Promise((resolve) => {
+            try {
+                const transaction = this.db.transaction(['cache'], 'readonly');
+                const store = transaction.objectStore('cache');
+                const request = store.get(key);
+                
+                request.onsuccess = () => {
+                    const result = request.result;
+                    resolve(result ? result.data : null);
+                };
+                
+                request.onerror = () => {
+                    console.error('[StorageManager] IndexedDB getItem 실패:', request.error);
+                    resolve(null);
+                };
+                
+                transaction.onerror = () => {
+                    console.error('[StorageManager] IndexedDB 트랜잭션 실패:', transaction.error);
+                    resolve(null);
+                };
+            } catch (error) {
+                console.error('[StorageManager] IndexedDB getItem 예외:', error);
+                resolve(null);
+            }
         });
     }
 
     async removeIndexedDBItem(key) {
-        if (!this.db) throw new Error('IndexedDB not initialized');
+        if (!this.db) {
+            console.warn('[StorageManager] IndexedDB 미초기화');
+            return false;
+        }
         
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['cache'], 'readwrite');
-            const store = transaction.objectStore('cache');
-            const request = store.delete(key);
-            
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
+        return new Promise((resolve) => {
+            try {
+                const transaction = this.db.transaction(['cache'], 'readwrite');
+                const store = transaction.objectStore('cache');
+                const request = store.delete(key);
+                
+                request.onsuccess = () => resolve(true);
+                request.onerror = () => {
+                    console.error('[StorageManager] IndexedDB removeItem 실패:', request.error);
+                    resolve(false);
+                };
+                
+                transaction.onerror = () => {
+                    console.error('[StorageManager] IndexedDB 트랜잭션 실패:', transaction.error);
+                    resolve(false);
+                };
+            } catch (error) {
+                console.error('[StorageManager] IndexedDB removeItem 예외:', error);
+                resolve(false);
+            }
         });
-    }
-
-    /**
-     * 메타데이터 관리
-     */
-    async updateMetadata(key, metadata) {
-        const allMetadata = await this.getItem('_metadata', {});
-        allMetadata[key] = metadata;
-        await this.setItem('_metadata', allMetadata, { storage: 'localStorage' });
-    }
-
-    async getMetadata(key) {
-        const allMetadata = await this.getItem('_metadata', {});
-        return allMetadata[key] || null;
-    }
-
-    async removeMetadata(key) {
-        const allMetadata = await this.getItem('_metadata', {});
-        delete allMetadata[key];
-        await this.setItem('_metadata', allMetadata, { storage: 'localStorage' });
     }
 
     /**
      * 용량 모니터링
      */
     startQuotaMonitoring() {
-        if ('navigator' in window && 'storage' in navigator && 'estimate' in navigator.storage) {
-            setInterval(async () => {
-                try {
-                    const estimate = await navigator.storage.estimate();
-                    const usage = estimate.usage || 0;
-                    const quota = estimate.quota || this.maxQuota;
-                    
-                    if (usage > quota * 0.9) {
-                        console.warn('Storage quota nearly full, cleaning up...');
-                        await this.cleanup();
-                    }
-                } catch (error) {
-                    console.error('Quota monitoring failed:', error);
-                }
-            }, 60000); // 1분마다 확인
+        if (!('navigator' in window) || !('storage' in navigator) || !('estimate' in navigator.storage)) {
+            console.warn('[StorageManager] Storage API 미지원');
+            return;
         }
+
+        const monitorQuota = async () => {
+            try {
+                const estimate = await navigator.storage.estimate();
+                const usage = estimate.usage || 0;
+                const quota = estimate.quota || this.maxQuota;
+                const usagePercent = (usage / quota) * 100;
+                
+                if (usagePercent > 90) {
+                    console.warn(`[StorageManager] 저장소 사용량 경고: ${usagePercent.toFixed(1)}%`);
+                    await this.cleanup();
+                } else if (usagePercent > 75) {
+                    console.info(`[StorageManager] 저장소 사용량: ${usagePercent.toFixed(1)}%`);
+                }
+            } catch (error) {
+                console.error('[StorageManager] 용량 모니터링 실패:', error);
+            }
+        };
+
+        // 초기 실행 및 주기적 모니터링
+        monitorQuota();
+        setInterval(monitorQuota, 300000); // 5분마다 확인
     }
 
     /**
@@ -504,16 +800,27 @@ class StorageManager {
      */
     async cleanupExpiredData() {
         try {
-            const allMetadata = await this.getItem('_metadata', {});
-            const now = Date.now();
+            console.log('[StorageManager] 만료된 데이터 정리 시작');
             
-            for (const [key, metadata] of Object.entries(allMetadata)) {
+            const now = Date.now();
+            const keysToRemove = [];
+            
+            // 메타데이터 캐시에서 만료된 항목 찾기
+            for (const [key, metadata] of this.metadataCache.entries()) {
                 if (metadata.ttl && (now - metadata.createdAt) > metadata.ttl) {
-                    await this.removeItem(key);
+                    keysToRemove.push(key);
                 }
             }
+            
+            // 만료된 데이터 제거
+            for (const key of keysToRemove) {
+                await this.removeItem(key);
+            }
+            
+            console.log(`[StorageManager] 만료된 데이터 ${keysToRemove.length}개 정리 완료`);
+            
         } catch (error) {
-            console.error('Expired data cleanup failed:', error);
+            console.error('[StorageManager] 만료된 데이터 정리 실패:', error);
         }
     }
 
@@ -522,22 +829,33 @@ class StorageManager {
      */
     async cleanup() {
         try {
+            console.log('[StorageManager] 저장소 정리 시작');
+            
             // 만료된 데이터 제거
             await this.cleanupExpiredData();
             
             // 오래된 캐시 제거 (30일 이상)
-            const allMetadata = await this.getItem('_metadata', {});
             const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            const keysToRemove = [];
             
-            for (const [key, metadata] of Object.entries(allMetadata)) {
+            for (const [key, metadata] of this.metadataCache.entries()) {
                 if (key.startsWith('cache_') && metadata.createdAt < thirtyDaysAgo) {
-                    await this.removeItem(key);
+                    keysToRemove.push(key);
                 }
             }
             
-            console.log('Storage cleanup completed');
+            // 오래된 캐시 제거
+            for (const key of keysToRemove) {
+                await this.removeItem(key);
+            }
+            
+            // 메타데이터 캐시 저장
+            await this.saveMetadataCache();
+            
+            console.log(`[StorageManager] 저장소 정리 완료: ${keysToRemove.length}개 항목 제거`);
+            
         } catch (error) {
-            console.error('Storage cleanup failed:', error);
+            console.error('[StorageManager] 저장소 정리 실패:', error);
         }
     }
 
@@ -546,18 +864,23 @@ class StorageManager {
      */
     async exportData() {
         try {
+            console.log('[StorageManager] 데이터 내보내기 시작');
+            
             const exportData = {
                 version: this.version,
                 timestamp: Date.now(),
                 customers: await this.getAllCustomers(),
                 diagnoses: await this.getAllDiagnoses(),
                 settings: await this.getItem('app_settings', {}),
-                metadata: await this.getItem('_metadata', {})
+                metadata: Object.fromEntries(this.metadataCache)
             };
             
-            return JSON.stringify(exportData, null, 2);
+            const jsonData = JSON.stringify(exportData, null, 2);
+            console.log(`[StorageManager] 데이터 내보내기 완료: ${jsonData.length} bytes`);
+            
+            return jsonData;
         } catch (error) {
-            console.error('Data export failed:', error);
+            console.error('[StorageManager] 데이터 내보내기 실패:', error);
             throw error;
         }
     }
@@ -567,38 +890,52 @@ class StorageManager {
      */
     async importData(jsonData) {
         try {
+            console.log('[StorageManager] 데이터 가져오기 시작');
+            
             const importData = JSON.parse(jsonData);
             
             // 버전 확인
             if (importData.version !== this.version) {
-                console.warn('Import data version mismatch');
+                console.warn(`[StorageManager] 버전 불일치: ${importData.version} vs ${this.version}`);
             }
             
-            // 데이터 복원
-            if (importData.customers) {
+            let importCount = 0;
+            
+            // 고객 데이터 복원
+            if (importData.customers && Array.isArray(importData.customers)) {
                 for (const customer of importData.customers) {
-                    await this.setItem(`customer_${customer.id}`, customer, {
-                        storage: 'indexedDB'
-                    });
+                    if (customer.id) {
+                        await this.setItem(`customer_${customer.id}`, customer, {
+                            storage: 'indexedDB'
+                        });
+                        importCount++;
+                    }
                 }
             }
             
-            if (importData.diagnoses) {
+            // 진단 데이터 복원
+            if (importData.diagnoses && Array.isArray(importData.diagnoses)) {
                 for (const diagnosis of importData.diagnoses) {
-                    await this.setItem(`diagnosis_${diagnosis.id}`, diagnosis, {
-                        storage: 'indexedDB'
-                    });
+                    if (diagnosis.id) {
+                        await this.setItem(`diagnosis_${diagnosis.id}`, diagnosis, {
+                            storage: 'indexedDB'
+                        });
+                        importCount++;
+                    }
                 }
             }
             
+            // 설정 복원
             if (importData.settings) {
                 await this.setItem('app_settings', importData.settings);
+                importCount++;
             }
             
-            console.log('Data import completed successfully');
+            console.log(`[StorageManager] 데이터 가져오기 완료: ${importCount}개 항목`);
             return true;
+            
         } catch (error) {
-            console.error('Data import failed:', error);
+            console.error('[StorageManager] 데이터 가져오기 실패:', error);
             throw error;
         }
     }
@@ -607,16 +944,21 @@ class StorageManager {
      * 모든 고객 데이터 조회
      */
     async getAllCustomers() {
-        const metadata = await this.getItem('_metadata', {});
         const customers = [];
         
-        for (const [key, meta] of Object.entries(metadata)) {
-            if (key.startsWith('customer_')) {
-                const customer = await this.getItem(key.replace(this.prefix, ''));
-                if (customer) {
-                    customers.push(customer);
+        try {
+            for (const [key, metadata] of this.metadataCache.entries()) {
+                if (key.startsWith('customer_')) {
+                    const customer = await this.getItem(key);
+                    if (customer) {
+                        customers.push(customer);
+                    }
                 }
             }
+            
+            console.log(`[StorageManager] 고객 데이터 조회: ${customers.length}명`);
+        } catch (error) {
+            console.error('[StorageManager] 고객 데이터 조회 실패:', error);
         }
         
         return customers;
@@ -626,16 +968,21 @@ class StorageManager {
      * 모든 진단 데이터 조회
      */
     async getAllDiagnoses() {
-        const metadata = await this.getItem('_metadata', {});
         const diagnoses = [];
         
-        for (const [key, meta] of Object.entries(metadata)) {
-            if (key.startsWith('diagnosis_')) {
-                const diagnosis = await this.getItem(key.replace(this.prefix, ''));
-                if (diagnosis) {
-                    diagnoses.push(diagnosis);
+        try {
+            for (const [key, metadata] of this.metadataCache.entries()) {
+                if (key.startsWith('diagnosis_')) {
+                    const diagnosis = await this.getItem(key);
+                    if (diagnosis) {
+                        diagnoses.push(diagnosis);
+                    }
                 }
             }
+            
+            console.log(`[StorageManager] 진단 데이터 조회: ${diagnoses.length}건`);
+        } catch (error) {
+            console.error('[StorageManager] 진단 데이터 조회 실패:', error);
         }
         
         return diagnoses;
@@ -646,33 +993,45 @@ class StorageManager {
      */
     async getStorageStatus() {
         try {
-            const metadata = await this.getItem('_metadata', {});
             let totalSize = 0;
             let itemCount = 0;
             const storageTypes = { localStorage: 0, indexedDB: 0 };
             
-            for (const [key, meta] of Object.entries(metadata)) {
-                totalSize += meta.size || 0;
+            for (const [key, metadata] of this.metadataCache.entries()) {
+                totalSize += metadata.size || 0;
                 itemCount++;
-                storageTypes[meta.storage] = (storageTypes[meta.storage] || 0) + 1;
+                storageTypes[metadata.storage] = (storageTypes[metadata.storage] || 0) + 1;
             }
             
             // 할당량 정보
             let quotaInfo = null;
             if ('navigator' in window && 'storage' in navigator && 'estimate' in navigator.storage) {
-                quotaInfo = await navigator.storage.estimate();
+                try {
+                    quotaInfo = await navigator.storage.estimate();
+                } catch (error) {
+                    console.warn('[StorageManager] 할당량 정보 조회 실패:', error);
+                }
             }
             
-            return {
+            const status = {
+                isInitialized: this.isInitialized,
                 itemCount,
                 totalSize,
                 storageTypes,
                 quota: quotaInfo,
-                usage: quotaInfo ? (quotaInfo.usage / quotaInfo.quota * 100).toFixed(2) + '%' : 'Unknown'
+                usage: quotaInfo ? (quotaInfo.usage / quotaInfo.quota * 100).toFixed(2) + '%' : 'Unknown',
+                cacheSize: this.metadataCache.size,
+                dbAvailable: !!this.db
             };
+            
+            return status;
+            
         } catch (error) {
-            console.error('Storage status check failed:', error);
-            return null;
+            console.error('[StorageManager] 저장소 상태 조회 실패:', error);
+            return {
+                isInitialized: this.isInitialized,
+                error: error.message
+            };
         }
     }
 
@@ -681,38 +1040,100 @@ class StorageManager {
      */
     async clearAll() {
         try {
+            console.log('[StorageManager] 전체 저장소 초기화 시작');
+            
             // localStorage 초기화
             const keys = Object.keys(localStorage);
+            let localStorageCleared = 0;
+            
             keys.forEach(key => {
                 if (key.startsWith(this.prefix)) {
                     localStorage.removeItem(key);
+                    localStorageCleared++;
                 }
             });
             
             // IndexedDB 초기화
+            let indexedDBCleared = 0;
             if (this.db) {
                 const stores = ['customers', 'diagnoses', 'settings', 'cache'];
+                
                 for (const storeName of stores) {
-                    const transaction = this.db.transaction([storeName], 'readwrite');
-                    const store = transaction.objectStore(storeName);
-                    await new Promise((resolve, reject) => {
-                        const request = store.clear();
-                        request.onsuccess = () => resolve();
-                        request.onerror = () => reject(request.error);
-                    });
+                    try {
+                        await new Promise((resolve, reject) => {
+                            const transaction = this.db.transaction([storeName], 'readwrite');
+                            const store = transaction.objectStore(storeName);
+                            const request = store.clear();
+                            
+                            request.onsuccess = () => {
+                                indexedDBCleared++;
+                                resolve();
+                            };
+                            request.onerror = () => reject(request.error);
+                        });
+                    } catch (error) {
+                        console.warn(`[StorageManager] ${storeName} 스토어 초기화 실패:`, error);
+                    }
                 }
             }
             
-            console.log('All storage cleared successfully');
+            // 메타데이터 캐시 초기화
+            this.metadataCache.clear();
+            
+            console.log(`[StorageManager] 저장소 초기화 완료: localStorage ${localStorageCleared}개, IndexedDB ${indexedDBCleared}개 스토어`);
             return true;
+            
         } catch (error) {
-            console.error('Clear all storage failed:', error);
+            console.error('[StorageManager] 저장소 초기화 실패:', error);
             return false;
         }
     }
+
+    /**
+     * 진단 및 디버깅
+     */
+    async runDiagnostics() {
+        const diagnostics = {
+            timestamp: Date.now(),
+            initialization: {
+                isInitialized: this.isInitialized,
+                error: this.initializationError ? this.initializationError.message : null
+            },
+            browser: {
+                localStorage: typeof Storage !== 'undefined',
+                indexedDB: 'indexedDB' in window,
+                storageEstimate: 'navigator' in window && 'storage' in navigator && 'estimate' in navigator.storage
+            },
+            storage: {
+                dbConnected: !!this.db,
+                cacheSize: this.metadataCache.size,
+                encryptionKey: !!this.encryptionKey
+            },
+            status: await this.getStorageStatus()
+        };
+
+        console.log('[StorageManager] 진단 완료:', diagnostics);
+        return diagnostics;
+    }
 }
 
-// 전역 인스턴스 생성
-window.StorageManager = new StorageManager();
+// 싱글톤 인스턴스 생성 및 전역 노출
+let storageManagerInstance = null;
 
-export default StorageManager;
+/**
+ * StorageManager 싱글톤 인스턴스 가져오기
+ */
+export function getStorageManager() {
+    if (!storageManagerInstance) {
+        storageManagerInstance = new StorageManager();
+    }
+    return storageManagerInstance;
+}
+
+// 기본 내보내기 (이전 버전 호환성)
+export default getStorageManager();
+
+// 전역 접근 (개발/디버깅 용도)
+if (typeof window !== 'undefined') {
+    window.StorageManager = getStorageManager();
+}
