@@ -1,0 +1,65 @@
+{
+  "name": "과학적 퍼스널컬러 진단 시스템",
+  "short_name": "퍼스널컬러",
+  "description": "Munsell 색체계와 Von Kries 이론 기반의 전문가급 퍼스널컬러 진단",
+  "version": "2.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#8b5cf6",
+  "background_color": "#ffffff",
+  "scope": "/",
+  "lang": "ko",
+  "dir": "ltr",
+  
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM4YjVjZjYiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik03IDIxYTQgNCAwIDAxLTQtNFY1YTIgMiAwIDAxMi0yaDRhMiAyIDAgMDEyIDJ2MTJhNCA0IDAgMDEtNCA0ek0yMSA1YTIgMiAwIDAwLTItMmgtNGEyIDIgMCAwMC0yIDJ2MTJhNCA0IDAgMDA0IDRoNGEyIDIgMCAwMDItMlY1eiIvPgo8L3N2Zz4KPC9zdmc+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiM4YjVjZjYiLz4KPHN2ZyB4PSIxMjgiIHk9IjEyOCIgd2lkdGg9IjI1NiIgaGVpZ2h0PSIyNTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIj4KPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNyAyMWE0IDQgMCAwMS00LTRWNWEyIDIgMCAwMTItMmg0YTIgMiAwIDAxMiAydjEyYTQgNCAwIDAxLTQgNHpNMjEgNWEyIDIgMCAwMC0yLTJoLTRhMiAyIDAgMDAtMiAydjEyYTQgNCAwIDAwNCA0aDRhMiAyIDAgMDAyLTJWNXoiLz4KPC9zdmc+CjwvZz4KPC9zdmc+",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzc1IiBoZWlnaHQ9IjY2NyIgdmlld0JveD0iMCAwIDM3NSA2NjciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzNzUiIGhlaWdodD0iNjY3IiByeD0iMjQiIGZpbGw9IiNmOWZhZmIiLz4KPHN2ZyB4PSI1MCIgeT0iMTAwIiB3aWR0aD0iMjc1IiBoZWlnaHQ9IjQ2NyIgdmlld0JveD0iMCAwIDI3NSA0NjciIGZpbGw9Im5vbmUiPgo8cmVjdCB3aWR0aD0iMjc1IiBoZWlnaHQ9IjQ2NyIgcng9IjEyIiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSIxMzciIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzM3NDE0OCIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiPuq1rO2VmOyggeOBijwvdGV4dD4KPHRldCB4PSIxMzciIHk9IjE1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzM3NDE0OCIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiPu2NvOyKpOuEkOy7rOufsyDsp4Dtlogg7Kem64uo8J2ajDwvdGV4dD4KPHN2ZyB4PSIxMjAiIHk9IjIwMCIgd2lkdGg9IjM1IiBoZWlnaHQ9IjM1IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzhhNWNmNiIgc3Ryb2tlLXdpZHRoPSIyIj4KPHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJNNyAyMWE0IDQgMCAwMS00LTRWNWEyIDIgMCAwMTItMmg0YTIgMiAwIDAxMiAydjEyYTQgNCAwIDAxLTQgNHpNMjEgNWEyIDIgMCAwMC0yLTJoLTRhMiAyIDAgMDAtMiAydjEyYTQgNCAwIDAwNCA0aDRhMiAyIDAgMDAyLTJWNXoiLz4KPC9zdmc+CjwvZz4KPC9zdmc+",
+      "sizes": "375x667",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "퍼스널컬러 진단 메인화면"
+    }
+  ],
+  
+  "categories": ["lifestyle", "health", "beauty"],
+  
+  "shortcuts": [
+    {
+      "name": "빠른 진단",
+      "short_name": "진단",
+      "description": "즉시 퍼스널컬러 진단 시작",
+      "url": "/?action=quick-start",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTIiIGZpbGw9IiNmMzY4ZTciLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0xMiAydjJtMCA4djJtOC04aC0ybS0xMyAwSDNtMTUuMzY0LTYuMzY0TDE3NjU3IDUuNjM2bS0xMS4zMTMgMC45OTlMNS42MzYgNy42NTgiLz4KPC9zdmc+CjwvZz4KPC9zdmc+",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  
+  "related_applications": [],
+  "prefer_related_applications": false,
+  
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "navigate-new"]
+  },
+  
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
