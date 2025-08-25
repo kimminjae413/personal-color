@@ -737,7 +737,8 @@
         console.log('✅ CustomerManager ES5 버전 로드 완료');
     }
 
-})();/**
+})();
+/**
  * CustomerManager.js - ES6 → ES5 변환 완료
  * Personal Color Pro 고객 정보 관리 시스템
  * 
