@@ -2261,23 +2261,24 @@
             }
 
             startRealTimeAnalysis() {
-                // 실시간 피부톤 분석 시뮬레이션 (500ms 간격)
-                this.analysisInterval = setInterval(() => {
-                    if (this.isActive) {
-                        // 한국인 평균 피부톤으로 시뮬레이션
-                        this.currentSkinTone = {
-                            L: 58 + Math.random() * 12,
-                            a: 6 + Math.random() * 6,
-                            b: 12 + Math.random() * 10
-                        };
-                    }
-                }, 500);
+                // 고정된 한국인 평균 피부톤 사용 (랜덤값 제거)
+                this.currentSkinTone = {
+                    L: 62,   // 한국인 평균 명도
+                    a: 8,    // 약간 붉은 기조
+                    b: 16    // 노란 기조 (웜톤)
+                };
+                
+                console.log('실시간 분석 시작 - 고정 피부톤:', this.currentSkinTone);
             }
 
             async performLiveAnalysis(selectedColor, season) {
+                // 고정된 피부톤 사용
                 if (!this.currentSkinTone) {
-                    // 기본 한국인 피부톤
-                    this.currentSkinTone = { L: 62, a: 8, b: 16 };
+                    this.currentSkinTone = {
+                        L: 62,  // 한국인 평균
+                        a: 8,   
+                        b: 16   
+                    };
                 }
                 
                 const deltaE = window.PersonalColorAI.ai.deltaE;
@@ -2290,6 +2291,8 @@
                     
                     this.updateLiveDisplay(deltaEValue, assessment, season);
                     this.updateBrandRecommendations(season);
+                    
+                    console.log(`색상 분석: ${selectedColor} → ΔE=${deltaEValue.toFixed(1)} (${assessment.description})`);
                     
                 } catch (error) {
                     console.warn('실시간 분석 오류:', error);
