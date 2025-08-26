@@ -190,10 +190,11 @@ body {
 }
 
 .mode-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
     gap: 2rem;
-    justify-items: center;
+    flex-wrap: wrap;
 }
 
 .mode-card {
@@ -206,12 +207,8 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: var(--shadow-lg);
-    width: 100%;
-    max-width: 400px;
-    min-height: 450px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex: 0 1 400px;
+    min-height: 500px;
 }
 
 .mode-card:hover {
