@@ -206,6 +206,95 @@
             transform: translateY(-5px);
         }
 
+        /* 진행 안내 스타일 */
+        .progress-guide {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius);
+        }
+
+        .guide-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            opacity: 0.5;
+        }
+
+        .guide-step.active {
+            opacity: 1;
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--text-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .guide-step.active .step-number {
+            background: var(--primary);
+        }
+
+        .step-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        /* 얼굴 가이드라인 */
+        .face-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+        }
+
+        .face-guide.show {
+            display: block;
+        }
+
+        .guide-oval {
+            width: 200px;
+            height: 250px;
+            border: 3px dashed rgba(0, 255, 0, 0.8);
+            border-radius: 50%;
+            animation: pulse-guide 2s infinite;
+        }
+
+        @keyframes pulse-guide {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        .guide-text {
+            text-align: center;
+            margin-top: 1rem;
+            color: rgba(0, 255, 0, 0.9);
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+        }
+
         .mode-icon { font-size: 3rem; margin-bottom: 1.5rem; }
         .mode-card h3 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.8rem; }
         .mode-card p { color: var(--text-light); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; }
@@ -947,7 +1036,7 @@
             <section class="mode-selection" id="mode-selection">
                 <h2>퍼스널컬러 진단 모드 선택</h2>
                 <div class="mode-cards">
-                    <div class="mode-card" data-mode="face-analysis">
+                    <div class="mode-card" data-mode="face-analysis" onclick="startFaceAnalysis()">
                         <div class="mode-icon">
                             <svg width="80" height="80" viewBox="0 0 100 100">
                                 <!-- 얼굴 -->
@@ -980,10 +1069,10 @@
                         CIE Lab 색공간 변환을 통한 과학적 분석<br>
                         한국인 피부톤 데이터베이스 매칭으로 개인 맞춤 계절 분류</p>
                         <div class="mode-accuracy">정확도 97.8%</div>
-                        <button class="mode-btn" onclick="startFaceAnalysis()">AI 정밀 분석 시작</button>
+                        <button class="mode-btn" onclick="event.stopPropagation(); startFaceAnalysis()">AI 정밀 분석 시작</button>
                     </div>
                     
-                    <div class="mode-card" data-mode="virtual-draping">
+                    <div class="mode-card" data-mode="virtual-draping" onclick="startVirtualDraping()">
                         <div class="mode-icon">
                             <svg width="80" height="80" viewBox="0 0 100 100">
                                 <!-- 얼굴 -->
@@ -1020,7 +1109,7 @@
                         Delta E 2000 기반 과학적 색상 적합도 측정<br>
                         전문가와 고객이 함께 보며 즉석 상담 가능</p>
                         <div class="mode-accuracy">브랜드 매칭 정확도 94.2%</div>
-                        <button class="mode-btn" onclick="startVirtualDraping()">AR 드래이핑 시작</button>
+                        <button class="mode-btn" onclick="event.stopPropagation(); startVirtualDraping()">AR 드래이핑 시작</button>
                     </div>
                 </div>
             </section>
@@ -1032,10 +1121,32 @@
                     <div class="section-badge">MediaPipe Active</div>
                 </div>
                 
+                <!-- 진행 단계 안내 -->
+                <div class="progress-guide" id="progress-guide">
+                    <div class="guide-step active" id="step-camera">
+                        <div class="step-number">1</div>
+                        <div class="step-text">카메라 시작 버튼을 눌러주세요</div>
+                    </div>
+                    <div class="guide-step" id="step-position">
+                        <div class="step-number">2</div>
+                        <div class="step-text">얼굴을 가이드라인에 맞춰주세요</div>
+                    </div>
+                    <div class="guide-step" id="step-analyze">
+                        <div class="step-number">3</div>
+                        <div class="step-text">피부톤 분석 버튼을 눌러주세요</div>
+                    </div>
+                </div>
+                
                 <div class="analysis-grid">
                     <div class="video-container">
                         <video class="video-feed" id="video-feed" autoplay muted playsinline></video>
                         <canvas class="face-overlay" id="face-overlay"></canvas>
+                        
+                        <!-- 얼굴 가이드라인 -->
+                        <div class="face-guide" id="face-guide">
+                            <div class="guide-oval"></div>
+                            <div class="guide-text">얼굴을 타원 안에 맞춰주세요</div>
+                        </div>
                     </div>
                     
                     <div class="results-panel">
@@ -1043,7 +1154,7 @@
                         
                         <div class="sample-info">
                             <div class="sample-count" id="sample-counter">대기 중</div>
-                            <p id="detection-status">얼굴을 화면에 맞춰주세요</p>
+                            <p id="detection-status">카메라를 시작해주세요</p>
                         </div>
                         
                         <div class="lab-display">
@@ -1066,7 +1177,7 @@
                 <div class="controls-grid">
                     <button class="btn btn-primary" id="start-camera-btn">카메라 시작</button>
                     <button class="btn btn-secondary" id="analyze-skin-btn" disabled>피부톤 분석</button>
-                    <button class="btn btn-secondary" id="save-result-btn" disabled>결과 저장</button>
+                    <button class="btn btn-secondary" id="generate-report-btn" disabled style="display: none;">종합 보고서 생성</button>
                     <button class="btn btn-secondary" id="back-to-menu-btn">메뉴로 돌아가기</button>
                 </div>
             </section>
@@ -1624,42 +1735,192 @@
             showToast('피부톤 분석이 완료되었습니다', 'success');
         }
 
-        // 분석 결과 표시
+        // 분석 결과 표시 (색상 오류 수정)
         function displayAnalysisResults() {
             const analysis = window.PersonalColorSystem.currentAnalysis;
+            
+            if (!analysis.season || !KOREAN_SKIN_DATABASE.seasons[analysis.season]) {
+                showToast('분석 결과에 오류가 있습니다. 다시 시도해주세요.', 'error');
+                return;
+            }
+            
             const season = KOREAN_SKIN_DATABASE.seasons[analysis.season];
             
             // 계절 결과 표시
             const seasonElement = document.getElementById('best-season-text');
-            seasonElement.textContent = season.name;
-            seasonElement.className = `best-season ${analysis.season}-result`;
+            if (seasonElement) {
+                seasonElement.textContent = season.name;
+                seasonElement.className = `best-season ${analysis.season}-result`;
+            }
             
-            document.getElementById('season-confidence-text').textContent = 
-                `${season.subtitle} • 신뢰도 ${analysis.confidence.toFixed(1)}%`;
+            const confidenceElement = document.getElementById('season-confidence-text');
+            if (confidenceElement) {
+                confidenceElement.textContent = `${season.subtitle} • 신뢰도 ${analysis.confidence.toFixed(1)}%`;
+            }
 
-            // 추천 색상 팔레트 생성 - 색상명과 설명 포함
+            // 추천 색상 팔레트 생성 (오류 수정)
             const colorsContainer = document.getElementById('recommended-colors');
-            colorsContainer.innerHTML = '';
-            
-            season.colors.forEach((colorData, index) => {
-                const colorDiv = document.createElement('div');
-                colorDiv.className = 'color-item';
-                colorDiv.style.backgroundColor = colorData.hex;
-                colorDiv.innerHTML = `
-                    <div class="color-info">
-                        <div class="color-number">컬러 ${index + 1}</div>
-                        <div class="color-name">${colorData.name}</div>
-                        <div class="color-description">${colorData.description}</div>
-                    </div>
-                `;
-                colorsContainer.appendChild(colorDiv);
-            });
+            if (colorsContainer && season.colors) {
+                colorsContainer.innerHTML = '';
+                
+                season.colors.forEach((colorData, index) => {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.className = 'color-item';
+                    
+                    // 색상 데이터 검증
+                    const hexColor = colorData.hex || colorData;
+                    const colorName = colorData.name || `컬러 ${index + 1}`;
+                    const colorDescription = colorData.description || '추천 색상';
+                    
+                    colorDiv.style.backgroundColor = hexColor;
+                    colorDiv.innerHTML = `
+                        <div class="color-info">
+                            <div class="color-number">컬러 ${index + 1}</div>
+                            <div class="color-name">${colorName}</div>
+                            <div class="color-description">${colorDescription}</div>
+                        </div>
+                    `;
+                    colorsContainer.appendChild(colorDiv);
+                });
+            }
 
             // 브랜드 추천 생성
             displayBrandRecommendations(analysis.season);
 
+            // 종합 보고서 생성 버튼 표시
+            const reportBtn = document.getElementById('generate-report-btn');
+            if (reportBtn) {
+                reportBtn.style.display = 'inline-block';
+                reportBtn.disabled = false;
+                reportBtn.addEventListener('click', () => {
+                    generateComprehensiveReport(analysis, JSON.parse(localStorage.getItem('personalColorAnalyses') || '[]'));
+                });
+            }
+
             // 결과 패널 표시
-            document.getElementById('results-display').classList.add('show');
+            const resultsDisplay = document.getElementById('results-display');
+            if (resultsDisplay) {
+                resultsDisplay.classList.add('show');
+            }
+        }
+
+        // 진행 단계 업데이트
+        function updateProgressStep(step) {
+            // 모든 단계 비활성화
+            document.querySelectorAll('.guide-step').forEach(el => el.classList.remove('active'));
+            
+            // 현재 단계 활성화
+            const currentStep = document.getElementById(`step-${step}`);
+            if (currentStep) {
+                currentStep.classList.add('active');
+            }
+
+            // 단계별 안내 메시지
+            const statusElement = document.getElementById('detection-status');
+            if (statusElement) {
+                switch (step) {
+                    case 'camera':
+                        statusElement.textContent = '카메라 시작 버튼을 눌러주세요';
+                        break;
+                    case 'position':
+                        statusElement.textContent = '얼굴을 가이드라인에 맞춰주세요';
+                        document.getElementById('face-guide').classList.add('show');
+                        break;
+                    case 'analyze':
+                        statusElement.textContent = '피부톤 분석 버튼을 눌러주세요';
+                        break;
+                }
+            }
+        }
+
+        // 카메라 시작 (업데이트)
+        async function startCamera() {
+            try {
+                updateProgressStep('position');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: 1280, 
+                        height: 720,
+                        facingMode: 'user'
+                    }
+                });
+
+                const videoElement = document.getElementById('video-feed');
+                videoElement.srcObject = stream;
+                
+                // MediaPipe 카메라 연결
+                const camera = new window.Camera(videoElement, {
+                    onFrame: async () => {
+                        if (window.PersonalColorSystem.engines.faceMesh) {
+                            await window.PersonalColorSystem.engines.faceMesh.send({ image: videoElement });
+                        }
+                    },
+                    width: 1280,
+                    height: 720
+                });
+
+                camera.start();
+                window.PersonalColorSystem.engines.camera = camera;
+                
+                document.getElementById('start-camera-btn').textContent = '카메라 활성화됨';
+                document.getElementById('start-camera-btn').disabled = true;
+                
+                showToast('카메라가 시작되었습니다. 얼굴을 가이드라인에 맞춰주세요.', 'success');
+                
+            } catch (error) {
+                console.error('카메라 시작 실패:', error);
+                showToast('카메라 접근에 실패했습니다. 권한을 확인해주세요.', 'error');
+            }
+        }
+
+        // MediaPipe 결과 처리 (업데이트)
+        function onFaceMeshResults(results) {
+            const canvas = document.getElementById('face-overlay');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = results.image.width;
+            canvas.height = results.image.height;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                const landmarks = results.multiFaceLandmarks[0];
+                
+                // 얼굴 감지되면 3단계로 이동
+                updateProgressStep('analyze');
+                
+                // 얼굴 윤곽 그리기
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                // 얼굴 경계선 포인트들
+                const faceOval = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+                
+                for (let i = 0; i < faceOval.length; i++) {
+                    const point = landmarks[faceOval[i]];
+                    if (i === 0) {
+                        ctx.moveTo(point.x * canvas.width, point.y * canvas.height);
+                    } else {
+                        ctx.lineTo(point.x * canvas.width, point.y * canvas.height);
+                    }
+                }
+                ctx.closePath();
+                ctx.stroke();
+
+                // 피부 샘플링 영역 표시 (정확한 위치)
+                drawSamplingRegions(ctx, landmarks, canvas.width, canvas.height);
+                
+                // 실제 피부 픽셀 추출 및 분석
+                extractSkinPixels(results.image, landmarks);
+                
+                document.getElementById('analyze-skin-btn').disabled = false;
+                
+            } else {
+                updateProgressStep('position');
+                document.getElementById('analyze-skin-btn').disabled = true;
+            }
         }
 
         // 브랜드 추천 표시
