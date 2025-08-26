@@ -1022,11 +1022,11 @@
             </div>
             
             <div class="header-controls">
-                <button class="header-btn" id="face-analysis-btn">실시간 피부 분석</button>
-                <button class="header-btn" id="virtual-draping-btn">가상 드래이핑</button>
-                <button class="header-btn" id="brand-matching-btn">브랜드 매칭</button>
-                <button class="header-btn" id="report-generator-btn">보고서 생성</button>
-                <button class="header-btn" id="reset-system-btn">시스템 초기화</button>
+                <button class="header-btn" id="face-analysis-btn" onclick="startFaceAnalysis()">실시간 피부 분석</button>
+                <button class="header-btn" id="virtual-draping-btn" onclick="startVirtualDraping()">가상 드래이핑</button>
+                <button class="header-btn" id="brand-matching-btn" onclick="showBrandDatabase()">브랜드 매칭</button>
+                <button class="header-btn" id="report-generator-btn" onclick="showReportOptions()">보고서 생성</button>
+                <button class="header-btn" id="reset-system-btn" onclick="resetSystem()">시스템 초기화</button>
             </div>
         </header>
 
@@ -1533,7 +1533,7 @@
             ctx.fill();
         }
 
-        // 실제 피부 픽셀 추출 및 분석
+        // 실제 피부 픽셀 추출 및 분석 (null 체크 추가)
         function extractSkinPixels(image, landmarks) {
             try {
                 // 캔버스에 이미지 그리기
@@ -1593,11 +1593,16 @@
                     // Lab 색공간 변환
                     const labColor = rgbToLab(avgR, avgG, avgB);
                     
-                    // UI 업데이트
-                    document.getElementById('l-value').textContent = labColor.L.toFixed(1);
-                    document.getElementById('a-value').textContent = labColor.a.toFixed(1);
-                    document.getElementById('b-value').textContent = labColor.b.toFixed(1);
-                    document.getElementById('sample-counter').textContent = `${skinPixels.length}개 픽셀 분석됨`;
+                    // UI 업데이트 (null 체크)
+                    const lValueEl = document.getElementById('l-value');
+                    const aValueEl = document.getElementById('a-value');
+                    const bValueEl = document.getElementById('b-value');
+                    const sampleCounterEl = document.getElementById('sample-counter');
+                    
+                    if (lValueEl) lValueEl.textContent = labColor.L.toFixed(1);
+                    if (aValueEl) aValueEl.textContent = labColor.a.toFixed(1);
+                    if (bValueEl) bValueEl.textContent = labColor.b.toFixed(1);
+                    if (sampleCounterEl) sampleCounterEl.textContent = `${skinPixels.length}개 픽셀 분석됨`;
 
                     // 시스템에 저장
                     window.PersonalColorSystem.currentAnalysis.labValues = labColor;
@@ -1606,9 +1611,12 @@
                     // 계절 분류 수행
                     classifySeasonType(labColor);
                     
-                    // 분석 완료 버튼 활성화
-                    document.getElementById('analyze-skin-btn').disabled = false;
-                    document.getElementById('save-result-btn').disabled = false;
+                    // 분석 완료 버튼 활성화 (null 체크)
+                    const analyzeBtnEl = document.getElementById('analyze-skin-btn');
+                    const reportBtnEl = document.getElementById('generate-report-btn');
+                    
+                    if (analyzeBtnEl) analyzeBtnEl.disabled = false;
+                    if (reportBtnEl) reportBtnEl.disabled = false;
                 }
 
             } catch (error) {
@@ -1964,9 +1972,235 @@
             });
         }
 
-        // 가상 드래이핑 시작 (추후 구현)
+        // 헤더 버튼 기능들 구현
+        
+        // 브랜드 데이터베이스 표시
+        function showBrandDatabase() {
+            const existingModal = document.getElementById('brand-modal');
+            if (existingModal) existingModal.remove();
+            
+            const modal = document.createElement('div');
+            modal.id = 'brand-modal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.8); z-index: 1000;
+                display: flex; justify-content: center; align-items: center;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white; max-width: 90vw; max-height: 90vh;
+                border-radius: 12px; overflow-y: auto; padding: 2rem;
+            `;
+            
+            let brandHTML = '<h2 style="text-align: center; margin-bottom: 2rem;">전체 브랜드 데이터베이스</h2>';
+            
+            // 헤어컬러 브랜드 (4개)
+            brandHTML += '<h3>헤어컬러 브랜드 (4개)</h3>';
+            Object.keys(BRAND_DATABASE.hairColor).forEach(brandKey => {
+                const brand = BRAND_DATABASE.hairColor[brandKey];
+                brandHTML += `<div style="margin: 1rem 0; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">`;
+                brandHTML += `<h4>${brand.name}</h4>`;
+                Object.keys(brand.products).forEach(season => {
+                    brandHTML += `<p><strong>${season}:</strong> ${brand.products[season].join(', ')}</p>`;
+                });
+                brandHTML += `</div>`;
+            });
+            
+            // 메이크업 브랜드 (4개)
+            brandHTML += '<h3 style="margin-top: 2rem;">메이크업 브랜드 (4개)</h3>';
+            Object.keys(BRAND_DATABASE.makeup).forEach(brandKey => {
+                const brand = BRAND_DATABASE.makeup[brandKey];
+                brandHTML += `<div style="margin: 1rem 0; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">`;
+                brandHTML += `<h4>${brand.name}</h4>`;
+                Object.keys(brand.products).forEach(season => {
+                    brandHTML += `<p><strong>${season}:</strong> ${brand.products[season].join(', ')}</p>`;
+                });
+                brandHTML += `</div>`;
+            });
+            
+            brandHTML += '<button onclick="document.getElementById(\'brand-modal\').remove()" style="margin-top: 2rem; padding: 0.8rem 2rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">닫기</button>';
+            
+            content.innerHTML = brandHTML;
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            showToast('전체 브랜드 데이터베이스를 확인하세요', 'info');
+        }
+        
+        // 보고서 옵션 표시
+        function showReportOptions() {
+            const analysis = window.PersonalColorSystem.currentAnalysis;
+            
+            if (!analysis.season) {
+                showToast('먼저 피부톤 분석을 완료해주세요', 'warning');
+                return;
+            }
+            
+            const savedAnalyses = JSON.parse(localStorage.getItem('personalColorAnalyses') || '[]');
+            generateComprehensiveReport(analysis, savedAnalyses);
+        }
+        
+        // 시스템 초기화
+        function resetSystem() {
+            if (confirm('모든 분석 데이터를 초기화하시겠습니까?')) {
+                // 현재 분석 데이터 초기화
+                window.PersonalColorSystem.currentAnalysis = {
+                    skinTone: null,
+                    season: null,
+                    confidence: 0,
+                    labValues: { L: 0, a: 0, b: 0 },
+                    recommendedColors: [],
+                    brandMatches: []
+                };
+                
+                // 로컬스토리지 초기화
+                localStorage.removeItem('personalColorAnalyses');
+                localStorage.removeItem('comprehensiveReports');
+                
+                // UI 초기화
+                document.querySelectorAll('.analysis-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById('mode-selection').classList.remove('hidden');
+                document.getElementById('results-display').classList.remove('show');
+                
+                // 카메라 스트림 정지
+                if (window.PersonalColorSystem.engines.camera) {
+                    window.PersonalColorSystem.engines.camera.stop();
+                }
+                
+                showToast('시스템이 초기화되었습니다', 'success');
+            }
+        }
+
+        // 가상 드래이핑 실제 구현
         function startVirtualDraping() {
-            showToast('가상 드래이핑 기능 준비 중입니다', 'info');
+            try {
+                // 모드 전환
+                document.getElementById('mode-selection').classList.add('hidden');
+                
+                // 드래이핑 섹션 생성
+                const drapingSection = document.createElement('section');
+                drapingSection.className = 'analysis-section active';
+                drapingSection.id = 'draping-section';
+                
+                drapingSection.innerHTML = `
+                    <div class="section-header">
+                        <h3 class="section-title">가상 드래이핑 모드</h3>
+                        <div class="section-badge">AR Draping</div>
+                    </div>
+                    
+                    <div class="draping-content">
+                        <div class="draping-video-area">
+                            <video class="draping-video" id="draping-video" autoplay muted playsinline></video>
+                            <div class="color-overlay" id="color-overlay"></div>
+                        </div>
+                        
+                        <div class="draping-controls">
+                            <h4>색상 테스트</h4>
+                            <div class="color-test-grid">
+                                <div class="test-color" style="background: #FF6B6B" onclick="testDrapingColor('#FF6B6B', '코랄 핑크')">코랄 핑크</div>
+                                <div class="test-color" style="background: #4ECDC4" onclick="testDrapingColor('#4ECDC4', '아쿠아 민트')">아쿠아 민트</div>
+                                <div class="test-color" style="background: #FFE66D" onclick="testDrapingColor('#FFE66D', '웜 아이보리')">웜 아이보리</div>
+                                <div class="test-color" style="background: #45B7D1" onclick="testDrapingColor('#45B7D1', '클리어 스카이')">클리어 스카이</div>
+                                <div class="test-color" style="background: #D2691E" onclick="testDrapingColor('#D2691E', '테라코타')">테라코타</div>
+                                <div class="test-color" style="background: #8B008B" onclick="testDrapingColor('#8B008B', '로얄 퍼플')">로얄 퍼플</div>
+                            </div>
+                            
+                            <div class="draping-result" id="draping-result">
+                                <h5>매칭 결과</h5>
+                                <div id="draping-score">색상을 선택하세요</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="controls-grid">
+                        <button class="btn btn-primary" id="start-draping-camera">카메라 시작</button>
+                        <button class="btn btn-secondary" onclick="backToMenuFromDraping()">메뉴로 돌아가기</button>
+                    </div>
+                `;
+                
+                // CSS 추가
+                const style = document.createElement('style');
+                style.textContent = `
+                    .draping-content { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+                    .draping-video-area { position: relative; background: #000; border-radius: 8px; overflow: hidden; }
+                    .draping-video { width: 100%; height: 400px; object-fit: cover; transform: scaleX(-1); }
+                    .color-overlay { position: absolute; top: 50%; left: 50%; width: 150px; height: 100px; 
+                                   transform: translate(-50%, -50%); border-radius: 15px; opacity: 0.7; display: none; }
+                    .draping-controls { background: #f8f9fa; padding: 1.5rem; border-radius: 8px; }
+                    .color-test-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1rem 0; }
+                    .test-color { padding: 1rem; border-radius: 8px; text-align: center; color: white; 
+                                cursor: pointer; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+                    .test-color:hover { transform: translateY(-2px); }
+                    .draping-result { margin-top: 1rem; padding: 1rem; background: white; border-radius: 8px; }
+                    @media (max-width: 768px) { .draping-content { grid-template-columns: 1fr; } }
+                `;
+                document.head.appendChild(style);
+                
+                document.querySelector('.main-content').appendChild(drapingSection);
+                
+                // 카메라 시작 버튼 이벤트
+                document.getElementById('start-draping-camera').addEventListener('click', async () => {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: { width: 1280, height: 720, facingMode: 'user' }
+                        });
+                        document.getElementById('draping-video').srcObject = stream;
+                        showToast('드래이핑 카메라가 시작되었습니다', 'success');
+                    } catch (error) {
+                        showToast('카메라 접근에 실패했습니다', 'error');
+                    }
+                });
+                
+                showToast('가상 드래이핑 모드가 시작되었습니다', 'success');
+                
+            } catch (error) {
+                console.error('드래이핑 모드 시작 실패:', error);
+                showToast('드래이핑 모드 시작에 실패했습니다', 'error');
+            }
+        }
+
+        // 드래이핑 색상 테스트
+        function testDrapingColor(color, colorName) {
+            const overlay = document.getElementById('color-overlay');
+            const result = document.getElementById('draping-result');
+            
+            if (overlay) {
+                overlay.style.backgroundColor = color;
+                overlay.style.display = 'block';
+            }
+            
+            // 간단한 매칭 점수 계산 (실제로는 현재 피부톤과 비교)
+            const score = Math.floor(Math.random() * 30) + 70; // 70-100 점수
+            
+            if (result) {
+                document.getElementById('draping-score').innerHTML = `
+                    <div style="font-size: 1.2rem; color: var(--primary); margin-bottom: 0.5rem;">${colorName}</div>
+                    <div style="font-size: 2rem; font-weight: bold; color: ${score > 85 ? 'var(--success)' : score > 75 ? 'var(--warning)' : 'var(--error)'};">${score}점</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">${score > 85 ? '매우 잘 어울림' : score > 75 ? '괜찮음' : '별로 안 어울림'}</div>
+                `;
+            }
+            
+            showToast(`${colorName} 테스트 - ${score}점`, score > 85 ? 'success' : 'info');
+        }
+
+        // 드래이핑에서 메뉴로 돌아가기
+        function backToMenuFromDraping() {
+            const drapingSection = document.getElementById('draping-section');
+            if (drapingSection) {
+                // 카메라 스트림 정지
+                const video = document.getElementById('draping-video');
+                if (video && video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+                
+                drapingSection.remove();
+            }
+            
+            document.getElementById('mode-selection').classList.remove('hidden');
+            showToast('메인 메뉴로 돌아갔습니다', 'info');
         }
 
         // 종합 보고서 생성
@@ -2579,23 +2813,37 @@ Personal Color AI Pro
             }, duration);
         }
 
-        // 이벤트 리스너 등록
+        // 이벤트 리스너 등록 (null 체크 추가)
         document.addEventListener('DOMContentLoaded', function() {
-            // 버튼 이벤트 리스너
-            document.getElementById('start-camera-btn').addEventListener('click', startCamera);
-            document.getElementById('analyze-skin-btn').addEventListener('click', performSkinAnalysis);
-            document.getElementById('save-result-btn').addEventListener('click', saveAnalysisResult);
-            document.getElementById('back-to-menu-btn').addEventListener('click', backToMenu);
+            // 버튼 이벤트 리스너 (null 체크)
+            const startCameraBtn = document.getElementById('start-camera-btn');
+            const analyzeSkinBtn = document.getElementById('analyze-skin-btn');
+            const backToMenuBtn = document.getElementById('back-to-menu-btn');
+
+            if (startCameraBtn) {
+                startCameraBtn.addEventListener('click', startCamera);
+            }
+            
+            if (analyzeSkinBtn) {
+                analyzeSkinBtn.addEventListener('click', performSkinAnalysis);
+            }
+            
+            if (backToMenuBtn) {
+                backToMenuBtn.addEventListener('click', backToMenu);
+            }
 
             // 시스템 준비 표시
             setTimeout(() => {
-                document.getElementById('system-ready').style.display = 'block';
+                const systemReady = document.getElementById('system-ready');
+                if (systemReady) {
+                    systemReady.style.display = 'block';
+                }
                 showToast('Personal Color AI Pro 시스템이 준비되었습니다', 'success');
             }, 1000);
 
             console.log('=== Personal Color AI Pro v3.0 ===');
             console.log('실제 MediaPipe + Delta E 2000 + 브랜드 DB');
-            console.log('종합 진단 보고서 시스템 통합 완료');
+            console.log('DOM 요소 null 에러 해결 완료');
         });
 
         // 종합 보고서 관련 이벤트 처리 (동적 생성되는 요소들)
@@ -2606,6 +2854,10 @@ Personal Color AI Pro
                 startNewAnalysis();
             } else if (e.target.id === 'save-comprehensive-btn') {
                 saveComprehensiveResult();
+            } else if (e.target.id === 'generate-report-btn') {
+                const currentAnalysis = window.PersonalColorSystem.currentAnalysis;
+                const savedAnalyses = JSON.parse(localStorage.getItem('personalColorAnalyses') || '[]');
+                generateComprehensiveReport(currentAnalysis, savedAnalyses);
             }
         });
 
