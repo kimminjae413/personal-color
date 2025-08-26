@@ -206,6 +206,12 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 400px;
+    min-height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .mode-card:hover {
