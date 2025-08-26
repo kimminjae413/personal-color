@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Personal Color Pro">
-    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Personal Color AI Pro&quot;,&quot;short_name&quot;:&quot;ColorAI&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#ffffff&quot;,&quot;theme_color&quot;:&quot;#6366f1&quot;}">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUGVyc29uYWwgQ29sb3IgQUkgUHJvIiwic2hvcnRfbmFtZSI6IkNvbG9yQUkiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsInRoZW1lX2NvbG9yIjoiIzYzNjZmMSJ9">
     
     <!-- 외부 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.10.0/tf.min.js"></script>
@@ -2041,9 +2041,9 @@
 
                 const L = 116 * fy - 16;
                 const a = 500 * (fx - fy);
-                const b = 200 * (fy - fz);
+                const bLab = 200 * (fy - fz);  // 변수명 변경
 
-                return { L, a, b };
+                return { L, a, b: bLab };  // 변수명 변경
             }
 
             updateSkinToneDisplay(skinTone) {
@@ -2299,12 +2299,12 @@
             hexToLab(hex) {
                 const r = parseInt(hex.substr(1, 2), 16);
                 const g = parseInt(hex.substr(3, 2), 16);
-                const b = parseInt(hex.substr(5, 2), 16);
+                const bValue = parseInt(hex.substr(5, 2), 16);  // 변수명 변경
                 
                 // RGB to XYZ
                 let rLinear = r / 255.0;
                 let gLinear = g / 255.0;
-                let bLinear = b / 255.0;
+                let bLinear = bValue / 255.0;  // 변수명 변경
                 
                 rLinear = rLinear > 0.04045 ? Math.pow((rLinear + 0.055) / 1.055, 2.4) : rLinear / 12.92;
                 gLinear = gLinear > 0.04045 ? Math.pow((gLinear + 0.055) / 1.055, 2.4) : gLinear / 12.92;
@@ -2323,9 +2323,9 @@
                 
                 const L = 116 * fy - 16;
                 const a = 500 * (fx - fy);
-                const bValue = 200 * (fy - fz);
+                const bLab = 200 * (fy - fz);  // 변수명 변경
                 
-                return { L, a, b: bValue };
+                return { L, a, b: bLab };  // 변수명 변경
             }
 
             xyzToLabFunc(t) {
