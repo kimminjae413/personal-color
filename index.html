@@ -391,11 +391,44 @@
             box-shadow: var(--shadow);
             display: flex;
             align-items: flex-end;
-            padding: 0.5rem;
+            padding: 1rem;
             color: white;
             font-size: 0.8rem;
             font-weight: 600;
             text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .color-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            opacity: 0.9;
+        }
+
+        .color-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            line-height: 1.1;
+        }
+
+        .color-description {
+            font-size: 0.7rem;
+            font-weight: 400;
+            opacity: 0.8;
+            line-height: 1.2;
         }
 
         .brand-recommendations {
@@ -1602,17 +1635,23 @@
             seasonElement.className = `best-season ${analysis.season}-result`;
             
             document.getElementById('season-confidence-text').textContent = 
-                `신뢰도 ${analysis.confidence.toFixed(1)}% • ${season.characteristics.join(' • ')}`;
+                `${season.subtitle} • 신뢰도 ${analysis.confidence.toFixed(1)}%`;
 
-            // 추천 색상 팔레트 생성
+            // 추천 색상 팔레트 생성 - 색상명과 설명 포함
             const colorsContainer = document.getElementById('recommended-colors');
             colorsContainer.innerHTML = '';
             
-            season.colors.forEach((color, index) => {
+            season.colors.forEach((colorData, index) => {
                 const colorDiv = document.createElement('div');
                 colorDiv.className = 'color-item';
-                colorDiv.style.backgroundColor = color;
-                colorDiv.textContent = `컬러 ${index + 1}`;
+                colorDiv.style.backgroundColor = colorData.hex;
+                colorDiv.innerHTML = `
+                    <div class="color-info">
+                        <div class="color-number">컬러 ${index + 1}</div>
+                        <div class="color-name">${colorData.name}</div>
+                        <div class="color-description">${colorData.description}</div>
+                    </div>
+                `;
                 colorsContainer.appendChild(colorDiv);
             });
 
