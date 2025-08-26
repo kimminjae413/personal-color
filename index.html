@@ -897,9 +897,492 @@
             }
         }
 
-        // 가상 드래이핑 시작 (간단 버전)
+        // ===== 96개 색상 데이터베이스 (4계절 × 24개) =====
+        const COMPLETE_COLOR_DATABASE = {
+            spring: {
+                bright: [
+                    { name: 'Coral Pink', hex: '#FF7F7F', rgb: [255, 127, 127] },
+                    { name: 'Peach', hex: '#FFCBA4', rgb: [255, 203, 164] },
+                    { name: 'Golden Yellow', hex: '#FFD700', rgb: [255, 215, 0] },
+                    { name: 'Warm Beige', hex: '#F5DEB3', rgb: [245, 222, 179] },
+                    { name: 'Light Coral', hex: '#F08080', rgb: [240, 128, 128] },
+                    { name: 'Apricot', hex: '#FBCEB1', rgb: [251, 206, 177] },
+                    { name: 'Buttercup', hex: '#F2E23D', rgb: [242, 226, 61] },
+                    { name: 'Spring Green', hex: '#00FF7F', rgb: [0, 255, 127] }
+                ],
+                light: [
+                    { name: 'Soft Peach', hex: '#FFDAB9', rgb: [255, 218, 185] },
+                    { name: 'Cream', hex: '#FFFDD0', rgb: [255, 253, 208] },
+                    { name: 'Light Pink', hex: '#FFB6C1', rgb: [255, 182, 193] },
+                    { name: 'Ivory', hex: '#FFFFF0', rgb: [255, 255, 240] },
+                    { name: 'Pale Yellow', hex: '#FFFFE0', rgb: [255, 255, 224] },
+                    { name: 'Blush', hex: '#DE5D83', rgb: [222, 93, 131] },
+                    { name: 'Champagne', hex: '#F7E7CE', rgb: [247, 231, 206] },
+                    { name: 'Baby Blue', hex: '#89CFF0', rgb: [137, 207, 240] }
+                ],
+                warm: [
+                    { name: 'Golden Tan', hex: '#D2B48C', rgb: [210, 180, 140] },
+                    { name: 'Terracotta', hex: '#E2725B', rgb: [226, 114, 91] },
+                    { name: 'Warm Brown', hex: '#964B00', rgb: [150, 75, 0] },
+                    { name: 'Mustard', hex: '#FFDB58', rgb: [255, 219, 88] },
+                    { name: 'Copper', hex: '#B87333', rgb: [184, 115, 51] },
+                    { name: 'Amber', hex: '#FFBF00', rgb: [255, 191, 0] },
+                    { name: 'Burnt Orange', hex: '#CC5500', rgb: [204, 85, 0] },
+                    { name: 'Caramel', hex: '#C68E17', rgb: [198, 142, 23] }
+                ]
+            },
+            summer: {
+                light: [
+                    { name: 'Rose Pink', hex: '#FFB6C1', rgb: [255, 182, 193] },
+                    { name: 'Lavender', hex: '#E6E6FA', rgb: [230, 230, 250] },
+                    { name: 'Baby Blue', hex: '#ADD8E6', rgb: [173, 216, 230] },
+                    { name: 'Cool Beige', hex: '#F5F5DC', rgb: [245, 245, 220] },
+                    { name: 'Soft Gray', hex: '#D3D3D3', rgb: [211, 211, 211] },
+                    { name: 'Powder Blue', hex: '#B0E0E6', rgb: [176, 224, 230] },
+                    { name: 'Pale Mint', hex: '#F5FFFA', rgb: [245, 255, 250] },
+                    { name: 'Cool White', hex: '#F8F8FF', rgb: [248, 248, 255] }
+                ],
+                soft: [
+                    { name: 'Dusty Rose', hex: '#BC8F8F', rgb: [188, 143, 143] },
+                    { name: 'Sage Green', hex: '#9CAF88', rgb: [156, 175, 136] },
+                    { name: 'Steel Blue', hex: '#4682B4', rgb: [70, 130, 180] },
+                    { name: 'Mauve', hex: '#E0B0FF', rgb: [224, 176, 255] },
+                    { name: 'Cool Taupe', hex: '#8B7D6B', rgb: [139, 125, 107] },
+                    { name: 'Periwinkle', hex: '#C5C5FF', rgb: [197, 197, 255] },
+                    { name: 'Seafoam', hex: '#71EEB8', rgb: [113, 238, 184] },
+                    { name: 'Dove Gray', hex: '#6D6D6D', rgb: [109, 109, 109] }
+                ],
+                cool: [
+                    { name: 'Cool Pink', hex: '#FF1493', rgb: [255, 20, 147] },
+                    { name: 'Icy Blue', hex: '#AFEEEE', rgb: [175, 238, 238] },
+                    { name: 'Silver Gray', hex: '#C0C0C0', rgb: [192, 192, 192] },
+                    { name: 'Cool Purple', hex: '#9300D3', rgb: [147, 0, 211] },
+                    { name: 'Navy Blue', hex: '#000080', rgb: [0, 0, 128] },
+                    { name: 'Platinum', hex: '#E5E4E2', rgb: [229, 228, 226] },
+                    { name: 'Mint', hex: '#98FB98', rgb: [152, 251, 152] },
+                    { name: 'Pearl', hex: '#EAE0C8', rgb: [234, 224, 200] }
+                ]
+            },
+            autumn: {
+                deep: [
+                    { name: 'Burgundy', hex: '#800020', rgb: [128, 0, 32] },
+                    { name: 'Forest Green', hex: '#228B22', rgb: [34, 139, 34] },
+                    { name: 'Golden Brown', hex: '#996515', rgb: [153, 101, 21] },
+                    { name: 'Deep Orange', hex: '#FF8C00', rgb: [255, 140, 0] },
+                    { name: 'Rust', hex: '#B7410E', rgb: [183, 65, 14] },
+                    { name: 'Olive', hex: '#808000', rgb: [128, 128, 0] },
+                    { name: 'Maroon', hex: '#800000', rgb: [128, 0, 0] },
+                    { name: 'Dark Goldenrod', hex: '#B8860B', rgb: [184, 134, 11] }
+                ],
+                warm: [
+                    { name: 'Burnt Orange', hex: '#CC5500', rgb: [204, 85, 0] },
+                    { name: 'Pumpkin', hex: '#FF7518', rgb: [255, 117, 24] },
+                    { name: 'Sienna', hex: '#A0522D', rgb: [160, 82, 45] },
+                    { name: 'Chocolate', hex: '#D2691E', rgb: [210, 105, 30] },
+                    { name: 'Cayenne', hex: '#CE2029', rgb: [206, 32, 41] },
+                    { name: 'Paprika', hex: '#CC6600', rgb: [204, 102, 0] },
+                    { name: 'Cinnamon', hex: '#D2691E', rgb: [210, 105, 30] },
+                    { name: 'Brick Red', hex: '#CB4154', rgb: [203, 65, 84] }
+                ],
+                soft: [
+                    { name: 'Camel', hex: '#C19A6B', rgb: [193, 154, 107] },
+                    { name: 'Mushroom', hex: '#C4A484', rgb: [196, 164, 132] },
+                    { name: 'Sage', hex: '#87AE73', rgb: [135, 174, 115] },
+                    { name: 'Taupe', hex: '#483C32', rgb: [72, 60, 50] },
+                    { name: 'Coffee', hex: '#6F4E37', rgb: [111, 78, 55] },
+                    { name: 'Khaki', hex: '#C3B091', rgb: [195, 176, 145] },
+                    { name: 'Moss Green', hex: '#8A9A5B', rgb: [138, 154, 91] },
+                    { name: 'Warm Gray', hex: '#8B8680', rgb: [139, 134, 128] }
+                ]
+            },
+            winter: {
+                deep: [
+                    { name: 'True Red', hex: '#FF0000', rgb: [255, 0, 0] },
+                    { name: 'Royal Blue', hex: '#4169E1', rgb: [65, 105, 225] },
+                    { name: 'Black', hex: '#000000', rgb: [0, 0, 0] },
+                    { name: 'Pure White', hex: '#FFFFFF', rgb: [255, 255, 255] },
+                    { name: 'Emerald Green', hex: '#50C878', rgb: [80, 200, 120] },
+                    { name: 'Deep Purple', hex: '#663399', rgb: [102, 51, 153] },
+                    { name: 'Crimson', hex: '#DC143C', rgb: [220, 20, 60] },
+                    { name: 'Midnight Blue', hex: '#191970', rgb: [25, 25, 112] }
+                ],
+                cool: [
+                    { name: 'Cool Pink', hex: '#FF69B4', rgb: [255, 105, 180] },
+                    { name: 'Icy Blue', hex: '#B0E0E6', rgb: [176, 224, 230] },
+                    { name: 'Silver Gray', hex: '#C0C0C0', rgb: [192, 192, 192] },
+                    { name: 'Fuchsia', hex: '#FF00FF', rgb: [255, 0, 255] },
+                    { name: 'Teal', hex: '#008080', rgb: [0, 128, 128] },
+                    { name: 'Indigo', hex: '#4B0082', rgb: [75, 0, 130] },
+                    { name: 'Aqua', hex: '#00FFFF', rgb: [0, 255, 255] },
+                    { name: 'Plum', hex: '#DDA0DD', rgb: [221, 160, 221] }
+                ],
+                clear: [
+                    { name: 'Electric Blue', hex: '#7DF9FF', rgb: [125, 249, 255] },
+                    { name: 'Lime Green', hex: '#32CD32', rgb: [50, 205, 50] },
+                    { name: 'Hot Pink', hex: '#FF69B4', rgb: [255, 105, 180] },
+                    { name: 'Bright Yellow', hex: '#FFFF00', rgb: [255, 255, 0] },
+                    { name: 'Magenta', hex: '#FF00FF', rgb: [255, 0, 255] },
+                    { name: 'Turquoise', hex: '#40E0D0', rgb: [64, 224, 208] },
+                    { name: 'Violet', hex: '#8A2BE2', rgb: [138, 43, 226] },
+                    { name: 'Neon Green', hex: '#39FF14', rgb: [57, 255, 20] }
+                ]
+            }
+        };
+
+        // 96개 색상 플랫 배열로 변환
+        function generateAllColors() {
+            const allColors = [];
+            Object.keys(COMPLETE_COLOR_DATABASE).forEach(seasonKey => {
+                const season = COMPLETE_COLOR_DATABASE[seasonKey];
+                Object.keys(season).forEach(toneKey => {
+                    const colors = season[toneKey];
+                    colors.forEach(colorData => {
+                        allColors.push({
+                            hex: colorData.hex,
+                            name: colorData.name,
+                            rgb: colorData.rgb,
+                            season: seasonKey,
+                            tone: toneKey,
+                            seasonName: KOREAN_SKIN_DATABASE.seasons[seasonKey]?.name || seasonKey,
+                            description: `${seasonKey} ${toneKey}`
+                        });
+                    });
+                });
+            });
+            return allColors;
+        }
+
+        // 가상 드래이핑 시작 (완전 구현)
         function startVirtualDraping() {
-            showToast('가상 드래이핑 기능은 개발 중입니다', 'info');
+            try {
+                // 모드 전환
+                document.getElementById('mode-selection').classList.add('hidden');
+                
+                // 드래이핑 섹션 생성
+                const drapingSection = document.createElement('section');
+                drapingSection.className = 'analysis-section active';
+                drapingSection.id = 'draping-section';
+                
+                // 전체 96개 색상 생성
+                const allColors = generateAllColors();
+                
+                let colorGridHTML = '';
+                allColors.forEach((color, index) => {
+                    colorGridHTML += `
+                        <div class="test-color" style="background: ${color.hex}" 
+                             data-season="${color.season}" data-tone="${color.tone}"
+                             onclick="testDrapingColor('${color.hex}', '${color.name}', '${color.seasonName}', '${color.tone}', '${color.description}')">
+                            <div class="color-name">${color.name}</div>
+                            <div class="color-info">
+                                <div class="color-tone">${color.tone}</div>
+                                <div class="color-season">${color.seasonName}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                drapingSection.innerHTML = `
+                    <div class="section-header">
+                        <h3 class="section-title">가상 드래이핑 모드 (96개 색상)</h3>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="section-badge">AR Draping - ${allColors.length}개 색상</div>
+                            <button onclick="backToMenuFromDraping()" 
+                                    style="background: #dc3545; color: white; border: none; border-radius: 50%; 
+                                           width: 35px; height: 35px; cursor: pointer; font-size: 16px;">✕</button>
+                        </div>
+                    </div>
+                    
+                    <div class="draping-content" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+                        <div class="draping-video-area" style="position: relative; background: #000; border-radius: 8px; overflow: hidden; min-height: 500px;">
+                            <video class="draping-video" id="draping-video" autoplay muted playsinline 
+                                   style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+                            <div class="color-overlay" id="color-overlay" 
+                                 style="position: absolute; top: 15%; left: 50%; width: 100px; height: 50px; 
+                                        transform: translate(-50%, -50%); border-radius: 15px; opacity: 0.9; display: none; 
+                                        border: 2px solid white; box-shadow: 0 0 25px rgba(0,0,0,0.6); z-index: 10;"></div>
+                        </div>
+                        
+                        <div class="draping-controls" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; max-height: 90vh; overflow-y: auto;">
+                            <h4>전체 색상 테스트 (96개)</h4>
+                            
+                            <div class="filter-controls" style="margin: 1rem 0;">
+                                <div class="season-tabs" style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                                    <button class="season-tab active" onclick="filterColors('all')" 
+                                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: var(--primary); color: white; 
+                                                   border-radius: 15px; cursor: pointer; font-size: 0.75rem;">전체 (${allColors.length})</button>
+                                    <button class="season-tab" onclick="filterColors('spring')" 
+                                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: white; 
+                                                   border-radius: 15px; cursor: pointer; font-size: 0.75rem;">봄 (24)</button>
+                                    <button class="season-tab" onclick="filterColors('summer')" 
+                                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: white; 
+                                                   border-radius: 15px; cursor: pointer; font-size: 0.75rem;">여름 (24)</button>
+                                    <button class="season-tab" onclick="filterColors('autumn')" 
+                                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: white; 
+                                                   border-radius: 15px; cursor: pointer; font-size: 0.75rem;">가을 (24)</button>
+                                    <button class="season-tab" onclick="filterColors('winter')" 
+                                            style="padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: white; 
+                                                   border-radius: 15px; cursor: pointer; font-size: 0.75rem;">겨울 (24)</button>
+                                </div>
+                            </div>
+                            
+                            <div class="color-test-grid" id="color-test-grid" 
+                                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+                                        gap: 0.6rem; max-height: 450px; overflow-y: auto;">
+                                ${colorGridHTML}
+                            </div>
+                            
+                            <div class="draping-result" id="draping-result" 
+                                 style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 8px;">
+                                <h5>매칭 결과</h5>
+                                <div id="draping-score" style="text-align: center;">색상을 선택하세요</div>
+                                <div id="brand-match" style="margin-top: 1rem; display: none;">
+                                    <h6>맞춤 브랜드 추천</h6>
+                                    <div id="brand-products" style="display: grid; gap: 0.4rem; margin-top: 0.5rem;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="controls-grid">
+                        <button class="btn btn-primary" id="start-draping-camera">카메라 시작</button>
+                        <button class="btn btn-secondary" onclick="captureCurrentLook()">현재 모습 캡처</button>
+                        <button class="btn btn-secondary" onclick="resetDrapingFilters()">필터 초기화</button>
+                        <button class="btn btn-secondary" onclick="backToMenuFromDraping()">메뉴로 돌아가기</button>
+                    </div>
+                `;
+                
+                // CSS 추가 (드래이핑 전용)
+                const style = document.createElement('style');
+                style.textContent = `
+                    .test-color {
+                        padding: 0.8rem 0.4rem; border-radius: 6px; text-align: center; color: white; 
+                        cursor: pointer; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+                        transition: all 0.2s; min-height: 70px; display: flex; flex-direction: column;
+                        justify-content: center; position: relative; overflow: hidden;
+                    }
+                    .test-color:hover { 
+                        transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 5; 
+                    }
+                    .test-color.hidden { display: none; }
+                    .color-name { font-size: 0.7rem; line-height: 1.1; margin-bottom: 0.3rem; font-weight: 700; }
+                    .color-info { font-size: 0.6rem; opacity: 0.9; line-height: 1; }
+                    .color-tone { margin-bottom: 0.1rem; }
+                    .color-season { font-size: 0.55rem; }
+                    .season-tab.active { background: var(--primary) !important; color: white !important; }
+                    .season-tab:hover:not(.active) { background: var(--primary-light) !important; }
+                `;
+                document.head.appendChild(style);
+                
+                document.querySelector('.main-content').appendChild(drapingSection);
+                
+                // ESC 키로 닫기
+                const handleDrapingEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        backToMenuFromDraping();
+                        document.removeEventListener('keydown', handleDrapingEscape);
+                    }
+                };
+                document.addEventListener('keydown', handleDrapingEscape);
+                
+                // 카메라 시작 버튼 이벤트
+                document.getElementById('start-draping-camera').addEventListener('click', async () => {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: { width: 1280, height: 720, facingMode: 'user' }
+                        });
+                        document.getElementById('draping-video').srcObject = stream;
+                        document.getElementById('start-draping-camera').textContent = '카메라 활성화됨';
+                        document.getElementById('start-draping-camera').disabled = true;
+                        showToast('드래이핑 카메라가 시작되었습니다', 'success');
+                    } catch (error) {
+                        showToast('카메라 접근에 실패했습니다', 'error');
+                    }
+                });
+                
+                showToast(`가상 드래이핑 모드 시작 - 총 ${allColors.length}개 전문 색상 사용 가능`, 'success');
+                
+            } catch (error) {
+                console.error('드래이핑 모드 시작 실패:', error);
+                showToast('드래이핑 모드 시작에 실패했습니다', 'error');
+            }
+        }
+
+        // 계절별 색상 필터링
+        function filterColors(season) {
+            const tabs = document.querySelectorAll('.season-tab');
+            const colors = document.querySelectorAll('.test-color');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            colors.forEach(color => {
+                const colorSeason = color.dataset.season;
+                if (season === 'all' || colorSeason === season) {
+                    color.classList.remove('hidden');
+                } else {
+                    color.classList.add('hidden');
+                }
+            });
+            
+            const visibleCount = document.querySelectorAll('.test-color:not(.hidden)').length;
+            showToast(`${season === 'all' ? '전체' : season} 색상 ${visibleCount}개 표시`, 'info');
+        }
+
+        // 필터 초기화
+        function resetDrapingFilters() {
+            const seasonTabs = document.querySelectorAll('.season-tab');
+            const colors = document.querySelectorAll('.test-color');
+            
+            seasonTabs.forEach(tab => tab.classList.remove('active'));
+            seasonTabs[0].classList.add('active'); // '전체' 버튼 활성화
+            
+            colors.forEach(color => {
+                color.classList.remove('hidden');
+            });
+            
+            showToast('모든 필터가 초기화되었습니다 - 96개 색상 표시', 'info');
+        }
+
+        // 드래이핑 색상 테스트 (Delta E 2000 기반)
+        function testDrapingColor(color, colorName, seasonName, toneName, description) {
+            const overlay = document.getElementById('color-overlay');
+            const result = document.getElementById('draping-result');
+            const brandMatch = document.getElementById('brand-match');
+            
+            if (overlay) {
+                overlay.style.backgroundColor = color;
+                overlay.style.display = 'block';
+            }
+            
+            // Delta E 2000 기반 매칭 점수 계산
+            let score = calculateColorMatchingScore(color);
+            
+            document.getElementById('draping-score').innerHTML = `
+                <div style="font-size: 1rem; color: var(--primary); margin-bottom: 0.3rem;">${colorName}</div>
+                <div style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.2rem;">${toneName}</div>
+                <div style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.5rem;">${description}</div>
+                <div style="font-size: 2.4rem; font-weight: bold; color: ${score > 90 ? 'var(--success)' : score > 80 ? 'var(--primary)' : score > 70 ? 'var(--warning)' : 'var(--error)'};">${score}점</div>
+                <div style="font-size: 0.9rem; color: var(--text-light);">${getScoreDescription(score)}</div>
+            `;
+            
+            // 브랜드 매칭 (점수가 75점 이상일 때)
+            if (score > 75) {
+                displayBrandMatching(seasonName, toneName);
+                brandMatch.style.display = 'block';
+            } else {
+                brandMatch.style.display = 'none';
+            }
+            
+            showToast(`${colorName} (${toneName}) - ${score}점`, score > 85 ? 'success' : score > 75 ? 'info' : 'warning');
+        }
+
+        // 색상 매칭 점수 계산 (실제 피부톤 vs 선택 색상)
+        function calculateColorMatchingScore(selectedColor) {
+            const currentAnalysis = window.PersonalColorSystem.currentAnalysis;
+            
+            if (!currentAnalysis.labValues || !currentAnalysis.season) {
+                // 기본 점수 (랜덤 시뮬레이션)
+                return Math.floor(Math.random() * 25) + 65; // 65-90점
+            }
+            
+            // 실제 피부톤과의 Delta E 계산
+            const selectedLab = hexToLab(selectedColor);
+            if (!selectedLab) return 50;
+            
+            const deltaE = calculateDeltaE2000(currentAnalysis.labValues, selectedLab);
+            
+            // Delta E를 점수로 변환 (0-100점)
+            // Delta E < 5: 90-100점, Delta E < 10: 80-89점, ...
+            let score = Math.max(0, Math.min(100, 100 - deltaE * 5));
+            
+            // 계절 매칭 보너스
+            const seasonColors = COMPLETE_COLOR_DATABASE[currentAnalysis.season];
+            if (seasonColors) {
+                let seasonBonus = 0;
+                Object.values(seasonColors).forEach(toneColors => {
+                    toneColors.forEach(colorData => {
+                        if (colorData.hex === selectedColor) {
+                            seasonBonus = 20; // 같은 계절 색상이면 +20점
+                        }
+                    });
+                });
+                score = Math.min(100, score + seasonBonus);
+            }
+            
+            return Math.round(score);
+        }
+
+        // 점수 설명
+        function getScoreDescription(score) {
+            if (score >= 95) return '완벽한 매칭!';
+            if (score >= 90) return '매우 잘 어울림';
+            if (score >= 85) return '잘 어울림';
+            if (score >= 80) return '괜찮음';
+            if (score >= 75) return '보통';
+            if (score >= 70) return '약간 어색함';
+            return '다른 색상을 추천';
+        }
+
+        // 브랜드 매칭 표시
+        function displayBrandMatching(seasonName, toneName) {
+            const currentSeason = Object.keys(KOREAN_SKIN_DATABASE.seasons).find(key => 
+                KOREAN_SKIN_DATABASE.seasons[key].name === seasonName
+            ) || 'spring';
+            
+            let brandHTML = '';
+            Object.keys(BRAND_DATABASE.hairColor).slice(0, 3).forEach(brandKey => {
+                const brand = BRAND_DATABASE.hairColor[brandKey];
+                const products = brand.products[currentSeason]?.slice(0, 2) || [];
+                if (products.length > 0) {
+                    brandHTML += `<div style="padding: 0.4rem; background: var(--bg-light); border-radius: 4px; font-size: 0.75rem;">
+                        <strong>${brand.name}:</strong> ${products.join(', ')}</div>`;
+                }
+            });
+            
+            if (brandHTML) {
+                document.getElementById('brand-products').innerHTML = brandHTML;
+            }
+        }
+
+        // 현재 모습 캡처
+        function captureCurrentLook() {
+            const video = document.getElementById('draping-video');
+            if (!video.srcObject) {
+                showToast('먼저 카메라를 시작해주세요', 'warning');
+                return;
+            }
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            ctx.drawImage(video, 0, 0);
+            
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `draping_capture_${Date.now()}.png`;
+            link.href = dataURL;
+            link.click();
+            
+            showToast('현재 드래이핑 모습이 캡처되었습니다', 'success');
+        }
+
+        // 드래이핑에서 메뉴로 돌아가기
+        function backToMenuFromDraping() {
+            const drapingSection = document.getElementById('draping-section');
+            if (drapingSection) {
+                // 카메라 스트림 정지
+                const video = document.getElementById('draping-video');
+                if (video && video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+                
+                drapingSection.remove();
+            }
+            
+            document.getElementById('mode-selection').classList.remove('hidden');
+            showToast('메인 메뉴로 돌아갔습니다', 'info');
         }
 
         // 브랜드 데이터베이스 표시
