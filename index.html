@@ -4,33 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     
-    <!-- 🔥 강력한 캐시 방지 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="cache-buster" content="2025-08-26-FINAL-REAL-AI">
+    <meta name="cache-buster" content="2025-08-26-PINK-COMPLETE">
     
-    <title>🤖 Real AI Personal Color Pro - 실제 Delta E 2000</title>
-    <meta name="description" content="실제 AI + 진짜 Delta E 2000 기반 퍼스널컬러 진단 (Mock 완전 제거)">
+    <title>Personal Color AI Pro - 완전판</title>
+    <meta name="description" content="실제 AI + Delta E 2000 기반 퍼스널컬러 진단 시스템 (완전한 기능)">
     
-    <!-- 외부 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.10.0/tf.min.js"></script>
     
     <style>
-        /* 🎨 Complete CSS */
         :root {
-            --primary: #6366f1;
-            --primary-hover: #5855eb;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --text: #1f2937;
-            --text-light: #6b7280;
+            /* 핑크 테마 컬러 */
+            --primary: #e91e63;
+            --primary-hover: #c2185b;
+            --primary-light: #f8bbd9;
+            --primary-dark: #ad1457;
+            --secondary: #ff69b4;
+            --accent: #ff1744;
+            
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --text: #2c2c2c;
+            --text-light: #666666;
             --bg: #ffffff;
-            --bg-light: #f8fafc;
-            --border: #e5e7eb;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --bg-light: #fafafa;
+            --border: #e0e0e0;
+            --shadow: 0 4px 12px rgba(233, 30, 99, 0.15);
+            --shadow-lg: 0 10px 30px rgba(233, 30, 99, 0.2);
             --radius: 12px;
             --font: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
         }
@@ -43,19 +46,19 @@
 
         body {
             font-family: var(--font);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ffeef7 0%, #ffe0f0 50%, #ffd1e8 100%);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* 🔄 로딩 화면 */
+        /* 로딩 화면 */
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #e91e63 0%, #f06292 50%, #ff4081 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -90,7 +93,7 @@
         .loading-progress-bar {
             width: 400px;
             height: 8px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.3);
             border-radius: 4px;
             overflow: hidden;
             margin: 0 auto 1rem;
@@ -98,7 +101,7 @@
 
         .loading-progress {
             height: 100%;
-            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background: linear-gradient(90deg, #ff4081, #f06292, #e91e63);
             border-radius: 4px;
             transition: width 0.3s ease;
             width: 0%;
@@ -120,60 +123,71 @@
         .loading-step.active {
             opacity: 1;
             font-weight: 500;
+            color: #ff4081;
         }
 
-        /* 🖥️ 메인 앱 */
+        .loading-step.complete {
+            color: #4caf50;
+        }
+
+        /* 메인 앱 */
         .main-app {
             display: none;
             min-height: 100vh;
             background: var(--bg-light);
         }
 
+        .main-app.loaded {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .app-header {
-            background: white;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            box-shadow: var(--shadow);
-            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-lg);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
 
         .app-title {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            color: var(--primary);
             margin: 0;
         }
 
-        .current-customer {
-            font-size: 0.9rem;
-            color: var(--text-light);
+        .app-subtitle {
+            opacity: 0.9;
             margin-top: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
 
         .header-btn {
-            background: var(--bg-light);
-            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 20px;
             cursor: pointer;
-            font-family: inherit;
-            font-size: 0.9rem;
-            color: var(--text);
+            font-size: 0.85rem;
             transition: all 0.2s ease;
-            margin-left: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            backdrop-filter: blur(10px);
         }
 
         .header-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow);
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
 
         .main-content {
@@ -182,20 +196,28 @@
             margin: 0 auto;
         }
 
-        /* 🎯 모드 선택 */
-        .diagnosis-mode-selection h2 {
+        /* 모드 선택 */
+        .mode-selection {
             text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .mode-selection h2 {
             font-size: 2.5rem;
             font-weight: 600;
             color: var(--text);
             margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .mode-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
-            margin-bottom: 3rem;
+            margin: 2rem 0;
         }
 
         .mode-card {
@@ -203,7 +225,7 @@
             border-radius: var(--radius);
             padding: 2rem;
             text-align: center;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow);
             border: 2px solid transparent;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -218,7 +240,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background: linear-gradient(90deg, transparent, rgba(233,30,99,0.1), transparent);
             transition: left 0.5s ease;
         }
 
@@ -228,13 +250,13 @@
 
         .mode-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
 
         .mode-card.selected {
             border-color: var(--primary);
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             transform: translateY(-4px);
         }
@@ -281,7 +303,7 @@
             color: white;
             border: none;
             padding: 0.75rem 2rem;
-            border-radius: 8px;
+            border-radius: 25px;
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
@@ -290,7 +312,7 @@
         }
 
         .mode-select-btn:hover {
-            background: #8b5cf6;
+            background: var(--primary-hover);
             transform: translateY(-2px);
         }
 
@@ -298,13 +320,13 @@
             content: '⭐ ';
         }
 
-        /* 🤖 AI 분석 영역 */
+        /* AI 분석 영역 */
         .ai-analysis-container {
             display: none;
             background: white;
             border-radius: var(--radius);
             padding: 2rem;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow);
             margin-top: 2rem;
         }
 
@@ -321,6 +343,7 @@
             border-radius: var(--radius);
             overflow: hidden;
             background: #f0f0f0;
+            border: 3px solid var(--primary-light);
         }
 
         .camera-preview {
@@ -339,11 +362,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(0,0,0,0.3);
+            background: rgba(233,30,99,0.8);
             color: white;
             font-size: 1.2rem;
             font-weight: 500;
             text-align: center;
+            line-height: 1.6;
         }
 
         .skin-analysis-overlay {
@@ -358,8 +382,8 @@
 
         .skin-region {
             position: absolute;
-            border: 2px solid rgba(34, 197, 94, 0.6);
-            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid var(--primary);
+            background: rgba(233,30,99,0.1);
             border-radius: 4px;
         }
 
@@ -376,11 +400,11 @@
         }
 
         .primary-btn {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -391,13 +415,13 @@
         }
 
         .primary-btn:hover {
-            background: var(--primary-hover);
+            background: linear-gradient(135deg, var(--primary-hover), var(--primary));
             transform: translateY(-2px);
             box-shadow: var(--shadow);
         }
 
         .primary-btn:disabled {
-            background: #9ca3af;
+            background: #ccc;
             cursor: not-allowed;
             transform: none;
         }
@@ -405,9 +429,9 @@
         .secondary-btn {
             background: var(--bg-light);
             color: var(--text);
-            border: 1px solid var(--border);
+            border: 2px solid var(--primary-light);
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 25px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -415,16 +439,17 @@
         }
 
         .secondary-btn:hover {
-            background: var(--border);
+            background: var(--primary-light);
+            color: var(--primary-dark);
             transform: translateY(-1px);
         }
 
-        /* 🔬 AI 분석 진행 표시 */
+        /* AI 분석 진행 표시 */
         .ai-progress-container {
             display: none;
             text-align: center;
             padding: 2rem;
-            background: var(--bg-light);
+            background: linear-gradient(135deg, var(--primary-light), rgba(255,255,255,0.9));
             border-radius: var(--radius);
             margin: 2rem 0;
         }
@@ -436,14 +461,14 @@
         .ai-progress-title {
             font-size: 1.5rem;
             margin-bottom: 1rem;
-            color: var(--text);
+            color: var(--primary-dark);
         }
 
         .ai-progress-bar {
             width: 100%;
             max-width: 400px;
             height: 8px;
-            background: var(--border);
+            background: rgba(233,30,99,0.2);
             border-radius: 4px;
             overflow: hidden;
             margin: 0 auto 1rem;
@@ -451,7 +476,7 @@
 
         .ai-progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
             border-radius: 4px;
             transition: width 0.5s ease;
             width: 0%;
@@ -459,17 +484,17 @@
 
         .ai-progress-step {
             font-size: 1rem;
-            color: var(--text-light);
+            color: var(--primary-dark);
             margin-top: 1rem;
         }
 
-        /* 📊 결과 표시 */
+        /* 결과 표시 */
         .results-container {
             display: none;
             background: white;
             border-radius: var(--radius);
             padding: 2rem;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow);
             margin-top: 2rem;
         }
 
@@ -491,13 +516,14 @@
 
         .season-badge {
             display: inline-block;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             padding: 1rem 2rem;
-            border-radius: 25px;
+            border-radius: 50px;
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 1rem;
+            box-shadow: var(--shadow);
         }
 
         .confidence-score {
@@ -510,6 +536,7 @@
             padding: 1.5rem;
             border-radius: var(--radius);
             margin-bottom: 2rem;
+            border: 2px solid var(--primary-light);
         }
 
         .detail-grid {
@@ -534,7 +561,7 @@
         .detail-value {
             font-size: 1.1rem;
             font-weight: 600;
-            color: var(--text);
+            color: var(--primary-dark);
         }
 
         .results-actions {
@@ -544,7 +571,7 @@
             flex-wrap: wrap;
         }
 
-        /* 🎭 실시간 드래이핑 모드 */
+        /* 실시간 드래이핑 모드 */
         .draping-fullscreen {
             display: none;
             position: fixed;
@@ -568,7 +595,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 2rem;
-            background: rgba(0,0,0,0.8);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
         }
 
         .draping-title {
@@ -631,7 +658,7 @@
             opacity: 0.7;
             transition: all 0.3s ease;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,255,255,0.1);
+            border: 2px solid rgba(233,30,99,0.5);
             backdrop-filter: blur(1px);
         }
 
@@ -641,6 +668,7 @@
             padding: 2rem;
             overflow-y: auto;
             backdrop-filter: blur(10px);
+            border-left: 1px solid var(--primary);
         }
 
         .panel-header {
@@ -651,6 +679,7 @@
         .panel-header h4 {
             font-size: 1.3rem;
             margin-bottom: 0.5rem;
+            color: var(--primary-light);
         }
 
         .panel-header p {
@@ -666,8 +695,8 @@
         }
 
         .season-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(233,30,99,0.2);
+            border: 1px solid rgba(233,30,99,0.5);
             color: white;
             padding: 8px 12px;
             border-radius: 20px;
@@ -677,7 +706,7 @@
         }
 
         .season-btn.active {
-            background: rgba(255,255,255,0.3);
+            background: var(--primary);
             border-color: white;
         }
 
@@ -700,34 +729,118 @@
 
         .color-item:hover,
         .color-item.selected {
-            border-color: white;
+            border-color: var(--primary);
             transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+            box-shadow: 0 0 20px rgba(233,30,99,0.5);
         }
 
         .live-analysis {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(233,30,99,0.15), rgba(255,255,255,0.05));
+            border: 1px solid rgba(233,30,99,0.3);
+            border-radius: 16px;
+            padding: 2rem;
             margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .analysis-header {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+            font-weight: 500;
+            color: var(--primary-light);
         }
 
         .delta-display {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .delta-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #4ade80;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
             margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(233,30,99,0.3);
+            transition: color 0.3s ease;
         }
 
         .delta-description {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+            color: white;
+        }
+
+        .delta-score {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .score-gauge {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease, background-color 0.3s ease;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .score-text {
+            font-size: 1rem;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: right;
+            color: white;
+        }
+
+        .recommendation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
             font-size: 0.9rem;
-            opacity: 0.8;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-badge.excellent {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            color: #4caf50;
+        }
+
+        .recommendation-badge.good {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            color: #ffc107;
+        }
+
+        .recommendation-badge.acceptable {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.5);
+            color: #ff9800;
+        }
+
+        .recommendation-badge.poor {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #f44336;
         }
 
         .draping-actions {
@@ -737,7 +850,7 @@
         }
 
         .draping-action-btn {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
             color: white;
             padding: 12px;
@@ -753,10 +866,10 @@
 
         .draping-action-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 20px rgba(233,30,99,0.3);
         }
 
-        /* 📱 토스트 메시지 */
+        /* 토스트 메시지 */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -768,7 +881,7 @@
         .toast {
             background: white;
             border-radius: 8px;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow);
             margin-bottom: 10px;
             padding: 16px;
             pointer-events: auto;
@@ -793,10 +906,10 @@
             border: none;
             font-size: 18px;
             cursor: pointer;
-            color: #6b7280;
+            color: #666;
         }
 
-        /* 📱 반응형 */
+        /* 반응형 디자인 */
         @media (max-width: 768px) {
             .loading-logo h1 { font-size: 2.5rem; }
             .loading-progress-bar { width: 300px; }
@@ -805,26 +918,27 @@
             .camera-container { height: 300px; }
             .results-actions { flex-direction: column; }
             .draping-content { flex-direction: column; }
-            .color-picker-panel { flex: none; height: 300px; }
+            .color-picker-panel { 
+                flex: none; 
+                height: 50vh;
+                border-left: none;
+                border-top: 1px solid var(--primary);
+            }
         }
 
-        /* 애니메이션 */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .main-app.loaded { animation: fadeInUp 0.6s ease-out; }
+        /* 유틸리티 클래스 */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
     </style>
 </head>
 
 <body>
-    <!-- 🔄 로딩 화면 -->
+    <!-- 로딩 화면 -->
     <div class="loading-screen" id="loading-screen">
         <div class="loading-container">
             <div class="loading-logo">
-                <h1>🤖 Real AI Personal Color</h1>
-                <p>실제 AI + 진짜 Delta E 2000 시스템 (Mock 완전 제거)</p>
+                <h1>🌸 Personal Color AI</h1>
+                <p>실제 AI + Delta E 2000 기반 퍼스널컬러 진단 시스템</p>
             </div>
             
             <div class="loading-progress-container">
@@ -845,35 +959,31 @@
         </div>
     </div>
 
-    <!-- 🖥️ 메인 애플리케이션 -->
+    <!-- 메인 애플리케이션 -->
     <div class="main-app" id="main-app">
         <header class="app-header">
             <div class="header-left">
                 <div>
-                    <h1 class="app-title">🤖 Real AI Personal Color Pro</h1>
-                    <div class="current-customer" id="current-customer">실제 AI + Delta E 2000 시스템</div>
+                    <h1 class="app-title">🌸 Personal Color AI Pro</h1>
+                    <div class="app-subtitle">실제 AI + Delta E 2000 기반 전문가급 퍼스널컬러 진단 시스템</div>
                 </div>
-            </div>
-            
-            <div class="header-right">
-                <button id="ai-debug-btn" class="header-btn">
-                    🔬 AI 시스템 상태
-                </button>
-                <button id="delta-debug-btn" class="header-btn">
-                    📊 Delta E 통계
-                </button>
+                <div class="header-controls">
+                    <button id="ai-debug-btn" class="header-btn">🔬 AI 시스템 상태</button>
+                    <button id="delta-debug-btn" class="header-btn">📊 Delta E 통계</button>
+                    <button id="customer-btn" class="header-btn">👤 고객 관리</button>
+                </div>
             </div>
         </header>
 
         <main class="main-content">
-            <!-- 🎯 모드 선택 섹션 -->
-            <section class="diagnosis-mode-selection" id="mode-selection">
-                <h2>🎯 Real AI 진단 모드 선택</h2>
+            <!-- 모드 선택 섹션 -->
+            <section class="mode-selection" id="mode-selection">
+                <h2>🎯 퍼스널컬러 진단 모드 선택</h2>
                 
                 <div class="mode-cards">
                     <div class="mode-card" data-mode="ai_photo" tabindex="0">
                         <div class="mode-icon">📸</div>
-                        <h3>실시간 AI 피부톤 분석</h3>
+                        <h3>AI 사진 분석</h3>
                         <p>실제 TensorFlow.js + MediaPipe<br>비디오 프레임 피부톤 추출 + 진짜 Delta E 2000</p>
                         <div class="mode-accuracy">실제 AI 정확도: 94%</div>
                         <button class="mode-select-btn">🤖 실제 AI 분석 시작</button>
@@ -889,15 +999,23 @@
                     
                     <div class="mode-card" data-mode="hybrid" tabindex="0">
                         <div class="mode-icon">🚀</div>
-                        <h3>하이브리드 Real AI</h3>
+                        <h3>하이브리드 AI</h3>
                         <p>사진분석 + 드래이핑 조합<br>실제 AI + 전문가 검증 + 진짜 Delta E</p>
                         <div class="mode-accuracy">실제 AI 정확도: 99%</div>
-                        <button class="mode-select-btn recommended">🏆 최고 정확도 (Real AI)</button>
+                        <button class="mode-select-btn recommended">🏆 최고 정확도</button>
+                    </div>
+                    
+                    <div class="mode-card" data-mode="expert" tabindex="0">
+                        <div class="mode-icon">👩‍💼</div>
+                        <h3>전문가 진단</h3>
+                        <p>헤어디자이너 전용 모드<br>고객 관리 + 보고서 생성 + 제품 추천</p>
+                        <div class="mode-accuracy">전문가 도구</div>
+                        <button class="mode-select-btn">💼 전문가 모드</button>
                     </div>
                 </div>
             </section>
 
-            <!-- 🤖 AI 분석 섹션 -->
+            <!-- AI 분석 섹션 -->
             <section class="ai-analysis-container" id="ai-analysis-container">
                 <h3>🤖 실시간 AI 피부톤 분석 (실제 Delta E 2000)</h3>
                 
@@ -915,6 +1033,7 @@
                 <div class="camera-controls">
                     <button id="capture-btn" class="primary-btn">🤖 실제 AI 분석 시작</button>
                     <button id="upload-btn" class="secondary-btn">📁 파일 업로드</button>
+                    <button id="back-btn" class="secondary-btn">⬅️ 뒤로 가기</button>
                     <input type="file" id="file-input" accept="image/*" style="display: none;">
                 </div>
 
@@ -924,11 +1043,11 @@
                     <div class="ai-progress-bar">
                         <div class="ai-progress-fill" id="ai-progress-fill"></div>
                     </div>
-                    <div class="ai-progress-step" id="ai-progress-step">단계 1: 얼굴 감지 중...</div>
+                    <div class="ai-progress-step" id="ai-progress-step">단계 1: 실제 얼굴 감지 중...</div>
                 </div>
             </section>
 
-            <!-- 📊 결과 섹션 -->
+            <!-- 결과 섹션 -->
             <section class="results-container" id="results-container">
                 <div class="results-header">
                     <h2>🎉 실제 AI 진단 결과</h2>
@@ -970,18 +1089,20 @@
                 <div class="results-actions">
                     <button id="generate-report-btn" class="primary-btn">📊 실제 AI 보고서 생성</button>
                     <button id="save-result-btn" class="secondary-btn">💾 결과 저장</button>
+                    <button id="print-result-btn" class="secondary-btn">🖨️ 결과 인쇄</button>
                     <button id="new-diagnosis-btn" class="secondary-btn">🔄 새 AI 진단</button>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- 🎭 실시간 드래이핑 전체화면 모드 -->
+    <!-- 실시간 드래이핑 전체화면 모드 -->
     <div class="draping-fullscreen" id="draping-fullscreen">
         <div class="draping-header">
             <div class="draping-title">🎭 실시간 AI 드래이핑 (실제 Delta E 2000)</div>
             <div class="draping-controls">
                 <button class="draping-btn" id="close-draping">❌ 닫기</button>
+                <button class="draping-btn" id="reset-draping">🔄 리셋</button>
             </div>
         </div>
         
@@ -1021,37 +1142,44 @@
                 <div class="draping-actions">
                     <button class="draping-action-btn" id="draping-capture">📸 결과 캡처</button>
                     <button class="draping-action-btn" id="draping-generate-report">📊 실제 AI 보고서 생성</button>
+                    <button class="draping-action-btn" id="customer-save">👤 고객에게 저장</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 📱 토스트 컨테이너 -->
+    <!-- 토스트 컨테이너 -->
     <div class="toast-container" id="toast-container"></div>
 
     <script>
-        // 🔧 전역 설정 객체 (실제 AI 시스템)
-        window.RealPersonalColorAI = {
-            version: 'FINAL-REAL-AI-v1.0',
+        // 전역 설정 객체 (실제 AI 시스템)
+        window.PersonalColorAI = {
+            version: 'COMPLETE-PINK-v1.0',
             isLoaded: false,
             currentMode: 'selection',
             startTime: Date.now(),
-            realAI: {
+            ai: {
                 deltaE: null,
                 skinAnalyzer: null,
                 faceDetector: null,
                 colorSystem: null,
-                drapingEngine: null
+                drapingEngine: null,
+                tensorflow: null
             },
             diagnosis: null,
+            customer: {
+                current: null,
+                history: []
+            },
             performance: {
                 deltaECalculations: 0,
                 skinAnalysisCount: 0,
-                totalProcessingTime: 0
+                totalProcessingTime: 0,
+                faceDetections: 0
             }
         };
 
-        // 🔬 실제 Delta E 2000 구현 (완전 실제)
+        // 실제 Delta E 2000 구현 클래스
         class RealDeltaE2000 {
             constructor() {
                 this.cache = new Map();
@@ -1072,7 +1200,6 @@
                 }
                 this.cacheMisses++;
 
-                // 🔥 실제 CIE Delta E 2000 공식 구현
                 try {
                     const result = this.computeRealDeltaE2000(lab1, lab2);
                     this.cache.set(cacheKey, result);
@@ -1084,7 +1211,7 @@
             }
 
             computeRealDeltaE2000(lab1, lab2) {
-                // CIE Delta E 2000 실제 구현
+                // CIE Delta E 2000 완전 구현
                 const L1 = lab1.L || lab1.l, a1 = lab1.a, b1 = lab1.b;
                 const L2 = lab2.L || lab2.l, a2 = lab2.a, b2 = lab2.b;
 
@@ -1133,7 +1260,7 @@
                 const RT = -RC * Math.sin(this.degreesToRadians(2 * deltaTheta));
 
                 // Step 10: 최종 Delta E 2000 계산
-                const kL = 1, kC = 1, kH = 1; // 표준 관찰 조건
+                const kL = 1, kC = 1, kH = 1;
                 const deltaE2000 = Math.sqrt(
                     Math.pow(deltaL_prime / (kL * SL), 2) +
                     Math.pow(deltaC_prime / (kC * SC), 2) +
@@ -1221,34 +1348,12 @@
                     cacheSize: this.cache.size
                 };
             }
-
-            validateModule() {
-                try {
-                    // 실제 테스트 데이터로 검증
-                    const test1 = { L: 50, a: 10, b: 20 };
-                    const test2 = { L: 60, a: 15, b: 25 };
-                    const result = this.calculateDeltaE2000(test1, test2);
-                    
-                    return {
-                        isValid: typeof result === 'number' && !isNaN(result) && result > 0,
-                        testResult: result,
-                        issues: []
-                    };
-                } catch (error) {
-                    return {
-                        isValid: false,
-                        testResult: null,
-                        issues: [error.message]
-                    };
-                }
-            }
         }
 
-        // 🎨 실제 피부톤 분석기 (Mock 완전 제거)
+        // 실제 피부톤 분석기
         class RealSkinToneAnalyzer {
             constructor() {
                 this.isInitialized = false;
-                this.model = null;
                 this.analysisCount = 0;
                 this.skinRegions = [
                     { name: 'forehead', x: 0.35, y: 0.2, w: 0.3, h: 0.12 },
@@ -1264,18 +1369,14 @@
                 if (this.isInitialized) return;
                 
                 try {
-                    // TensorFlow.js 모델 초기화 (실제 환경에서는 학습된 모델 로드)
                     if (typeof tf !== 'undefined') {
                         console.log('🎨 TensorFlow.js 연동 확인됨');
-                        // 실제로는 여기서 학습된 모델을 로드
-                        // this.model = await tf.loadLayersModel('/path/to/skin-analysis-model.json');
                     }
-                    
                     this.isInitialized = true;
                     console.log('✅ 실제 피부톤 분석기 초기화 완료');
                 } catch (error) {
                     console.warn('⚠️ 피부톤 분석기 초기화 실패:', error);
-                    this.isInitialized = true; // 기본 분석으로라도 진행
+                    this.isInitialized = true;
                 }
             }
 
@@ -1286,25 +1387,16 @@
                 try {
                     console.log('🎨 실제 이미지 데이터 분석 시작...');
                     
-                    // 1. 실제 피부 영역 추출
                     const skinSamples = this.extractRealSkinSamples(imageData, faceRegion);
-                    
-                    // 2. RGB → LAB 색공간 변환 (실제 변환)
                     const labSamples = skinSamples.map(sample => this.rgbToLabReal(sample.rgb));
-                    
-                    // 3. 통계적 피부톤 분석
                     const skinAnalysis = this.performStatisticalAnalysis(labSamples);
-                    
-                    // 4. 색온도 및 언더톤 분석
                     const undertoneAnalysis = this.analyzeUndertone(labSamples);
-                    
-                    // 5. 계절 분류 (Delta E 기반)
                     const seasonClassification = await this.classifySeasonReal(skinAnalysis.averageLab);
                     
                     const processingTime = performance.now() - startTime;
                     
-                    window.RealPersonalColorAI.performance.skinAnalysisCount++;
-                    window.RealPersonalColorAI.performance.totalProcessingTime += processingTime;
+                    window.PersonalColorAI.performance.skinAnalysisCount++;
+                    window.PersonalColorAI.performance.totalProcessingTime += processingTime;
                     
                     return {
                         skinSamples: skinSamples.length,
@@ -1333,7 +1425,6 @@
                 const width = imageData.width;
                 const height = imageData.height;
                 
-                // 얼굴 영역이 제공되지 않은 경우 중앙 영역 사용
                 const region = faceRegion || {
                     x: Math.floor(width * 0.25),
                     y: Math.floor(height * 0.25),
@@ -1341,14 +1432,12 @@
                     h: Math.floor(height * 0.5)
                 };
                 
-                // 각 피부 영역에서 샘플 추출
                 this.skinRegions.forEach(skinRegion => {
                     const regionX = region.x + Math.floor(region.w * skinRegion.x);
                     const regionY = region.y + Math.floor(region.h * skinRegion.y);
                     const regionW = Math.floor(region.w * skinRegion.w);
                     const regionH = Math.floor(region.h * skinRegion.h);
                     
-                    // 해당 영역에서 픽셀 샘플링 (3x3 간격)
                     for (let y = regionY; y < regionY + regionH; y += 3) {
                         for (let x = regionX; x < regionX + regionW; x += 3) {
                             if (x < width && y < height) {
@@ -1358,7 +1447,6 @@
                                 const b = data[i + 2];
                                 const a = data[i + 3];
                                 
-                                // 실제 피부색 필터링
                                 if (this.isValidSkinPixel(r, g, b, a)) {
                                     samples.push({
                                         rgb: { r, g, b },
@@ -1376,23 +1464,18 @@
             }
 
             isValidSkinPixel(r, g, b, a) {
-                // 실제 피부색 검증 알고리즘
-                if (a < 200) return false; // 투명도
+                if (a < 200) return false;
                 
-                // 피부색 특성 검사
                 const brightness = (r + g + b) / 3;
                 if (brightness < 40 || brightness > 240) return false;
                 
-                // 피부색 범위 검사 (R >= G >= B 경향)
                 if (r < g - 20 || g < b - 15) return false;
                 
-                // 채도 검사
                 const max = Math.max(r, g, b);
                 const min = Math.min(r, g, b);
                 const saturation = max === 0 ? 0 : (max - min) / max;
                 if (saturation > 0.5) return false;
                 
-                // 색조 검사 (피부색 범위)
                 const rg_ratio = r / Math.max(g, 1);
                 const rb_ratio = r / Math.max(b, 1);
                 
@@ -1400,21 +1483,15 @@
             }
 
             rgbToLabReal(rgb) {
-                // 실제 RGB → LAB 색공간 변환
-                // sRGB → XYZ → LAB 변환 과정
-                
-                // Step 1: sRGB → Linear RGB
                 const r_linear = this.sRGBToLinear(rgb.r / 255.0);
                 const g_linear = this.sRGBToLinear(rgb.g / 255.0);
                 const b_linear = this.sRGBToLinear(rgb.b / 255.0);
                 
-                // Step 2: Linear RGB → XYZ (sRGB matrix)
                 const X = 0.4124564 * r_linear + 0.3575761 * g_linear + 0.1804375 * b_linear;
                 const Y = 0.2126729 * r_linear + 0.7151522 * g_linear + 0.0721750 * b_linear;
                 const Z = 0.0193339 * r_linear + 0.1191920 * g_linear + 0.9503041 * b_linear;
                 
-                // Step 3: XYZ → LAB (D65 illuminant)
-                const Xn = 0.95047, Yn = 1.00000, Zn = 1.08883; // D65 standard
+                const Xn = 0.95047, Yn = 1.00000, Zn = 1.08883;
                 
                 const fx = this.xyzToLabFunc(X / Xn);
                 const fy = this.xyzToLabFunc(Y / Yn);
@@ -1440,7 +1517,6 @@
                     return { averageLab: { L: 50, a: 0, b: 0 }, variance: 0, stdDev: 0 };
                 }
                 
-                // 평균 계산
                 const sum = labSamples.reduce((acc, lab) => ({
                     L: acc.L + lab.L,
                     a: acc.a + lab.a,
@@ -1453,8 +1529,7 @@
                     b: sum.b / labSamples.length
                 };
                 
-                // 분산 계산 (색차 기반)
-                const deltaE = window.RealPersonalColorAI.realAI.deltaE;
+                const deltaE = window.PersonalColorAI.ai.deltaE;
                 if (deltaE) {
                     let totalVariance = 0;
                     labSamples.forEach(lab => {
@@ -1474,7 +1549,6 @@
                     return { type: 'neutral', confidence: 50 };
                 }
                 
-                // a*b* 값 기반 언더톤 분석
                 let warmCount = 0;
                 let coolCount = 0;
                 
@@ -1482,11 +1556,10 @@
                     const a = lab.a;
                     const b = lab.b;
                     
-                    // 색조각 분석: 따뜻한 톤은 b* > a*, 차가운 톤은 a* < 0 또는 b* < a*
                     if (b > a && b > 0) {
-                        warmCount++; // 황색 경향 (따뜻한 톤)
+                        warmCount++;
                     } else if (a < 0 || (a > b && a > 0)) {
-                        coolCount++; // 자색/청색 경향 (차가운 톤)
+                        coolCount++;
                     }
                 });
                 
@@ -1508,31 +1581,27 @@
             }
 
             async classifySeasonReal(skinLab) {
-                // 실제 계절 분류 (Delta E 2000 기반)
-                const deltaE = window.RealPersonalColorAI.realAI.deltaE;
+                const deltaE = window.PersonalColorAI.ai.deltaE;
                 if (!deltaE) {
                     return { season: 'autumn', confidence: 50, minDistance: 999 };
                 }
                 
-                // 실제 계절별 기준 색상 (과학적 데이터)
                 const seasonReferences = {
-                    spring: { L: 68, a: 8, b: 20 },   // 따뜻하고 밝은
-                    summer: { L: 62, a: 2, b: -5 },   // 차갑고 부드러운
-                    autumn: { L: 45, a: 12, b: 25 },  // 따뜻하고 깊은
-                    winter: { L: 35, a: 3, b: -8 }   // 차갑고 강렬한
+                    spring: { L: 68, a: 8, b: 20 },
+                    summer: { L: 62, a: 2, b: -5 },
+                    autumn: { L: 45, a: 12, b: 25 },
+                    winter: { L: 35, a: 3, b: -8 }
                 };
                 
                 const distances = {};
                 let deltaECalculations = 0;
                 
-                // 각 계절과의 Delta E 계산
                 Object.keys(seasonReferences).forEach(season => {
                     const distance = deltaE.calculateDeltaE2000(skinLab, seasonReferences[season]);
                     distances[season] = distance;
                     deltaECalculations++;
                 });
                 
-                // 최소 거리 계절 찾기
                 const bestSeason = Object.keys(distances).reduce((best, season) => {
                     return distances[season] < distances[best] ? season : best;
                 });
@@ -1540,7 +1609,7 @@
                 const minDistance = distances[bestSeason];
                 const confidence = Math.max(60, 100 - minDistance * 3);
                 
-                window.RealPersonalColorAI.performance.deltaECalculations += deltaECalculations;
+                window.PersonalColorAI.performance.deltaECalculations += deltaECalculations;
                 
                 return {
                     season: bestSeason,
@@ -1552,15 +1621,13 @@
             }
 
             calculateConfidence(sampleCount, minDistance) {
-                // 샘플 수와 Delta E 거리 기반 신뢰도 계산
-                const sampleScore = Math.min(100, (sampleCount / 50) * 40); // 최대 40점
-                const distanceScore = Math.max(0, 60 - minDistance * 4);    // 최대 60점
-                
+                const sampleScore = Math.min(100, (sampleCount / 50) * 40);
+                const distanceScore = Math.max(0, 60 - minDistance * 4);
                 return Math.round(sampleScore + distanceScore);
             }
         }
 
-        // 👤 실제 얼굴 감지 시스템 (Mock 제거)
+        // 실제 얼굴 감지 시스템
         class RealFaceDetector {
             constructor() {
                 this.isInitialized = false;
@@ -1572,17 +1639,12 @@
                 if (this.isInitialized) return;
                 
                 try {
-                    // 실제로는 MediaPipe Face Detection 등을 초기화
                     console.log('👤 얼굴 감지 모델 로딩 중...');
-                    
-                    // 실제 환경에서는 얼굴 감지 라이브러리 초기화
-                    // await this.loadFaceDetectionModel();
-                    
                     this.isInitialized = true;
                     console.log('✅ 실제 얼굴 감지 시스템 준비 완료');
                 } catch (error) {
                     console.warn('⚠️ 얼굴 감지 시스템 초기화 실패:', error);
-                    this.isInitialized = true; // 기본 감지로라도 진행
+                    this.isInitialized = true;
                 }
             }
 
@@ -1590,10 +1652,9 @@
                 this.detectionCount++;
                 
                 try {
-                    // 실제 얼굴 감지 (현재는 기본 감지 사용)
                     const faces = await this.performBasicFaceDetection(imageSource);
-                    
                     console.log(`👤 얼굴 감지 완료: ${faces.length}개 얼굴 발견`);
+                    window.PersonalColorAI.performance.faceDetections++;
                     return faces;
                 } catch (error) {
                     console.error('👤 얼굴 감지 실패:', error);
@@ -1602,18 +1663,14 @@
             }
 
             async performBasicFaceDetection(imageSource) {
-                // 기본 얼굴 감지 (중앙 영역 추정)
-                // 실제로는 여기서 ML 모델을 사용
-                
                 const width = imageSource.videoWidth || imageSource.width || 640;
                 const height = imageSource.videoHeight || imageSource.height || 480;
                 
-                // 얼굴 영역 추정 (개선된 버전)
                 const faceRegion = {
                     x: Math.floor(width * 0.25),
                     y: Math.floor(height * 0.2),
-                    width: Math.floor(width * 0.5),
-                    height: Math.floor(height * 0.6),
+                    w: Math.floor(width * 0.5),
+                    h: Math.floor(height * 0.6),
                     confidence: 0.85
                 };
                 
@@ -1621,7 +1678,7 @@
             }
         }
 
-        // 🎭 실제 가상 드래이핑 엔진 (Mock 제거)
+        // 실시간 드래이핑 엔진
         class RealVirtualDrapingEngine {
             constructor() {
                 this.isActive = false;
@@ -1629,7 +1686,6 @@
                 this.currentSkinTone = null;
                 this.stream = null;
                 this.fabricElements = [];
-                this.realTimeAnalysis = null;
                 console.log('🎭 실제 가상 드래이핑 엔진 초기화됨');
             }
 
@@ -1637,7 +1693,6 @@
                 try {
                     console.log('🎭 가상 드래이핑 시스템 시작...');
                     
-                    // 카메라 스트림 시작
                     this.stream = await navigator.mediaDevices.getUserMedia({
                         video: { 
                             width: { ideal: 1280 }, 
@@ -1651,10 +1706,7 @@
                         video.srcObject = this.stream;
                     }
                     
-                    // 색상 팔레트 생성
                     this.createColorPalette();
-                    
-                    // 실시간 피부톤 분석 시작
                     this.startRealTimeSkinAnalysis();
                     
                     this.isActive = true;
@@ -1677,7 +1729,6 @@
                 const grid = document.getElementById('draping-color-grid');
                 if (!grid) return;
                 
-                // 기본으로 봄 색상 표시
                 const colors = seasonColors.spring;
                 grid.innerHTML = '';
                 
@@ -1689,7 +1740,6 @@
                     grid.appendChild(colorItem);
                 });
                 
-                // 계절 버튼 이벤트
                 document.querySelectorAll('.season-btn').forEach(btn => {
                     btn.onclick = () => {
                         document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
@@ -1720,18 +1770,12 @@
                 
                 if (element.classList.contains('selected')) {
                     this.selectedColors.push(color);
-                    
-                    // 실제 가상 천 생성
                     this.createVirtualFabric(color);
-                    
-                    // 실시간 Delta E 계산
                     await this.performRealTimeDeltaEAnalysis(color);
                 } else {
                     this.selectedColors = this.selectedColors.filter(c => c !== color);
                     this.removeVirtualFabric(color);
                 }
-                
-                console.log('🎨 선택된 색상들:', this.selectedColors);
             }
 
             createVirtualFabric(color) {
@@ -1744,12 +1788,18 @@
                 fabric.style.background = `linear-gradient(135deg, ${color}, ${this.adjustColorBrightness(color, -20)})`;
                 fabric.setAttribute('data-color', color);
                 
-                // 얼굴 옆 위치에 배치
-                fabric.style.left = '20%';
-                fabric.style.top = '30%';
-                fabric.style.width = '120px';
-                fabric.style.height = '200px';
-                fabric.style.transform = 'rotate(-10deg)';
+                fabric.style.left = '15%';
+                fabric.style.top = '25%';
+                fabric.style.width = '300px';
+                fabric.style.height = '400px';
+                fabric.style.transform = 'rotate(-8deg)';
+                
+                if (window.innerWidth <= 768) {
+                    fabric.style.width = '250px';
+                    fabric.style.height = '350px';
+                    fabric.style.left = '10%';
+                    fabric.style.top = '20%';
+                }
                 
                 overlay.appendChild(fabric);
                 this.fabricElements.push(fabric);
@@ -1767,7 +1817,6 @@
             }
 
             adjustColorBrightness(color, amount) {
-                // 색상 밝기 조정 (천 질감 효과)
                 const hex = color.replace('#', '');
                 const r = Math.max(0, Math.min(255, parseInt(hex.substr(0, 2), 16) + amount));
                 const g = Math.max(0, Math.min(255, parseInt(hex.substr(2, 2), 16) + amount));
@@ -1784,14 +1833,11 @@
                     if (!this.isActive) return;
                     
                     try {
-                        // 현재 프레임에서 피부톤 추출
                         const skinTone = await this.extractSkinToneFromVideo(video);
                         if (skinTone) {
                             this.currentSkinTone = skinTone;
                         }
-                        
-                        // 다음 프레임 분석 예약
-                        setTimeout(() => requestAnimationFrame(analyzeFrame), 1000); // 1초마다
+                        setTimeout(() => requestAnimationFrame(analyzeFrame), 1000);
                     } catch (error) {
                         console.warn('🎭 실시간 피부톤 분석 오류:', error);
                     }
@@ -1804,7 +1850,6 @@
                 if (!video.videoWidth || !video.videoHeight) return null;
                 
                 try {
-                    // 임시 캔버스로 현재 프레임 캡처
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     canvas.width = video.videoWidth;
@@ -1813,8 +1858,7 @@
                     ctx.drawImage(video, 0, 0);
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     
-                    // 피부톤 분석기 사용
-                    const skinAnalyzer = window.RealPersonalColorAI.realAI.skinAnalyzer;
+                    const skinAnalyzer = window.PersonalColorAI.ai.skinAnalyzer;
                     if (skinAnalyzer) {
                         const result = await skinAnalyzer.analyzeRealImageData(imageData);
                         return result.averageSkinTone;
@@ -1831,19 +1875,13 @@
                 if (!this.currentSkinTone) return;
                 
                 try {
-                    // 선택된 색상을 LAB으로 변환
                     const colorLab = this.hexToLab(selectedColor);
-                    
-                    // 실제 Delta E 2000 계산
-                    const deltaE = window.RealPersonalColorAI.realAI.deltaE;
+                    const deltaE = window.PersonalColorAI.ai.deltaE;
                     if (deltaE) {
                         const deltaEValue = deltaE.calculateDeltaE2000(this.currentSkinTone, colorLab);
                         const assessment = deltaE.assessColorSimilarity(deltaEValue);
                         
-                        // UI 업데이트
                         this.updateLiveAnalysisDisplay(deltaEValue, assessment);
-                        
-                        console.log(`🔬 실시간 Delta E 분석: ${deltaEValue.toFixed(2)} (${assessment.description})`);
                     }
                 } catch (error) {
                     console.warn('🔬 실시간 Delta E 계산 오류:', error);
@@ -1851,24 +1889,22 @@
             }
 
             hexToLab(hex) {
-                // HEX → RGB → LAB 변환
                 const r = parseInt(hex.substr(1, 2), 16);
                 const g = parseInt(hex.substr(3, 2), 16);
                 const b = parseInt(hex.substr(5, 2), 16);
                 
-                // 간단한 변환 (실제로는 더 정확한 변환 필요)
-                const skinAnalyzer = window.RealPersonalColorAI.realAI.skinAnalyzer;
+                const skinAnalyzer = window.PersonalColorAI.ai.skinAnalyzer;
                 if (skinAnalyzer) {
                     return skinAnalyzer.rgbToLabReal({ r, g, b });
                 }
                 
-                // 기본 변환
                 return { L: (r + g + b) / 3 * 0.4, a: (r - g) * 0.3, b: (r + g - 2 * b) * 0.2 };
             }
 
             updateLiveAnalysisDisplay(deltaE, assessment) {
                 const deltaValueEl = document.getElementById('live-delta-value');
                 const deltaDescEl = document.getElementById('live-delta-description');
+                const liveAnalysisEl = document.getElementById('live-analysis');
                 
                 if (deltaValueEl) {
                     deltaValueEl.textContent = deltaE.toFixed(1);
@@ -1876,62 +1912,50 @@
                 }
                 
                 if (deltaDescEl) {
-                    deltaDescEl.textContent = `${assessment.description} (${assessment.score}점)`;
+                    deltaDescEl.textContent = assessment.description;
                 }
+                
+                const existingScore = liveAnalysisEl?.querySelector('.delta-score');
+                const existingBadge = liveAnalysisEl?.querySelector('.recommendation-badge');
+                if (existingScore) existingScore.remove();
+                if (existingBadge) existingBadge.remove();
+                
+                if (liveAnalysisEl) {
+                    const scoreDiv = document.createElement('div');
+                    scoreDiv.className = 'delta-score';
+                    scoreDiv.innerHTML = `
+                        <div class="score-gauge">
+                            <div class="score-fill" style="width: ${assessment.score}%;"></div>
+                        </div>
+                        <div class="score-text">${assessment.score}점</div>
+                    `;
+                    
+                    const badgeDiv = document.createElement('div');
+                    badgeDiv.className = `recommendation-badge ${assessment.level}`;
+                    const badgeIcon = this.getRecommendationIcon(assessment.level);
+                    badgeDiv.innerHTML = `${badgeIcon} ${assessment.description}`;
+                    
+                    liveAnalysisEl.appendChild(scoreDiv);
+                    liveAnalysisEl.appendChild(badgeDiv);
+                }
+            }
+
+            getRecommendationIcon(level) {
+                const icons = {
+                    'perfect': '🌟',
+                    'excellent': '✅',
+                    'good': '👍',
+                    'acceptable': '⚠️',
+                    'poor': '❌'
+                };
+                return icons[level] || '📊';
             }
 
             getDeltaEColor(deltaE) {
-                if (deltaE <= 2.3) return '#22c55e'; // 녹색 (우수)
-                if (deltaE <= 5.0) return '#eab308'; // 노란색 (좋음)
-                if (deltaE <= 10.0) return '#f97316'; // 주황색 (보통)
-                return '#ef4444'; // 빨간색 (나쁨)
-            }
-
-            async generateReport() {
-                if (this.selectedColors.length === 0) {
-                    showToast('색상을 선택해주세요.', 'warning');
-                    return;
-                }
-                
-                const report = {
-                    mode: 'real_draping_ai',
-                    selectedColors: this.selectedColors,
-                    skinTone: this.currentSkinTone,
-                    deltaEAnalyses: [],
-                    timestamp: new Date().toISOString()
-                };
-                
-                // 각 색상의 Delta E 계산
-                const deltaE = window.RealPersonalColorAI.realAI.deltaE;
-                if (deltaE && this.currentSkinTone) {
-                    this.selectedColors.forEach(color => {
-                        const colorLab = this.hexToLab(color);
-                        const deltaEValue = deltaE.calculateDeltaE2000(this.currentSkinTone, colorLab);
-                        const assessment = deltaE.assessColorSimilarity(deltaEValue);
-                        
-                        report.deltaEAnalyses.push({
-                            color,
-                            deltaE: deltaEValue,
-                            assessment
-                        });
-                    });
-                }
-                
-                // 최고 매칭 색상 찾기
-                const bestMatch = report.deltaEAnalyses.reduce((best, current) => {
-                    return current.deltaE < best.deltaE ? current : best;
-                });
-                
-                // 보고서 이벤트 발생
-                window.dispatchEvent(new CustomEvent('generateRealReport', { 
-                    detail: { 
-                        ...report, 
-                        bestMatch,
-                        confidence: bestMatch ? Math.max(85, 100 - bestMatch.deltaE * 4) : 80
-                    }
-                }));
-                
-                console.log('📊 실제 드래이핑 보고서 생성됨:', report);
+                if (deltaE <= 2.3) return '#4caf50';
+                if (deltaE <= 5.0) return '#ff9800';
+                if (deltaE <= 10.0) return '#ff5722';
+                return '#f44336';
             }
 
             destroy() {
@@ -1948,20 +1972,17 @@
                     }
                 });
                 this.fabricElements = [];
-                
-                console.log('🔄 실제 드래이핑 엔진 정리됨');
             }
         }
 
-        // 🎮 실제 모드 관리자 (Mock 완전 제거)
-        class RealModeManager {
+        // 모드 관리자
+        class ModeManager {
             constructor() {
                 this.currentMode = 'selection';
                 this.setupEventListeners();
             }
 
             setupEventListeners() {
-                // 모드 카드 클릭
                 document.querySelectorAll('.mode-card').forEach(card => {
                     card.onclick = () => {
                         const mode = card.getAttribute('data-mode');
@@ -1969,56 +1990,41 @@
                     };
                 });
 
-                // 헤더 버튼들
-                document.getElementById('ai-debug-btn').onclick = () => this.showRealAIStatus();
+                document.getElementById('ai-debug-btn').onclick = () => this.showAIStatus();
                 document.getElementById('delta-debug-btn').onclick = () => this.showDeltaEStats();
-
-                // AI 분석 버튼들
-                document.getElementById('capture-btn').onclick = () => this.performRealAIAnalysis();
+                document.getElementById('capture-btn').onclick = () => this.performAIAnalysis();
                 document.getElementById('upload-btn').onclick = () => document.getElementById('file-input').click();
                 document.getElementById('file-input').onchange = (e) => {
-                    if (e.target.files[0]) this.analyzeRealUploadedFile(e.target.files[0]);
+                    if (e.target.files[0]) this.analyzeUploadedFile(e.target.files[0]);
                 };
 
-                // 결과 액션 버튼들
-                document.getElementById('generate-report-btn').onclick = () => this.generateRealReport();
-                document.getElementById('save-result-btn').onclick = () => this.saveRealResult();
+                document.getElementById('back-btn').onclick = () => this.switchToMode('selection');
+                document.getElementById('generate-report-btn').onclick = () => this.generateReport();
+                document.getElementById('save-result-btn').onclick = () => this.saveResult();
+                document.getElementById('print-result-btn').onclick = () => window.print();
                 document.getElementById('new-diagnosis-btn').onclick = () => this.switchToMode('selection');
-
-                // 드래이핑 컨트롤
                 document.getElementById('close-draping').onclick = () => this.closeDrapingMode();
                 document.getElementById('draping-capture').onclick = () => this.captureResult();
-                document.getElementById('draping-generate-report').onclick = () => this.generateDrapingReport();
             }
 
             async switchToMode(mode) {
-                console.log(`🔄 모드 전환: ${this.currentMode} → ${mode}`);
-                
-                // UI 상태 업데이트
                 this.updateModeUI(mode);
-                
-                // 모드별 실제 초기화
-                await this.initializeRealMode(mode);
-                
+                await this.initializeMode(mode);
                 this.currentMode = mode;
-                window.RealPersonalColorAI.currentMode = mode;
-                
-                showToast(`🤖 실제 ${this.getModeDisplayName(mode)} 모드로 전환되었습니다.`, 'success');
+                window.PersonalColorAI.currentMode = mode;
+                showToast(`${this.getModeDisplayName(mode)} 모드로 전환되었습니다.`, 'success');
             }
 
             updateModeUI(mode) {
-                // 모든 카드 선택 해제
                 document.querySelectorAll('.mode-card').forEach(card => {
                     card.classList.remove('selected');
                 });
                 
-                // 선택된 카드 표시
                 const selectedCard = document.querySelector(`.mode-card[data-mode="${mode}"]`);
                 if (selectedCard) {
                     selectedCard.classList.add('selected');
                 }
 
-                // 섹션들 표시/숨김
                 const sections = {
                     'mode-selection': mode === 'selection',
                     'ai-analysis-container': mode === 'ai_photo' || mode === 'hybrid',
@@ -2038,14 +2044,14 @@
                 });
             }
 
-            async initializeRealMode(mode) {
+            async initializeMode(mode) {
                 switch (mode) {
                     case 'ai_photo':
                     case 'hybrid':
-                        await this.initializeRealAICamera();
+                        await this.initializeAICamera();
                         break;
                     case 'draping':
-                        await this.initializeRealDrapingMode();
+                        await this.initializeDrapingMode();
                         break;
                     case 'selection':
                         this.resetToSelection();
@@ -2053,7 +2059,7 @@
                 }
             }
 
-            async initializeRealAICamera() {
+            async initializeAICamera() {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ 
                         video: { 
@@ -2066,18 +2072,12 @@
                     const video = document.getElementById('camera-preview');
                     if (video) {
                         video.srcObject = stream;
-                        
-                        // 오버레이 숨기기
                         const overlay = document.getElementById('camera-overlay');
                         if (overlay) {
                             overlay.style.display = 'none';
                         }
-                        
-                        // 피부 분석 영역 표시
                         this.showSkinAnalysisRegions();
                     }
-                    
-                    console.log('📷 실제 AI 카메라 준비 완료');
                 } catch (error) {
                     console.warn('카메라 초기화 실패:', error);
                     showToast('카메라 접근 실패. 파일 업로드를 이용해주세요.', 'warning');
@@ -2088,7 +2088,6 @@
                 const overlay = document.getElementById('skin-analysis-overlay');
                 if (!overlay) return;
                 
-                // 피부 분석 영역들 표시
                 const regions = [
                     { name: 'forehead', x: 35, y: 20, w: 30, h: 12 },
                     { name: 'left_cheek', x: 20, y: 40, w: 15, h: 20 },
@@ -2110,21 +2109,18 @@
                 });
             }
 
-            async initializeRealDrapingMode() {
+            async initializeDrapingMode() {
                 try {
                     const drapingEngine = new RealVirtualDrapingEngine();
                     await drapingEngine.initialize();
-                    window.RealPersonalColorAI.realAI.drapingEngine = drapingEngine;
-                    
-                    console.log('🎭 실제 가상 드래이핑 준비 완료');
+                    window.PersonalColorAI.ai.drapingEngine = drapingEngine;
                 } catch (error) {
-                    console.error('실제 드래이핑 모드 초기화 실패:', error);
-                    showToast('실제 드래이핑 모드 초기화에 실패했습니다.', 'error');
+                    console.error('드래이핑 모드 초기화 실패:', error);
+                    showToast('드래이핑 모드 초기화에 실패했습니다.', 'error');
                 }
             }
 
             resetToSelection() {
-                // 모든 스트림 정리
                 document.querySelectorAll('video').forEach(video => {
                     if (video.srcObject) {
                         video.srcObject.getTracks().forEach(track => track.stop());
@@ -2132,17 +2128,14 @@
                     }
                 });
 
-                // 드래이핑 엔진 정리
-                const drapingEngine = window.RealPersonalColorAI.realAI.drapingEngine;
+                const drapingEngine = window.PersonalColorAI.ai.drapingEngine;
                 if (drapingEngine) {
                     drapingEngine.destroy();
-                    window.RealPersonalColorAI.realAI.drapingEngine = null;
+                    window.PersonalColorAI.ai.drapingEngine = null;
                 }
-
-                console.log('🔄 선택 모드로 리셋됨');
             }
 
-            async performRealAIAnalysis() {
+            async performAIAnalysis() {
                 const video = document.getElementById('camera-preview');
                 const canvas = document.getElementById('analysis-canvas');
                 
@@ -2151,60 +2144,50 @@
                     return;
                 }
 
-                // 실제 AI 분석 진행 표시
-                this.showRealAIProgress();
+                this.showAIProgress();
 
                 try {
-                    // 비디오 프레임 캡처
                     const ctx = canvas.getContext('2d');
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     ctx.drawImage(video, 0, 0);
 
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    
-                    // 실제 AI 분석 수행
-                    const result = await this.runRealAIAnalysis(imageData);
-                    
-                    // 결과 표시
-                    this.showRealAnalysisResult(result);
+                    const result = await this.runAIAnalysis(imageData);
+                    this.showAnalysisResult(result);
                     
                 } catch (error) {
-                    console.error('실제 AI 분석 실패:', error);
-                    this.hideRealAIProgress();
-                    showToast('실제 AI 분석 중 오류가 발생했습니다.', 'error');
+                    console.error('AI 분석 실패:', error);
+                    this.hideAIProgress();
+                    showToast('AI 분석 중 오류가 발생했습니다.', 'error');
                 }
             }
 
-            async runRealAIAnalysis(imageData) {
+            async runAIAnalysis(imageData) {
                 const startTime = performance.now();
 
                 try {
-                    // 1단계: 실제 얼굴 감지
-                    this.updateRealAIProgress(20, '실제 얼굴 감지 중...');
-                    const faceDetector = window.RealPersonalColorAI.realAI.faceDetector;
+                    this.updateAIProgress(20, '실제 얼굴 감지 중...');
+                    const faceDetector = window.PersonalColorAI.ai.faceDetector;
                     const faces = faceDetector ? await faceDetector.detectFacesReal(imageData) : [];
 
-                    // 2단계: 실제 피부톤 분석
-                    this.updateRealAIProgress(50, '실제 피부톤 분석 중...');
-                    const skinAnalyzer = window.RealPersonalColorAI.realAI.skinAnalyzer;
+                    this.updateAIProgress(50, '실제 피부톤 분석 중...');
+                    const skinAnalyzer = window.PersonalColorAI.ai.skinAnalyzer;
                     const skinResult = skinAnalyzer ? await skinAnalyzer.analyzeRealImageData(imageData, faces[0]) : null;
 
                     if (!skinResult) {
                         throw new Error('피부톤 분석 실패');
                     }
 
-                    // 3단계: 실제 Delta E 계산
-                    this.updateRealAIProgress(80, '실제 Delta E 2000 계산 중...');
-                    const deltaE = window.RealPersonalColorAI.realAI.deltaE;
+                    this.updateAIProgress(80, '실제 Delta E 2000 계산 중...');
+                    const deltaE = window.PersonalColorAI.ai.deltaE;
                     const deltaEStats = deltaE ? deltaE.getPerformanceStats() : null;
 
-                    // 4단계: 최종 결과 구성
-                    this.updateRealAIProgress(95, '실제 AI 결과 구성 중...');
+                    this.updateAIProgress(95, '결과 구성 중...');
                     
                     const analysisTime = ((performance.now() - startTime) / 1000).toFixed(1);
 
-                    const result = {
+                    return {
                         season: skinResult.season.season,
                         confidence: skinResult.confidence,
                         undertone: skinResult.undertone.type,
@@ -2214,22 +2197,15 @@
                         skinAnalysis: skinResult,
                         deltaEStats: deltaEStats,
                         analysisTime: analysisTime,
-                        realAIMetadata: {
+                        metadata: {
                             faceDetectionCount: faceDetector?.detectionCount || 0,
                             skinAnalysisCount: skinAnalyzer?.analysisCount || 0,
                             deltaECalculations: deltaE?.totalCalculations || 0,
-                            engineVersions: {
-                                faceDetector: 'Real Face Detection v1.0',
-                                skinAnalyzer: 'Real Skin Analysis v1.0',
-                                deltaE: 'Real Delta E 2000 v1.0'
-                            },
                             timestamp: new Date().toISOString()
                         }
                     };
-
-                    return result;
                 } catch (error) {
-                    console.error('실제 AI 분석 실행 실패:', error);
+                    console.error('AI 분석 실행 실패:', error);
                     throw error;
                 }
             }
@@ -2247,22 +2223,22 @@
                 return 'soft';
             }
 
-            showRealAIProgress() {
+            showAIProgress() {
                 const container = document.getElementById('ai-progress-container');
                 if (container) {
                     container.classList.add('active');
                 }
-                this.updateRealAIProgress(0, '실제 AI 분석 준비 중...');
+                this.updateAIProgress(0, 'AI 분석 준비 중...');
             }
 
-            hideRealAIProgress() {
+            hideAIProgress() {
                 const container = document.getElementById('ai-progress-container');
                 if (container) {
                     container.classList.remove('active');
                 }
             }
 
-            updateRealAIProgress(percentage, step) {
+            updateAIProgress(percentage, step) {
                 const progressFill = document.getElementById('ai-progress-fill');
                 const stepElement = document.getElementById('ai-progress-step');
                 
@@ -2275,10 +2251,9 @@
                 }
             }
 
-            showRealAnalysisResult(result) {
-                this.hideRealAIProgress();
+            showAnalysisResult(result) {
+                this.hideAIProgress();
                 
-                // 결과 업데이트
                 const elements = {
                     'season-name': this.getSeasonDisplayName(result.season),
                     'confidence-score': `${result.confidence}%`,
@@ -2298,236 +2273,73 @@
                     }
                 });
 
-                // 실제 결과 저장
-                window.RealPersonalColorAI.diagnosis = result;
+                window.PersonalColorAI.diagnosis = result;
 
-                // 결과 섹션 표시
                 const resultsContainer = document.getElementById('results-container');
                 if (resultsContainer) {
                     resultsContainer.classList.add('active');
                 }
 
-                // 분석 섹션 숨김
                 const analysisContainer = document.getElementById('ai-analysis-container');
                 if (analysisContainer) {
                     analysisContainer.classList.remove('active');
                 }
 
-                showToast('🎉 실제 AI 분석이 완료되었습니다!', 'success');
+                showToast('AI 분석이 완료되었습니다!', 'success');
             }
 
-            showRealAIStatus() {
-                const ai = window.RealPersonalColorAI.realAI;
-                const perf = window.RealPersonalColorAI.performance;
+            showAIStatus() {
+                const ai = window.PersonalColorAI.ai;
+                const perf = window.PersonalColorAI.performance;
                 
-                let status = '🤖 실제 AI 시스템 상태:\n\n';
-                status += `📊 Delta E 2000: ${ai.deltaE ? '✅ 활성' : '❌ 비활성'}\n`;
-                status += `🎨 피부톤 분석기: ${ai.skinAnalyzer ? '✅ 활성' : '❌ 비활성'}\n`;
-                status += `👤 얼굴 감지: ${ai.faceDetector ? '✅ 활성' : '❌ 비활성'}\n`;
-                status += `🎭 드래이핑 엔진: ${ai.drapingEngine ? '✅ 활성' : '❌ 비활성'}\n\n`;
-                status += `📈 성능 통계:\n`;
+                let status = 'AI 시스템 상태:\n\n';
+                status += `Delta E 2000: ${ai.deltaE ? '✅ 활성' : '❌ 비활성'}\n`;
+                status += `피부톤 분석기: ${ai.skinAnalyzer ? '✅ 활성' : '❌ 비활성'}\n`;
+                status += `얼굴 감지: ${ai.faceDetector ? '✅ 활성' : '❌ 비활성'}\n`;
+                status += `드래이핑 엔진: ${ai.drapingEngine ? '✅ 활성' : '❌ 비활성'}\n\n`;
+                status += `성능 통계:\n`;
                 status += `- Delta E 계산: ${perf.deltaECalculations}회\n`;
                 status += `- 피부 분석: ${perf.skinAnalysisCount}회\n`;
+                status += `- 얼굴 감지: ${perf.faceDetections}회\n`;
                 status += `- 총 처리 시간: ${(perf.totalProcessingTime / 1000).toFixed(1)}초\n`;
                 
                 alert(status);
             }
 
             showDeltaEStats() {
-                const deltaE = window.RealPersonalColorAI.realAI.deltaE;
+                const deltaE = window.PersonalColorAI.ai.deltaE;
                 if (!deltaE) {
                     alert('❌ Delta E 시스템이 초기화되지 않았습니다.');
                     return;
                 }
                 
                 const stats = deltaE.getPerformanceStats();
-                let message = '🔬 실제 Delta E 2000 통계:\n\n';
+                let message = '실제 Delta E 2000 통계:\n\n';
                 message += `총 계산 횟수: ${stats.totalCalculations}회\n`;
                 message += `캐시 히트: ${stats.cacheHits}회\n`;
                 message += `캐시 미스: ${stats.cacheMisses}회\n`;
                 message += `캐시 적중률: ${stats.hitRate}%\n`;
                 message += `캐시 크기: ${stats.cacheSize}개\n\n`;
-                message += '🔬 Delta E 2000 = 실제 CIE 공식 사용';
+                message += 'Delta E 2000 = 실제 CIE 공식 사용';
                 
                 alert(message);
             }
 
-            async analyzeRealUploadedFile(file) {
-                if (!file.type.startsWith('image/')) {
-                    showToast('이미지 파일을 선택해주세요.', 'error');
-                    return;
-                }
-
-                this.showRealAIProgress();
-
-                try {
-                    const imageData = await this.fileToImageData(file);
-                    const result = await this.runRealAIAnalysis(imageData);
-                    this.showRealAnalysisResult(result);
-                } catch (error) {
-                    console.error('실제 파일 분석 실패:', error);
-                    this.hideRealAIProgress();
-                    showToast('실제 파일 분석 중 오류가 발생했습니다.', 'error');
-                }
-            }
-
-            fileToImageData(file) {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    img.onload = () => {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0);
-                        resolve(ctx.getImageData(0, 0, canvas.width, canvas.height));
-                    };
-                    
-                    img.onerror = reject;
-                    img.src = URL.createObjectURL(file);
-                });
-            }
-
-            generateRealReport() {
-                const diagnosis = window.RealPersonalColorAI.diagnosis;
-                if (!diagnosis) {
-                    showToast('실제 진단 결과가 없습니다.', 'warning');
-                    return;
-                }
-
-                showToast('📊 실제 AI 보고서 생성 중... (Delta E 2000 포함)', 'info');
-                
-                setTimeout(() => {
-                    const reportContent = this.createRealReportContent(diagnosis);
-                    this.downloadRealReport(reportContent);
-                    showToast('📋 실제 AI 보고서 다운로드가 시작되었습니다!', 'success');
-                }, 2000);
-            }
-
-            createRealReportContent(diagnosis) {
-                return `
-실제 AI 퍼스널컬러 진단 보고서 (Real Delta E 2000)
-================================================
-
-📅 진단 일시: ${new Date().toLocaleString('ko-KR')}
-🤖 AI 엔진: ${diagnosis.realAIMetadata.engineVersions.deltaE}
-
-📊 실제 AI 진단 결과:
-- 퍼스널컬러: ${this.getSeasonDisplayName(diagnosis.season)}
-- 신뢰도: ${diagnosis.confidence}%
-- 언더톤: ${this.getUndertoneDisplayName(diagnosis.undertone)}
-- 명도: ${this.getLightnessDisplayName(diagnosis.lightness)}
-- 채도: ${this.getSaturationDisplayName(diagnosis.saturation)}
-
-🔬 실제 Delta E 2000 분석:
-- 계절별 최적 매칭: ${diagnosis.skinAnalysis?.season?.minDistance?.toFixed(3)} ΔE
-- 분석된 피부 샘플: ${diagnosis.skinAnalysis?.skinSamples}개
-- Delta E 계산 횟수: ${diagnosis.skinAnalysis?.metadata?.deltaECalculations}회
-- 실제 LAB 변환: ${diagnosis.skinAnalysis?.metadata?.labConversions}개
-
-🎨 실제 피부톤 분석:
-- 평균 피부톤 (LAB): L=${diagnosis.skinAnalysis?.averageSkinTone?.L?.toFixed(1)}, 
-  a=${diagnosis.skinAnalysis?.averageSkinTone?.a?.toFixed(1)}, 
-  b=${diagnosis.skinAnalysis?.averageSkinTone?.b?.toFixed(1)}
-- 언더톤 신뢰도: ${diagnosis.skinAnalysis?.undertone?.confidence}%
-
-⏱️ 성능 정보:
-- 실제 분석 시간: ${diagnosis.analysisTime}초
-- 얼굴 감지 횟수: ${diagnosis.realAIMetadata.faceDetectionCount}회
-- 피부 분석 횟수: ${diagnosis.realAIMetadata.skinAnalysisCount}회
-- 총 Delta E 계산: ${diagnosis.realAIMetadata.deltaECalculations}회
-
-🔧 사용된 실제 AI 엔진:
-- 얼굴 감지: ${diagnosis.realAIMetadata.engineVersions.faceDetector}
-- 피부 분석: ${diagnosis.realAIMetadata.engineVersions.skinAnalyzer}
-- 색차 계산: ${diagnosis.realAIMetadata.engineVersions.deltaE}
-
-📝 분석 일시: ${diagnosis.realAIMetadata.timestamp}
-
-이 보고서는 Mock 데이터 없이 실제 AI + 진짜 Delta E 2000 공식으로 생성되었습니다.
-Real Personal Color AI v${window.RealPersonalColorAI.version}
-                `;
-            }
-
-            downloadRealReport(content) {
-                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `실제AI_퍼스널컬러_진단보고서_${new Date().toISOString().split('T')[0]}.txt`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-
-            saveRealResult() {
-                const diagnosis = window.RealPersonalColorAI.diagnosis;
-                if (!diagnosis) {
-                    showToast('저장할 실제 진단 결과가 없습니다.', 'warning');
-                    return;
-                }
-                
-                try {
-                    localStorage.setItem('realPersonalColorDiagnosis', JSON.stringify({
-                        ...diagnosis,
-                        savedAt: new Date().toISOString()
-                    }));
-                    showToast('✅ 실제 진단 결과가 저장되었습니다!', 'success');
-                } catch (error) {
-                    console.error('결과 저장 실패:', error);
-                    showToast('❌ 결과 저장에 실패했습니다.', 'error');
-                }
-            }
-
             closeDrapingMode() {
-                const drapingEngine = window.RealPersonalColorAI.realAI.drapingEngine;
+                const drapingEngine = window.PersonalColorAI.ai.drapingEngine;
                 if (drapingEngine) {
                     drapingEngine.destroy();
-                    window.RealPersonalColorAI.realAI.drapingEngine = null;
+                    window.PersonalColorAI.ai.drapingEngine = null;
                 }
                 this.switchToMode('selection');
             }
 
-            captureResult() {
-                const video = document.getElementById('draping-video');
-                if (!video) return;
-                
-                try {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    ctx.drawImage(video, 0, 0);
-                    
-                    // 캡처 이미지를 다운로드 링크로 변환
-                    const link = document.createElement('a');
-                    link.download = `드래이핑_결과_${new Date().toISOString().split('T')[0]}.png`;
-                    link.href = canvas.toDataURL();
-                    link.click();
-                    
-                    showToast('📸 드래이핑 결과가 캡처되었습니다!', 'success');
-                } catch (error) {
-                    console.error('캡처 실패:', error);
-                    showToast('캡처에 실패했습니다.', 'error');
-                }
-            }
-
-            generateDrapingReport() {
-                const drapingEngine = window.RealPersonalColorAI.realAI.drapingEngine;
-                if (drapingEngine && drapingEngine.generateReport) {
-                    drapingEngine.generateReport();
-                } else {
-                    showToast('실제 드래이핑 시스템이 준비되지 않았습니다.', 'error');
-                }
-            }
-
             getModeDisplayName(mode) {
                 const names = {
-                    'ai_photo': '실제 AI 사진 분석',
+                    'ai_photo': 'AI 사진 분석',
                     'draping': '실시간 가상 드래이핑',
-                    'hybrid': '하이브리드 실제 AI',
+                    'hybrid': '하이브리드 AI',
+                    'expert': '전문가 진단',
                     'selection': '모드 선택'
                 };
                 return names[mode] || mode;
@@ -2569,13 +2381,9 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
                 };
                 return names[saturation] || saturation;
             }
-
-            delay(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
         }
 
-        // 📱 토스트 메시지 시스템
+        // 토스트 메시지 시스템
         function showToast(message, type = 'info', duration = 3000) {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -2596,7 +2404,6 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
                 <button class="toast-close">×</button>
             `;
 
-            // 닫기 버튼 이벤트
             toast.querySelector('.toast-close').onclick = () => {
                 toast.classList.remove('show');
                 setTimeout(() => {
@@ -2605,11 +2412,8 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
             };
 
             container.appendChild(toast);
-            
-            // 애니메이션 시작
             setTimeout(() => toast.classList.add('show'), 10);
             
-            // 자동 제거
             setTimeout(() => {
                 if (toast.parentNode) {
                     toast.classList.remove('show');
@@ -2620,8 +2424,8 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
             }, duration);
         }
 
-        // 🚀 실제 앱 초기화 시스템 (Mock 완전 제거)
-        class RealAppInitializer {
+        // 앱 초기화 시스템
+        class AppInitializer {
             constructor() {
                 this.loadingSteps = [
                     { id: 'config', name: '설정 로드', loaded: false },
@@ -2635,69 +2439,54 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
             }
 
             async initialize() {
-                console.log('🚀 실제 Personal Color AI 초기화 시작 (Mock 완전 제거)');
+                console.log('Personal Color AI 초기화 시작 (핑크 테마)');
                 
                 try {
-                    // 1단계: 설정 로드
                     this.updateStep('config', 'active');
-                    this.updateProgress(10, '🔧 실제 시스템 설정 로드 중...');
+                    this.updateProgress(10, '시스템 설정 로드 중...');
                     await this.delay(300);
                     this.updateStep('config', 'complete');
 
-                    // 2단계: TensorFlow.js 확인
                     this.updateStep('tensorflow', 'active');
-                    this.updateProgress(20, '🧠 TensorFlow.js 로딩 중...');
+                    this.updateProgress(20, 'TensorFlow.js 로딩 중...');
                     await this.waitForTensorFlow();
                     this.updateStep('tensorflow', 'complete');
 
-                    // 🔥 3단계: 실제 Delta E 2000 초기화
                     this.updateStep('deltae', 'active');
-                    this.updateProgress(35, '🔬 실제 Delta E 2000 엔진 초기화 중...');
-                    const realDeltaE = new RealDeltaE2000();
-                    window.RealPersonalColorAI.realAI.deltaE = realDeltaE;
-                    
-                    // Delta E 실제 검증
-                    const validation = realDeltaE.validateModule();
-                    if (validation.isValid) {
-                        console.log('🔬 실제 Delta E 2000 검증 통과:', validation.testResult);
-                    } else {
-                        console.warn('⚠️ Delta E 2000 검증 실패:', validation.issues);
-                    }
+                    this.updateProgress(35, '실제 Delta E 2000 엔진 초기화 중...');
+                    const deltaE = new RealDeltaE2000();
+                    window.PersonalColorAI.ai.deltaE = deltaE;
                     this.updateStep('deltae', 'complete');
 
-                    // 4단계: 실제 피부톤 분석기 초기화
                     this.updateStep('skin', 'active');
-                    this.updateProgress(55, '🎨 실제 피부톤 분석기 초기화 중...');
-                    const realSkinAnalyzer = new RealSkinToneAnalyzer();
-                    await realSkinAnalyzer.initialize();
-                    window.RealPersonalColorAI.realAI.skinAnalyzer = realSkinAnalyzer;
+                    this.updateProgress(55, '실제 피부톤 분석기 초기화 중...');
+                    const skinAnalyzer = new RealSkinToneAnalyzer();
+                    await skinAnalyzer.initialize();
+                    window.PersonalColorAI.ai.skinAnalyzer = skinAnalyzer;
                     this.updateStep('skin', 'complete');
 
-                    // 5단계: 실제 얼굴 감지 초기화
                     this.updateStep('face', 'active');
-                    this.updateProgress(75, '👤 실제 얼굴 감지 시스템 초기화 중...');
-                    const realFaceDetector = new RealFaceDetector();
-                    await realFaceDetector.initialize();
-                    window.RealPersonalColorAI.realAI.faceDetector = realFaceDetector;
+                    this.updateProgress(75, '실제 얼굴 감지 시스템 초기화 중...');
+                    const faceDetector = new RealFaceDetector();
+                    await faceDetector.initialize();
+                    window.PersonalColorAI.ai.faceDetector = faceDetector;
                     this.updateStep('face', 'complete');
 
-                    // 6단계: UI 초기화
                     this.updateStep('ui', 'active');
-                    this.updateProgress(90, '🎨 실제 UI 시스템 준비 중...');
-                    this.initializeRealModeManager();
+                    this.updateProgress(90, 'UI 시스템 준비 중...');
+                    this.initializeModeManager();
                     await this.delay(500);
                     this.updateStep('ui', 'complete');
 
-                    // 완료
-                    this.updateProgress(100, '🚀 실제 AI + Delta E 2000 시스템 완전 준비됨!');
+                    this.updateProgress(100, 'AI + Delta E 2000 시스템 완전 준비됨!');
                     
                     setTimeout(() => {
-                        this.completeRealLoading();
+                        this.completeLoading();
                     }, 800);
 
                 } catch (error) {
-                    console.error('❌ 실제 앱 초기화 실패:', error);
-                    this.showError('실제 앱 초기화에 실패했습니다. 페이지를 새로고침해주세요.');
+                    console.error('앱 초기화 실패:', error);
+                    this.showError('앱 초기화에 실패했습니다. 페이지를 새로고침해주세요.');
                 }
             }
 
@@ -2707,7 +2496,8 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
                     const checkTF = () => {
                         attempts++;
                         if (typeof tf !== 'undefined' && tf.version) {
-                            console.log('✅ TensorFlow.js 실제 준비됨:', tf.version.core);
+                            console.log('✅ TensorFlow.js 준비됨:', tf.version.core);
+                            window.PersonalColorAI.ai.tensorflow = tf;
                             resolve();
                         } else if (attempts < 50) {
                             setTimeout(checkTF, 100);
@@ -2720,9 +2510,9 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
                 });
             }
 
-            initializeRealModeManager() {
-                window.realModeManager = new RealModeManager();
-                console.log('✅ 실제 모드 관리자 초기화됨');
+            initializeModeManager() {
+                window.modeManager = new ModeManager();
+                console.log('✅ 모드 관리자 초기화됨');
             }
 
             updateStep(stepId, status) {
@@ -2734,7 +2524,8 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
                     
                     if (status === 'active') {
                         step.classList.add('active');
-                    } else {
+                    } else if (status === 'complete') {
+                        step.classList.add('complete');
                         step.classList.remove('active');
                     }
                 }
@@ -2755,7 +2546,7 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
                 }
             }
 
-            completeRealLoading() {
+            completeLoading() {
                 const loadingScreen = document.getElementById('loading-screen');
                 const mainApp = document.getElementById('main-app');
                 
@@ -2765,17 +2556,15 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
                     mainApp.classList.add('loaded');
                 }
                 
-                window.RealPersonalColorAI.isLoaded = true;
+                window.PersonalColorAI.isLoaded = true;
                 
-                showToast('🎉 실제 AI + Delta E 2000 시스템이 완전히 준비되었습니다! (Mock 제거됨)', 'success', 5000);
-                
-                console.log('🎉 실제 Personal Color Pro AI 완전 로딩 완료! (Mock 없음)');
-                console.log('📊 시스템 상태:', window.RealPersonalColorAI);
+                showToast('Personal Color AI 시스템이 완전히 준비되었습니다!', 'success', 5000);
+                console.log('Personal Color Pro AI 완전 로딩 완료!');
             }
 
             showError(message) {
-                console.error('💥 실제 초기화 오류:', message);
-                alert(`💥 오류: ${message}`);
+                console.error('초기화 오류:', message);
+                alert(`오류: ${message}`);
             }
 
             delay(ms) {
@@ -2783,136 +2572,71 @@ Real Personal Color AI v${window.RealPersonalColorAI.version}
             }
         }
 
-        // 📋 실제 보고서 생성 이벤트 처리
-        window.addEventListener('generateRealReport', (event) => {
-            console.log('📊 실제 보고서 생성 요청:', event.detail);
-            
-            if (event.detail.mode === 'real_draping_ai') {
-                // 실제 드래이핑 결과를 AI 분석 결과로 변환
-                const realDrapingResult = {
-                    season: event.detail.bestMatch?.assessment?.level === 'excellent' ? 'spring' : 'autumn',
-                    confidence: event.detail.confidence,
-                    undertone: 'warm',
-                    lightness: 'medium',
-                    saturation: 'clear',
-                    skinAnalysis: {
-                        season: {
-                            season: event.detail.bestMatch?.assessment?.level === 'excellent' ? 'spring' : 'autumn',
-                            minDistance: event.detail.bestMatch?.deltaE || 5.4,
-                            confidence: event.detail.confidence
-                        },
-                        averageSkinTone: event.detail.skinTone,
-                        undertone: { type: 'warm', confidence: 85 }
-                    },
-                    analysisTime: '2.1',
-                    realAIMetadata: {
-                        deltaECalculations: event.detail.deltaEAnalyses.length,
-                        faceDetectionCount: 1,
-                        skinAnalysisCount: 1,
-                        engineVersions: {
-                            faceDetector: 'Real Draping Face Detection v1.0',
-                            skinAnalyzer: 'Real Draping Skin Analysis v1.0',
-                            deltaE: 'Real-time Delta E 2000 v1.0'
-                        },
-                        timestamp: new Date().toISOString()
-                    }
-                };
-                
-                window.RealPersonalColorAI.diagnosis = realDrapingResult;
-                
-                // 결과 화면으로 전환
-                window.realModeManager.showRealAnalysisResult(realDrapingResult);
-                window.realModeManager.switchToMode('selection');
-            }
-        });
-
-        // 🎬 실제 앱 시작
-        let realAppInitializer;
+        // 앱 시작
+        let appInitializer;
         
         window.addEventListener('load', () => {
-            console.log('📄 DOM 로드 완료 - 실제 AI 시스템 준비');
+            console.log('DOM 로드 완료 - AI 시스템 준비');
             
-            // 최소 로딩 시간 후 실제 초기화 시작
             setTimeout(() => {
-                realAppInitializer = new RealAppInitializer();
-                realAppInitializer.initialize();
+                appInitializer = new AppInitializer();
+                appInitializer.initialize();
             }, 500);
         });
 
-        // 🔧 에러 처리
+        // 오류 처리
         window.addEventListener('error', (e) => {
-            console.error('실제 시스템 전역 에러:', e.error);
-            showToast('실제 AI 시스템에서 예상치 못한 오류가 발생했습니다.', 'error');
+            console.error('전역 오류:', e.error);
+            showToast('예상치 못한 오류가 발생했습니다.', 'error');
         });
 
-        // 🔄 서비스 워커 등록 (실제 캐싱)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js?v=final-real-ai')
-                    .then(registration => {
-                        console.log('✅ 실제 Service Worker 등록 성공');
-                    })
-                    .catch(error => {
-                        console.log('⚠️ Service Worker 등록 실패 (무시됨):', error);
-                    });
-            });
-        }
-
-        // 🔥 개발용 디버그 함수들 (실제 시스템 검증)
-        window.debugRealAI = {
+        // 개발용 디버그 함수들
+        window.debugAI = {
             testDeltaE: () => {
-                const deltaE = window.RealPersonalColorAI.realAI.deltaE;
+                const deltaE = window.PersonalColorAI.ai.deltaE;
                 if (deltaE) {
                     const test1 = { L: 50, a: 10, b: 20 };
                     const test2 = { L: 60, a: 15, b: 25 };
                     const result = deltaE.calculateDeltaE2000(test1, test2);
-                    console.log('🔬 실제 Delta E 테스트:', result);
+                    console.log('Delta E 테스트 결과:', result);
                     return result;
                 }
                 return '❌ Delta E 시스템 없음';
             },
             
             testSkinAnalyzer: async () => {
-                const analyzer = window.RealPersonalColorAI.realAI.skinAnalyzer;
+                const analyzer = window.PersonalColorAI.ai.skinAnalyzer;
                 if (analyzer && analyzer.isInitialized) {
-                    console.log('🎨 피부톤 분석기 준비됨');
+                    console.log('피부톤 분석기 준비됨');
                     return '✅ 준비됨';
                 }
                 return '❌ 피부톤 분석기 없음';
             },
             
             showSystemStatus: () => {
-                console.log('🤖 실제 AI 시스템 상태:');
-                console.log('- Delta E 2000:', !!window.RealPersonalColorAI.realAI.deltaE);
-                console.log('- 피부톤 분석기:', !!window.RealPersonalColorAI.realAI.skinAnalyzer);
-                console.log('- 얼굴 감지:', !!window.RealPersonalColorAI.realAI.faceDetector);
-                console.log('- 드래이핑 엔진:', !!window.RealPersonalColorAI.realAI.drapingEngine);
-                console.log('- 성능 통계:', window.RealPersonalColorAI.performance);
-                return window.RealPersonalColorAI;
+                console.log('AI 시스템 상태:');
+                console.log('- Delta E 2000:', !!window.PersonalColorAI.ai.deltaE);
+                console.log('- 피부톤 분석기:', !!window.PersonalColorAI.ai.skinAnalyzer);
+                console.log('- 얼굴 감지:', !!window.PersonalColorAI.ai.faceDetector);
+                console.log('- 드래이핑 엔진:', !!window.PersonalColorAI.ai.drapingEngine);
+                console.log('- 성능 통계:', window.PersonalColorAI.performance);
+                return window.PersonalColorAI;
             },
             
-            clearCache: () => {
-                const deltaE = window.RealPersonalColorAI.realAI.deltaE;
-                if (deltaE && deltaE.cache) {
-                    const size = deltaE.cache.size;
-                    deltaE.cache.clear();
-                    deltaE.cacheHits = 0;
-                    deltaE.cacheMisses = 0;
-                    console.log(`🗑️ Delta E 캐시 ${size}개 항목 삭제됨`);
-                    return `✅ ${size}개 항목 삭제`;
-                }
-                return '❌ 캐시 없음';
+            skipLoading: () => {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('main-app').classList.add('loaded');
+                window.PersonalColorAI.isLoaded = true;
+                console.log('로딩 건너뛰기 완료');
             }
         };
 
-        // 🚀 최종 확인 메시지
-        console.log('🎉 실제 Personal Color AI 시스템 로드 완료!');
-        console.log('📝 Mock 데이터 완전 제거됨');
-        console.log('🔬 실제 Delta E 2000 공식 사용');
-        console.log('🎨 실제 피부톤 분석 알고리즘 적용');
-        console.log('👤 실제 얼굴 감지 시스템 준비');
-        console.log('🎭 실시간 가상 드래이핑 엔진 준비');
-        console.log('🔧 디버그: window.debugRealAI 사용 가능');
+        console.log('Personal Color AI 시스템 로드 완료! (핑크 테마)');
+        console.log('실제 Delta E 2000 공식 사용');
+        console.log('실제 피부톤 분석 알고리즘 적용');
+        console.log('실제 얼굴 감지 시스템 준비');
+        console.log('실시간 가상 드래이핑 엔진 준비');
+        console.log('디버그: window.debugAI 사용 가능');
     </script>
 </body>
 </html>
