@@ -888,21 +888,46 @@ body {
                     </div>
 
                     <!-- 전문가 조정 패널 -->
-                    <div class="color-palette-container">
-                        <!-- 사용법 안내 -->
-                        <div style="background: #E3F2FD; border: 2px solid #2196F3; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #1976D2; font-weight: 600;">
-                                <span style="font-size: 1.1rem;">💡</span>
-                                사용법 가이드
-                            </div>
-                            <div style="color: #333; line-height: 1.4;">
-                                <div><strong>1단계:</strong> "카메라 시작" 버튼으로 실시간 화면 켜기</div>
-                                <div><strong>2단계:</strong> AI 분석 결과 확인 (참고용)</div>
-                                <div><strong>3단계:</strong> 4계절 탭과 슬라이더로 색상 조정</div>
-                                <div><strong>4단계:</strong> 스페이스바로 Before/After 비교</div>
-                                <div><strong>5단계:</strong> "현재 색상 저장"으로 제품 매칭</div>
-                            </div>
-                        </div>
+                  <!-- 사용법 안내 -->
+<div style="background: linear-gradient(135deg, #FCE4EC, #F8BBD9); border: 2px solid var(--primary-pink); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.15);">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div style="background: var(--primary-pink); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">?</div>
+        <h3 style="color: var(--dark-rose); margin: 0; font-size: 1.2rem;">실시간 드래이핑 사용법</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid var(--primary-pink);">
+            <div style="color: var(--primary-pink); font-weight: bold; margin-bottom: 0.5rem;">1️⃣ 카메라 준비</div>
+            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">"카메라 시작" 버튼을 눌러 실시간 화면을 켜세요</div>
+        </div>
+        
+        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #FF9800;">
+            <div style="color: #FF9800; font-weight: bold; margin-bottom: 0.5rem;">2️⃣ AI 참고</div>
+            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">화면 좌상단의 AI 분석 결과를 참고하세요</div>
+        </div>
+        
+        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #4CAF50;">
+            <div style="color: #4CAF50; font-weight: bold; margin-bottom: 0.5rem;">3️⃣ 색상 조정</div>
+            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">4계절 탭과 슬라이더로 색상을 세밀하게 조정</div>
+        </div>
+        
+        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #9C27B0;">
+            <div style="color: #9C27B0; font-weight: bold; margin-bottom: 0.5rem;">4️⃣ 비교 확인</div>
+            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">스페이스바를 눌러 원본/적용 비교하기</div>
+        </div>
+        
+        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #2196F3; grid-column: 1 / -1;">
+            <div style="color: #2196F3; font-weight: bold; margin-bottom: 0.5rem;">5️⃣ 제품 매칭</div>
+            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">"현재 색상 저장" 버튼으로 로레알/웰라/밀본 제품과 자동 매칭됩니다</div>
+        </div>
+    </div>
+    
+    <div style="background: rgba(255, 255, 255, 0.8); padding: 0.75rem; border-radius: 8px; margin-top: 1rem; text-align: center; border: 1px dashed var(--primary-pink);">
+        <div style="font-size: 0.85rem; color: var(--dark-rose);">
+            <strong>💡 팁:</strong> 명도/채도/온도감 슬라이더를 조정하며 실시간으로 변화를 확인하세요!
+        </div>
+    </div>
+</div>
 
                         <h3 style="text-align: center; margin-bottom: 1rem;">전문가 색상 조정</h3>
                         
