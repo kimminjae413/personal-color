@@ -875,7 +875,7 @@ body {
                         
                         <!-- AI 참고 정보 -->
                         <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">
-                            <div>드래이프: <span id="ai-reference">-</span></div>
+                            <div>AI 분석: <span id="ai-reference">-</span></div>
                             <div style="font-size: 0.75rem; opacity: 0.8;">(참고용)</div>
                         </div>
                         
@@ -1332,25 +1332,212 @@ function extractSkinColorFromFace(imageData, faceBox) {
     return finalColor;
 }
 
-// 퍼스널컬러 판정 (개선된 버전)
+// 퍼스널컬러 판정 (120가지 색상으로 확장)
 function analyzePersonalColor(skinRgb) {
     const skinLab = rgbToLab(skinRgb.r, skinRgb.g, skinRgb.b);
     
-    // 더 정교한 4계절 기준값들
+    // 각 계절별 30가지 세부 변형 (총 120가지)
     const seasonReferences = {
         spring: [
-            { L: 75, A: 12, B: 22 }, // 밝은 웜톤
-            { L: 68, A: 15, B: 28 }, // 중간 웜톤
-            { L: 72, A: 10, B: 25 }  // 선명한 웜톤
+            // 라이트 스프링 (10개)
+            { L: 78, A: 8, B: 18, sub: "라이트 스프링 - 코랄" },
+            { L: 76, A: 10, B: 22, sub: "라이트 스프링 - 피치" },
+            { L: 80, A: 6, B: 20, sub: "라이트 스프링 - 아이보리" },
+            { L: 75, A: 12, B: 25, sub: "라이트 스프링 - 애프리코트" },
+            { L: 77, A: 9, B: 19, sub: "라이트 스프링 - 크림" },
+            { L: 79, A: 7, B: 21, sub: "라이트 스프링 - 버터" },
+            { L: 74, A: 11, B: 24, sub: "라이트 스프링 - 골드" },
+            { L: 76, A: 8, B: 23, sub: "라이트 스프링 - 허니" },
+            { L: 78, A: 10, B: 20, sub: "라이트 스프링 - 바닐라" },
+            { L: 77, A: 9, B: 22, sub: "라이트 스프링 - 샴페인" },
+            
+            // 트루 스프링 (10개)
+            { L: 70, A: 15, B: 28, sub: "트루 스프링 - 골든" },
+            { L: 68, A: 17, B: 30, sub: "트루 스프링 - 오렌지" },
+            { L: 72, A: 13, B: 26, sub: "트루 스프링 - 앰버" },
+            { L: 69, A: 16, B: 29, sub: "트루 스프링 - 카라멜" },
+            { L: 71, A: 14, B: 27, sub: "트루 스프링 - 브론즈" },
+            { L: 67, A: 18, B: 31, sub: "트루 스프링 - 터쿼이즈" },
+            { L: 73, A: 12, B: 25, sub: "트루 스프링 - 라임" },
+            { L: 70, A: 15, B: 28, sub: "트루 스프링 - 키위" },
+            { L: 68, A: 16, B: 30, sub: "트루 스프링 - 망고" },
+            { L: 71, A: 14, B: 27, sub: "트루 스프링 - 파파야" },
+            
+            // 웜 스프링 (10개)
+            { L: 62, A: 20, B: 35, sub: "웜 스프링 - 러스트" },
+            { L: 65, A: 18, B: 33, sub: "웜 스프링 - 테라코타" },
+            { L: 60, A: 22, B: 37, sub: "웜 스프링 - 브릭" },
+            { L: 64, A: 19, B: 34, sub: "웜 스프링 - 시나몬" },
+            { L: 63, A: 20, B: 36, sub: "웜 스프링 - 진저" },
+            { L: 61, A: 21, B: 38, sub: "웜 스프링 - 스파이스" },
+            { L: 66, A: 17, B: 32, sub: "웜 스프링 - 퍼킨" },
+            { L: 62, A: 20, B: 35, sub: "웜 스프링 - 머스타드" },
+            { L: 64, A: 18, B: 34, sub: "웜 스프링 - 커리" },
+            { L: 63, A: 19, B: 36, sub: "웜 스프링 - 사프론" }
         ],
+        
         summer: [
-            { L: 70, A: 3, B: -5 },  // 밝은 쿨톤
-            { L: 65, A: 8, B: -8 },  // 부드러운 쿨톤
-            { L: 68, A: 5, B: -12 }  // 파스텔 쿨톤
+            // 라이트 서머 (10개)
+            { L: 75, A: 3, B: -8, sub: "라이트 서머 - 라벤더" },
+            { L: 77, A: 2, B: -6, sub: "라이트 서머 - 로즈" },
+            { L: 73, A: 4, B: -10, sub: "라이트 서머 - 라일락" },
+            { L: 76, A: 3, B: -7, sub: "라이트 서머 - 퍼플" },
+            { L: 74, A: 2, B: -9, sub: "라이트 서머 - 미스트" },
+            { L: 78, A: 1, B: -5, sub: "라이트 서머 - 페일" },
+            { L: 75, A: 3, B: -8, sub: "라이트 서머 - 더스트" },
+            { L: 72, A: 4, B: -11, sub: "라이트 서머 - 실버" },
+            { L: 76, A: 2, B: -7, sub: "라이트 서머 - 펄" },
+            { L: 74, A: 3, B: -9, sub: "라이트 서머 - 소프트" },
+            
+            // 트루 서머 (10개)
+            { L: 68, A: 6, B: -12, sub: "트루 서머 - 쿨 핑크" },
+            { L: 66, A: 8, B: -14, sub: "트루 서머 - 머브" },
+            { L: 70, A: 5, B: -10, sub: "트루 서머 - 베리" },
+            { L: 67, A: 7, B: -13, sub: "트루 서머 - 플럼" },
+            { L: 69, A: 6, B: -11, sub: "트루 서머 - 그레이프" },
+            { L: 65, A: 8, B: -15, sub: "트루 서머 - 와인" },
+            { L: 71, A: 4, B: -9, sub: "트루 서머 - 틸" },
+            { L: 68, A: 6, B: -12, sub: "트루 서머 - 세이지" },
+            { L: 66, A: 7, B: -14, sub: "트루 서머 - 민트" },
+            { L: 69, A: 5, B: -11, sub: "트루 서머 - 아쿠아" },
+            
+            // 소프트 서머 (10개)
+            { L: 60, A: 10, B: -18, sub: "소프트 서머 - 더스키" },
+            { L: 62, A: 9, B: -16, sub: "소프트 서머 - 머디" },
+            { L: 58, A: 11, B: -20, sub: "소프트 서머 - 스모키" },
+            { L: 61, A: 10, B: -17, sub: "소프트 서머 - 그레이시" },
+            { L: 59, A: 12, B: -19, sub: "소프트 서머 - 뉴트럴" },
+            { L: 63, A: 8, B: -15, sub: "소프트 서머 - 모브" },
+            { L: 60, A: 10, B: -18, sub: "소프트 서머 - 톤드" },
+            { L: 58, A: 11, B: -21, sub: "소프트 서머 - 뮤티드" },
+            { L: 62, A: 9, B: -16, sub: "소프트 서머 - 서브틀" },
+            { L: 59, A: 10, B: -19, sub: "소프트 서머 - 젠틀" }
         ],
+        
         autumn: [
-            { L: 55, A: 18, B: 30 }, // 깊은 웜톤
-            { L: 50, A: 22, B: 35 }, // 리치 웜톤
+            // 소프트 오텀 (10개)
+            { L: 58, A: 15, B: 25, sub: "소프트 오텀 - 올리브" },
+            { L: 60, A: 13, B: 27, sub: "소프트 오텀 - 카키" },
+            { L: 56, A: 16, B: 23, sub: "소프트 오텀 - 모스" },
+            { L: 59, A: 14, B: 26, sub: "소프트 오텀 - 세이지" },
+            { L: 57, A: 15, B: 24, sub: "소프트 오텀 - 포레스트" },
+            { L: 61, A: 12, B: 28, sub: "소프트 오텀 - 머드" },
+            { L: 58, A: 15, B: 25, sub: "소프트 오텀 - 어스" },
+            { L: 56, A: 17, B: 22, sub: "소프트 오텀 - 클레이" },
+            { L: 60, A: 13, B: 27, sub: "소프트 오텀 - 샌드" },
+            { L: 57, A: 16, B: 24, sub: "소프트 오텀 - 스톤" },
+            
+            // 트루 오텀 (10개)  
+            { L: 52, A: 20, B: 32, sub: "트루 오텀 - 러스셋" },
+            { L: 50, A: 22, B: 35, sub: "트루 오텀 - 체스넛" },
+            { L: 54, A: 18, B: 30, sub: "트루 오텀 - 브랜디" },
+            { L: 51, A: 21, B: 34, sub: "트루 오텀 - 코냑" },
+            { L: 53, A: 19, B: 31, sub: "트루 오텀 - 위스키" },
+            { L: 49, A: 23, B: 36, sub: "트루 오텀 - 럼" },
+            { L: 55, A: 17, B: 29, sub: "트루 오텀 - 버번" },
+            { L: 52, A: 20, B: 33, sub: "트루 오텀 - 포트" },
+            { L: 50, A: 22, B: 35, sub: "트루 오텀 - 셰리" },
+            { L: 54, A: 18, B: 30, sub: "트루 오텀 - 브랜디" },
+            
+            // 딥 오텀 (10개)
+            { L: 45, A: 25, B: 40, sub: "딥 오텀 - 마호가니" },
+            { L: 43, A: 27, B: 42, sub: "딥 오텀 - 에스프레소" },
+            { L: 47, A: 23, B: 38, sub: "딥 오텀 - 초콜릿" },
+            { L: 44, A: 26, B: 41, sub: "딥 오텀 - 코코아" },
+            { L: 46, A: 24, B: 39, sub: "딥 오텀 - 카푸치노" },
+            { L: 42, A: 28, B: 43, sub: "딥 오텀 - 모카" },
+            { L: 48, A: 22, B: 37, sub: "딥 오텀 - 라떼" },
+            { L: 45, A: 25, B: 40, sub: "딥 오텀 - 아메리카노" },
+            { L: 43, A: 27, B: 42, sub: "딥 오텀 - 드립" },
+            { L: 47, A: 23, B: 38, sub: "딥 오텀 - 로스트" }
+        ],
+        
+        winter: [
+            // 라이트 윈터 (10개)
+            { L: 50, A: -2, B: -12, sub: "라이트 윈터 - 아이시" },
+            { L: 52, A: -1, B: -10, sub: "라이트 윈터 - 프로스티" },
+            { L: 48, A: -3, B: -14, sub: "라이트 윈터 - 글레이셜" },
+            { L: 51, A: -2, B: -11, sub: "라이트 윈터 - 크리스탈" },
+            { L: 49, A: -4, B: -13, sub: "라이트 윈터 - 다이아몬드" },
+            { L: 53, A: 0, B: -9, sub: "라이트 윈터 - 플래티넘" },
+            { L: 50, A: -2, B: -12, sub: "라이트 윈터 - 스노우" },
+            { L: 48, A: -3, B: -15, sub: "라이트 윈터 - 블리자드" },
+            { L: 52, A: -1, B: -10, sub: "라이트 윈터 - 윈드" },
+            { L: 49, A: -3, B: -13, sub: "라이트 윈터 - 미스트" },
+            
+            // 트루 윈터 (10개)
+            { L: 45, A: 2, B: -18, sub: "트루 윈터 - 로얄" },
+            { L: 43, A: 4, B: -20, sub: "트루 윈터 - 사파이어" },
+            { L: 47, A: 0, B: -16, sub: "트루 윈터 - 에메랄드" },
+            { L: 44, A: 3, B: -19, sub: "트루 윈터 - 루비" },
+            { L: 46, A: 1, B: -17, sub: "트루 윈터 - 아메지스트" },
+            { L: 42, A: 5, B: -21, sub: "트루 윈터 - 가넷" },
+            { L: 48, A: -1, B: -15, sub: "트루 윈터 - 토파즈" },
+            { L: 45, A: 2, B: -18, sub: "트루 윈터 - 오닉스" },
+            { L: 43, A: 4, B: -20, sub: "트루 윈터 - 제트" },
+            { L: 47, A: 0, B: -16, sub: "트루 윈터 - 옵시디언" },
+            
+            // 딥 윈터 (10개)
+            { L: 40, A: -8, B: -25, sub: "딥 윈터 - 미드나잇" },
+            { L: 38, A: -10, B: -27, sub: "딥 윈터 - 이클립스" },
+            { L: 42, A: -6, B: -23, sub: "딥 윈터 - 노아르" },
+            { L: 39, A: -9, B: -26, sub: "딥 윈터 - 섀도우" },
+            { L: 41, A: -7, B: -24, sub: "딥 윈터 - 다크니스" },
+            { L: 37, A: -11, B: -28, sub: "딥 윈터 - 보이드" },
+            { L: 43, A: -5, B: -22, sub: "딥 윈터 - 차콜" },
+            { L: 40, A: -8, B: -25, sub: "딥 윈터 - 그라파이트" },
+            { L: 38, A: -10, B: -27, sub: "딥 윈터 - 슬레이트" },
+            { L: 42, A: -6, B: -23, sub: "딥 윈터 - 건메탈" }
+        ]
+    };
+    
+    let bestMatch = null;
+    let lowestDelta = Infinity;
+    let bestSubType = "";
+    
+    // 120개 모든 변형과 비교
+    for (const [season, variants] of Object.entries(seasonReferences)) {
+        variants.forEach((refLab) => {
+            const deltaE = calculateDeltaE2000(skinLab, refLab);
+            if (deltaE < lowestDelta) {
+                lowestDelta = deltaE;
+                bestMatch = season;
+                bestSubType = refLab.sub;
+            }
+        });
+    }
+    
+    // RGB 기반 추가 분석
+    const { r, g, b } = skinRgb;
+    const warmCoolScore = (r - b) / Math.max(r + g + b, 1);
+    const lightDarkScore = (r + g + b) / (3 * 255);
+    
+    // 신뢰도 계산
+    const baseConfidence = Math.max(65, Math.min(98, 100 - lowestDelta * 1.5));
+    const rgbVariance = Math.abs(r - g) + Math.abs(g - b) + Math.abs(r - b);
+    const varianceBonus = Math.min(8, rgbVariance / 6);
+    
+    const finalConfidence = Math.round(baseConfidence + varianceBonus);
+    
+    const expertAnalysis = generateExpertAnalysis(bestMatch, skinLab, skinRgb);
+    
+    console.log(`분석 상세: ${bestSubType}, Delta E: ${lowestDelta.toFixed(1)}, 웜쿨지수: ${warmCoolScore.toFixed(3)}, 밝기: ${lightDarkScore.toFixed(2)}`);
+    
+    return {
+        season: bestSubType, // 세부 타입으로 변경
+        confidence: finalConfidence,
+        lab: {
+            L: skinLab.L.toFixed(1),
+            A: skinLab.A.toFixed(1), 
+            B: skinLab.B.toFixed(1)
+        },
+        deltaE: lowestDelta.toFixed(1),
+        rgb: skinRgb,
+        expertAnalysis,
+        warmCoolScore: warmCoolScore.toFixed(3),
+        lightDarkScore: lightDarkScore.toFixed(2)
+    };
+}L: 50, A: 22, B: 35 }, // 리치 웜톤
             { L: 58, A: 15, B: 28 }  // 어스 웜톤
         ],
         winter: [
