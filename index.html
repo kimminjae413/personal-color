@@ -1228,25 +1228,35 @@ function calculateDeltaE2000(lab1, lab2) {
     return Math.min(deltaE, 100);
 }
 
-// 얼굴 모양 기반 피부톤 추출
+// 얼굴 모양 기반 피부톤 추출 (개선된 버전)
 function extractSkinColorFromFace(imageData, faceBox) {
     const { xCenter, yCenter, width, height } = faceBox;
     
-    // 얼굴 영역 내 여러 지점에서 피부색 샘플링
+    // 더 다양한 샘플링 지점 (9개 지점으로 확대)
     const samplePoints = [
-        { x: xCenter, y: yCenter - height * 0.1 }, // 이마
-        { x: xCenter - width * 0.15, y: yCenter }, // 좌측 뺨
-        { x: xCenter + width * 0.15, y: yCenter }, // 우측 뺨
-        { x: xCenter, y: yCenter + height * 0.1 }, // 턱
+        { x: xCenter - width * 0.1, y: yCenter - height * 0.2, name: '좌상 이마' },
+        { x: xCenter, y: yCenter - height * 0.25, name: '중앙 이마' },
+        { x: xCenter + width * 0.1, y: yCenter - height * 0.2, name: '우상 이마' },
+        { x: xCenter - width * 0.2, y: yCenter - height * 0.05, name: '좌측 뺨 상단' },
+        { x: xCenter + width * 0.2, y: yCenter - height * 0.05, name: '우측 뺨 상단' },
+        { x: xCenter - width * 0.18, y: yCenter + height * 0.1, name: '좌측 뺨 하단' },
+        { x: xCenter + width * 0.18, y: yCenter + height * 0.1, name: '우측 뺨 하단' },
+        { x: xCenter - width * 0.08, y: yCenter + height * 0.2, name: '좌측 턱' },
+        { x: xCenter + width * 0.08, y: yCenter + height * 0.2, name: '우측 턱' }
     ];
     
     let totalR = 0, totalG = 0, totalB = 0, validPixels = 0;
+    const regionColors = [];
     
     samplePoints.forEach(point => {
-        const sampleRadius = Math.min(width, height) * 0.05;
+        const sampleRadius = Math.min(width, height) * 0.025; // 샘플링 반경 축소
+        let regionR = 0, regionG = 0, regionB = 0, regionPixels = 0;
         
-        for (let dy = -sampleRadius; dy <= sampleRadius; dy += 2) {
-            for (let dx = -sampleRadius; dx <= sampleRadius; dx += 2) {
+        for (let dy = -sampleRadius; dy <= sampleRadius; dy += 1) {
+            for (let dx = -sampleRadius; dx <= sampleRadius; dx += 1) {
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > sampleRadius) continue;
+                
                 const x = Math.floor(point.x + dx);
                 const y = Math.floor(point.y + dy);
                 
@@ -1256,27 +1266,65 @@ function extractSkinColorFromFace(imageData, faceBox) {
                     const g = imageData.data[index + 1];
                     const b = imageData.data[index + 2];
                     
-                    // 피부색 범위 필터링
-                    if (r > 60 && g > 40 && b > 20 && r < 240 && g < 220 && b < 200) {
-                        totalR += r;
-                        totalG += g;
-                        totalB += b;
-                        validPixels++;
+                    // 더 엄격한 피부색 필터링
+                    if (r > 70 && g > 50 && b > 30 && r < 235 && g < 210 && b < 190) {
+                        // 피부색 비율 검증 (R이 가장 높고, G가 중간, B가 가장 낮아야 함)
+                        if (r >= g && g >= b && (r - b) > 15) {
+                            regionR += r;
+                            regionG += g;
+                            regionB += b;
+                            regionPixels++;
+                        }
                     }
                 }
             }
         }
+        
+        if (regionPixels > 0) {
+            const avgR = Math.round(regionR / regionPixels);
+            const avgG = Math.round(regionG / regionPixels);
+            const avgB = Math.round(regionB / regionPixels);
+            
+            regionColors.push({
+                name: point.name,
+                r: avgR, g: avgG, b: avgB,
+                pixels: regionPixels
+            });
+            
+            totalR += avgR;
+            totalG += avgG;
+            totalB += avgB;
+            validPixels++;
+        }
     });
+    
+    // 디버깅 정보
+    console.log('지역별 피부색:', regionColors);
     
     if (validPixels === 0) {
         return { r: 150, g: 120, b: 100 };
     }
     
-    return {
-        r: Math.round(totalR / validPixels),
-        g: Math.round(totalG / validPixels),
-        b: Math.round(totalB / validPixels)
+    // 가중 평균 계산 (픽셀 수가 많은 영역에 더 큰 가중치)
+    let weightedR = 0, weightedG = 0, weightedB = 0, totalWeight = 0;
+    
+    regionColors.forEach(region => {
+        const weight = Math.sqrt(region.pixels); // 제곱근으로 가중치 조절
+        weightedR += region.r * weight;
+        weightedG += region.g * weight;
+        weightedB += region.b * weight;
+        totalWeight += weight;
+    });
+    
+    const finalColor = {
+        r: Math.round(weightedR / totalWeight),
+        g: Math.round(weightedG / totalWeight),
+        b: Math.round(weightedB / totalWeight)
     };
+    
+    console.log(`피부색 추출 완료 - 유효 영역: ${validPixels}/9개`);
+    
+    return finalColor;
 }
 
 // 퍼스널컬러 판정
