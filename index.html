@@ -394,14 +394,44 @@ body {
                     </div>
 
                     <div class="analysis-panel">
-                        <h3>AI 분석 진행중...</h3>
-                        <p>MediaPipe를 사용하여 얼굴을 인식하고 있습니다.</p>
-                        <button class="mode-btn" onclick="startFaceDetection()">카메라 시작</button>
+                        <div id="step-1" class="analysis-step active">
+                            <h3>1단계: 카메라 준비</h3>
+                            <p>카메라를 활성화하여 얼굴을 인식합니다</p>
+                            <button class="mode-btn" onclick="startFaceDetection()">카메라 시작</button>
+                        </div>
                         
-                        <div id="analysis-results" style="margin-top: 2rem; display: none;">
-                            <h4>분석 결과</h4>
-                            <p><strong>진단 결과:</strong> <span id="result-season">봄 웜톤</span></p>
-                            <p><strong>정확도:</strong> <span id="confidence-score">92%</span></p>
+                        <div id="step-2" class="analysis-step" style="display: none;">
+                            <h3>2단계: 얼굴 인식 중</h3>
+                            <p>MediaPipe로 얼굴을 감지하고 있습니다...</p>
+                            <div style="color: #4CAF50; font-weight: bold;">✅ 얼굴 감지됨</div>
+                            <button class="mode-btn" onclick="startToneAnalysis()">얼굴톤 분석 시작</button>
+                        </div>
+                        
+                        <div id="step-3" class="analysis-step" style="display: none;">
+                            <h3>3단계: 피부톤 분석 중</h3>
+                            <p>RGB → LAB 변환 및 Delta E 계산 중...</p>
+                            <div id="analysis-progress" style="background: #FCE4EC; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                                <div>피부색 추출 중...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="step-4" class="analysis-step" style="display: none;">
+                            <h3>4단계: 분석 완료</h3>
+                            <div id="final-results" style="background: white; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                                <div style="text-align: center; margin-bottom: 1rem;">
+                                    <div id="result-season" style="font-size: 1.8rem; color: #E91E63; font-weight: bold;">-</div>
+                                    <div>정확도: <span id="confidence-score" style="color: #4CAF50; font-weight: bold;">-</span></div>
+                                </div>
+                                
+                                <div id="detailed-analysis">
+                                    <h4>상세 분석 결과:</h4>
+                                    <div id="analysis-details"></div>
+                                </div>
+                                
+                                <div style="margin-top: 1rem;">
+                                    <button class="mode-btn" onclick="resetAnalysis()">다시 분석</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -690,7 +720,35 @@ async function initializeMediaPipe() {
     }
 }
 
-// MediaPipe 결과 처리
+// ==========================================
+// 단계별 분석 진행 함수들
+// ==========================================
+
+let currentStep = 1;
+let faceDetected = false;
+let analysisData = null;
+
+// 분석 단계 전환
+function goToStep(step) {
+    // 모든 단계 숨기기
+    for (let i = 1; i <= 4; i++) {
+        const stepElement = document.getElementById(`step-${i}`);
+        if (stepElement) {
+            stepElement.style.display = 'none';
+            stepElement.classList.remove('active');
+        }
+    }
+    
+    // 선택된 단계 표시
+    const targetStep = document.getElementById(`step-${step}`);
+    if (targetStep) {
+        targetStep.style.display = 'block';
+        targetStep.classList.add('active');
+        currentStep = step;
+    }
+}
+
+// MediaPipe 결과 처리 (수정됨)
 function onFaceDetectionResults(results) {
     if (!canvasCtx || !videoElement) return;
     
@@ -711,14 +769,157 @@ function onFaceDetectionResults(results) {
             bbox.height * canvasElement.height
         );
         
-        // 분석 중이 아닐 때만 자동 분석 시작
-        if (!isAnalyzing) {
-            isAnalyzing = true;
-            setTimeout(() => {
-                analyzeDetectedFace(detection);
-            }, 1000);
+        // 얼굴이 감지되었음을 표시
+        if (!faceDetected && currentStep === 1) {
+            faceDetected = true;
+            goToStep(2); // 2단계로 자동 이동
+            showToast('얼굴이 감지되었습니다!', 'success');
+        }
+        
+        // 현재 감지된 얼굴 데이터 저장 (분석용)
+        window.currentFaceDetection = detection;
+    } else {
+        // 얼굴이 감지되지 않음
+        if (faceDetected && currentStep === 2) {
+            showToast('얼굴을 다시 카메라에 맞춰주세요', 'warning');
         }
     }
+}
+
+// 얼굴톤 분석 시작 (새 함수)
+function startToneAnalysis() {
+    if (!window.currentFaceDetection) {
+        showToast('먼저 얼굴을 감지해주세요', 'error');
+        return;
+    }
+    
+    goToStep(3); // 3단계로 이동
+    
+    // 분석 진행 상황 표시
+    const progressDiv = document.getElementById('analysis-progress');
+    let step = 0;
+    const steps = [
+        '피부색 RGB 추출 중...',
+        'RGB → LAB 색공간 변환 중...',
+        'Delta E 2000 계산 중...',
+        '4계절 매칭 분석 중...',
+        '전문가 노하우 적용 중...',
+        '최종 결과 생성 중...'
+    ];
+    
+    const updateProgress = () => {
+        if (step < steps.length) {
+            progressDiv.innerHTML = `
+                <div style="margin-bottom: 0.5rem;">${steps[step]}</div>
+                <div style="background: #E91E63; height: 4px; width: ${(step + 1) * 16.67}%; border-radius: 2px; transition: width 0.3s;"></div>
+            `;
+            step++;
+            setTimeout(updateProgress, 800);
+        } else {
+            // 실제 분석 실행
+            performRealAnalysis();
+        }
+    };
+    
+    updateProgress();
+}
+
+// 실제 분석 수행
+async function performRealAnalysis() {
+    try {
+        const detection = window.currentFaceDetection;
+        
+        // 비디오에서 이미지 데이터 추출
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = videoElement.videoWidth;
+        tempCanvas.height = videoElement.videoHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        tempCtx.drawImage(videoElement, 0, 0);
+        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        
+        // 얼굴 영역에서 피부색 추출
+        const bbox = detection.boundingBox;
+        const faceBox = {
+            xCenter: bbox.xCenter * tempCanvas.width,
+            yCenter: bbox.yCenter * tempCanvas.height,
+            width: bbox.width * tempCanvas.width,
+            height: bbox.height * tempCanvas.height
+        };
+        
+        const skinColor = extractSkinColor(imageData, faceBox);
+        console.log('추출된 피부색 RGB:', skinColor);
+        
+        // 퍼스널컬러 분석
+        const analysis = analyzePersonalColor(skinColor);
+        console.log('분석 결과:', analysis);
+        
+        // 분석 데이터 저장
+        analysisData = analysis;
+        
+        // 4단계로 이동하여 결과 표시
+        showFinalResults(analysis);
+        
+    } catch (error) {
+        console.error('분석 실패:', error);
+        showToast('분석 중 오류가 발생했습니다', 'error');
+    }
+}
+
+// 최종 결과 표시
+function showFinalResults(analysis) {
+    goToStep(4); // 4단계로 이동
+    
+    // 기본 결과 표시
+    const seasonElement = document.getElementById('result-season');
+    const confidenceElement = document.getElementById('confidence-score');
+    
+    if (seasonElement) seasonElement.textContent = analysis.season;
+    if (confidenceElement) confidenceElement.textContent = analysis.confidence + '%';
+    
+    // 상세 결과 표시
+    const detailsDiv = document.getElementById('analysis-details');
+    if (detailsDiv) {
+        detailsDiv.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px;">
+                    <strong>추출된 피부색</strong><br>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                        <div style="width: 30px; height: 30px; background: rgb(${analysis.rgb.r}, ${analysis.rgb.g}, ${analysis.rgb.b}); border: 1px solid #ccc; border-radius: 4px;"></div>
+                        RGB(${analysis.rgb.r}, ${analysis.rgb.g}, ${analysis.rgb.b})
+                    </div>
+                </div>
+                <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px;">
+                    <strong>LAB 색공간</strong><br>
+                    L: ${analysis.lab.L}<br>
+                    A: ${analysis.lab.A}<br>
+                    B: ${analysis.lab.B}
+                </div>
+            </div>
+            <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <strong>색차 측정값</strong><br>
+                Delta E 2000: ${analysis.deltaE}
+            </div>
+            <div style="background: #FCE4EC; padding: 1rem; border-radius: 8px;">
+                <strong>전문가 분석</strong><br>
+                ${analysis.expertAnalysis}
+            </div>
+        `;
+    }
+    
+    analysisCount++;
+    showToast(`퍼스널컬러 진단 완료: ${analysis.season}`, 'success');
+}
+
+// 분석 초기화
+function resetAnalysis() {
+    currentStep = 1;
+    faceDetected = false;
+    analysisData = null;
+    window.currentFaceDetection = null;
+    
+    goToStep(1);
+    showToast('분석이 초기화되었습니다', 'info');
 }
 
 // 감지된 얼굴 분석
