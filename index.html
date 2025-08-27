@@ -1,151 +1,20 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="헤어디자이너용 퍼스널컬러 진단 태블릿 시스템">
     <title>Personal Color Pro - 퍼스널컬러 진단 시스템</title>
-
-```
-<!-- CSS 파일들 -->
-<link rel="stylesheet" href="css/styles.css">
-<link rel="stylesheet" href="css/tablet.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/animations.css">
-
-<!-- PWA 매니페스트 -->
-<link rel="manifest" href="manifest.json">
-
-<!-- 메타 태그들 -->
-<meta name="theme-color" content="#6366f1">
-<link rel="apple-touch-icon" href="assets/images/icons/icon-192x192.png">
-
-<style>
-    /* 긴급 임시 스타일 - 모드가 작동하지 않는 경우를 위한 기본 스타일 */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { 
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-        background: #f8fafc; 
-    }
     
-    .loading-screen {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex; align-items: center; justify-content: center;
-        color: white; z-index: 9999;
-    }
+    <!-- 외부 라이브러리 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-convert/2.0.1/color-convert.min.js"></script>
     
-    .main-app { display: none; }
-    .main-app.loaded { display: block; }
-    
-    .app-header {
-        background: white; border-bottom: 1px solid #e5e7eb;
-        padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .header-controls {
-        display: flex; gap: 12px; margin-top: 15px;
-    }
-    
-    .header-btn {
-        padding: 12px 24px; background: #6366f1; color: white;
-        border: none; border-radius: 8px; cursor: pointer;
-        font-size: 14px; transition: all 0.2s;
-    }
-    
-    .header-btn:hover {
-        background: #5855eb; transform: translateY(-1px);
-    }
-    
-    .header-btn.active {
-        background: #4f46e5; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    }
-    
-    .main-content {
-        padding: 40px 20px; max-width: 1200px; margin: 0 auto;
-    }
-    
-    .mode-cards {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 24px; margin-top: 30px;
-    }
-    
-    .mode-card {
-        background: white; border-radius: 12px; padding: 30px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer;
-        transition: all 0.3s; text-align: center;
-    }
-    
-    .mode-card:hover {
-        transform: translateY(-8px); box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-    }
-    
-    .mode-card.selected {
-        border: 2px solid #6366f1; background: #f8faff;
-    }
-    
-    .mode-icon {
-        font-size: 48px; margin-bottom: 15px;
-    }
-    
-    .mode-card h3 {
-        font-size: 20px; margin-bottom: 10px; color: #374151;
-    }
-    
-    .mode-card p {
-        color: #6b7280; line-height: 1.6; margin-bottom: 20px;
-    }
-    
-    .mode-btn {
-        width: 100%; padding: 12px; background: #6366f1;
-        color: white; border: none; border-radius: 8px;
-        cursor: pointer; font-size: 16px; transition: all 0.2s;
-    }
-    
-    .mode-btn:hover {
-        background: #5855eb;
-    }
-    
-    .section {
-        display: none; padding: 40px 20px;
-    }
-    
-    .section.active {
-        display: block; animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .status-item {
-        display: inline-block; margin: 0 15px;
-        font-size: 14px; color: #6b7280;
-    }
-    
-    .status-active {
-        color: #10b981; font-weight: 600;
-    }
-    
-    .toast {
-        position: fixed; top: 20px; right: 20px; z-index: 10000;
-        padding: 15px 20px; background: #10b981; color: white;
-        border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideInRight 0.3s ease;
-    }
-    
-    .toast.error { background: #ef4444; }
-    .toast.warning { background: #f59e0b; }
-    
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-</style>
-```
-
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- 로딩 화면 -->
@@ -161,404 +30,331 @@
         </div>
     </div>
 
-```
-<!-- 메인 애플리케이션 -->
-<div class="main-app" id="main-app">
-    <!-- 헤더 -->
-    <header class="app-header">
-        <div class="header-top">
-            <div>
-                <h1 class="app-title">Personal Color AI Pro</h1>
-                <div class="app-subtitle">헤어샵 전용 완전한 퍼스널컬러 진단 시스템</div>
-            </div>
-            <div class="header-status">
-                <div class="status-item">AI 엔진: <span class="status-active" id="ai-status">준비됨</span></div>
-                <div class="status-item">Delta E 2000: <span class="status-active" id="deltae-status">활성</span></div>
-                <div class="status-item">처리된 고객: <span id="customer-count">0</span>명</div>
-            </div>
-        </div>
-        
-        <div class="header-controls">
-            <button class="header-btn" id="photo-analysis-btn">📸 사진 분석</button>
-            <button class="header-btn" id="draping-mode-btn">🎭 드래이핑 모드</button>
-            <button class="header-btn" id="customer-management-btn">👥 고객 관리</button>
-            <button class="header-btn" id="system-status-btn">⚙️ 시스템 상태</button>
-        </div>
-    </header>
-
-    <!-- 메인 콘텐츠 -->
-    <main class="main-content">
-        <!-- 모드 선택 섹션 -->
-        <section class="section active" id="mode-selection">
-            <h2>퍼스널컬러 진단 모드 선택</h2>
-            <div class="mode-cards">
-                <div class="mode-card" data-mode="photo">
-                    <div class="mode-icon">📸</div>
-                    <h3>AI 사진 분석</h3>
-                    <p><strong>사진으로 정확한 피부톤 분석</strong><br>
-                    실제 얼굴 감지 + 피부 영역 추출 + Delta E 계산</p>
-                    <div class="mode-accuracy">정확도 94%</div>
-                    <button class="mode-btn" onclick="switchMode('photo')">사진 분석 시작</button>
+    <!-- 메인 애플리케이션 -->
+    <div class="main-app" id="main-app">
+        <!-- 헤더 -->
+        <header class="app-header">
+            <div class="header-top">
+                <div>
+                    <h1 class="app-title">Personal Color AI Pro</h1>
+                    <div class="app-subtitle">헤어샵 전용 완전한 퍼스널컬러 진단 시스템</div>
                 </div>
+                <div class="header-status">
+                    <div class="status-item">AI 엔진: <span class="status-active" id="ai-status">준비됨</span></div>
+                    <div class="status-item">Delta E 2000: <span class="status-active" id="deltae-status">활성</span></div>
+                    <div class="status-item">분석 완료: <span id="analysis-count">0</span>건</div>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <button class="header-btn" id="photo-analysis-btn" onclick="switchMode('photo')">📸 AI 사진 분석</button>
+                <button class="header-btn" id="draping-mode-btn" onclick="switchMode('draping')">🎭 드래이핑 모드</button>
+                <button class="header-btn" id="system-status-btn" onclick="showSystemStatus()">⚙️ 시스템 상태</button>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <!-- 모드 선택 섹션 -->
+            <section class="section active" id="mode-selection">
+                <h2>퍼스널컬러 진단 모드 선택</h2>
+                <div class="mode-cards">
+                    <!-- AI 사진 분석 모드 -->
+                    <div class="mode-card" data-mode="photo" onclick="selectModeCard(this)">
+                        <span class="mode-icon">📸</span>
+                        <h3>AI 사진 분석 모드</h3>
+                        <p>실시간 카메라를 통한 AI 기반 과학적 퍼스널컬러 진단</p>
+                        <ul class="mode-features">
+                            <li>MediaPipe 얼굴 인식</li>
+                            <li>RGB→LAB 색공간 변환</li>
+                            <li>Delta E 2000 색차 측정</li>
+                            <li>4단계 실시간 분석</li>
+                            <li>브랜드별 제품 추천</li>
+                        </ul>
+                        <button class="mode-btn" onclick="startPhotoAnalysis()">시작하기</button>
+                    </div>
+
+                    <!-- 드래이핑 모드 -->
+                    <div class="mode-card" data-mode="draping" onclick="selectModeCard(this)">
+                        <span class="mode-icon">🎭</span>
+                        <h3>전문가 드래이핑 모드</h3>
+                        <p>전문가 노하우를 반영한 가상 드래이핑 진단</p>
+                        <ul class="mode-features">
+                            <li>사진 업로드 & 실시간 오버레이</li>
+                            <li>4계절 색상 팔레트</li>
+                            <li>유이레/빛날윤/블루미 노하우</li>
+                            <li>가상 헤어컬러 적용</li>
+                            <li>Before/After 비교 (4가지 모드)</li>
+                        </ul>
+                        <button class="mode-btn" onclick="startDraping()">시작하기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI 사진 분석 섹션 -->
+            <section class="section" id="photo-analysis">
+                <h2>AI 기반 퍼스널컬러 진단</h2>
                 
-                <div class="mode-card" data-mode="draping">
-                    <div class="mode-icon">🎭</div>
-                    <h3>실시간 가상 드래이핑</h3>
-                    <p><strong>전문가용 정밀 드래이핑 도구</strong><br>
-                    실제 천 시뮬레이션 + 실시간 색상 비교 + 전문가 워크플로우</p>
-                    <div class="mode-accuracy">정확도 98%</div>
-                    <button class="mode-btn" onclick="switchMode('draping')">드래이핑 시작</button>
-                </div>
-                
-                <div class="mode-card" data-mode="hybrid">
-                    <div class="mode-icon">🤖</div>
-                    <h3>하이브리드 분석</h3>
-                    <p><strong>AI + 드래이핑 통합 진단</strong><br>
-                    AI 1차 분석 후 드래이핑으로 정밀 검증</p>
-                    <div class="mode-accuracy">정확도 99%</div>
-                    <button class="mode-btn" onclick="switchMode('hybrid')">하이브리드 시작</button>
-                </div>
-            </div>
-        </section>
+                <div class="analysis-grid">
+                    <!-- 카메라 영역 -->
+                    <div class="video-container">
+                        <video id="camera-feed" class="video-feed" autoplay muted playsinline></video>
+                        <canvas id="face-overlay" class="camera-overlay"></canvas>
+                        <div class="face-detection-guide" id="face-guide">
+                            얼굴을 가이드라인에 맞춰주세요
+                        </div>
+                    </div>
 
-        <!-- AI 사진 분석 섹션 -->
-        <section class="section" id="ai-analysis">
-            <h2>📸 AI 사진 분석 모드</h2>
-            <div class="analysis-container">
-                <div class="camera-preview">
-                    <div class="camera-placeholder">
-                        <div class="camera-icon">📷</div>
-                        <p>카메라를 시작하려면 아래 버튼을 눌러주세요</p>
-                        <button class="mode-btn" onclick="startCamera()">카메라 시작</button>
+                    <!-- 분석 패널 -->
+                    <div class="analysis-panel">
+                        <!-- 1단계: 얼굴 인식 -->
+                        <div class="analysis-step active" id="step-face-detection">
+                            <div class="step-indicator">
+                                <div class="step-dot active"></div>
+                                <div class="step-dot"></div>
+                                <div class="step-dot"></div>
+                                <div class="step-dot"></div>
+                            </div>
+                            <h3>1단계: 얼굴 인식</h3>
+                            <div class="progress-ring">
+                                <svg>
+                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-1"></circle>
+                                </svg>
+                                <div class="progress-text" id="progress-text-1">0%</div>
+                            </div>
+                            <p>MediaPipe를 사용하여 얼굴을 인식하고 있습니다...</p>
+                            <button class="mode-btn" onclick="startFaceDetection()">얼굴 인식 시작</button>
+                        </div>
+
+                        <!-- 2단계: 피부 색상 분석 -->
+                        <div class="analysis-step" id="step-color-analysis">
+                            <div class="step-indicator">
+                                <div class="step-dot completed"></div>
+                                <div class="step-dot active"></div>
+                                <div class="step-dot"></div>
+                                <div class="step-dot"></div>
+                            </div>
+                            <h3>2단계: 피부 색상 분석</h3>
+                            <div class="progress-ring">
+                                <svg>
+                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-2"></circle>
+                                </svg>
+                                <div class="progress-text" id="progress-text-2">0%</div>
+                            </div>
+                            <p>RGB → LAB 색공간 변환 및 색상 추출 중...</p>
+                        </div>
+
+                        <!-- 3단계: Delta E 계산 -->
+                        <div class="analysis-step" id="step-delta-calculation">
+                            <div class="step-indicator">
+                                <div class="step-dot completed"></div>
+                                <div class="step-dot completed"></div>
+                                <div class="step-dot active"></div>
+                                <div class="step-dot"></div>
+                            </div>
+                            <h3>3단계: Delta E 2000 계산</h3>
+                            <div class="progress-ring">
+                                <svg>
+                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-3"></circle>
+                                </svg>
+                                <div class="progress-text" id="progress-text-3">0%</div>
+                            </div>
+                            <p>과학적 색차 측정을 통한 계절 판정 중...</p>
+                        </div>
+
+                        <!-- 4단계: 결과 생성 -->
+                        <div class="analysis-step" id="step-result-generation">
+                            <div class="step-indicator">
+                                <div class="step-dot completed"></div>
+                                <div class="step-dot completed"></div>
+                                <div class="step-dot completed"></div>
+                                <div class="step-dot active"></div>
+                            </div>
+                            <h3>4단계: 결과 생성</h3>
+                            <div class="progress-ring">
+                                <svg>
+                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-4"></circle>
+                                </svg>
+                                <div class="progress-text" id="progress-text-4">0%</div>
+                            </div>
+                            <p>전문가 노하우를 반영한 최종 결과 생성 중...</p>
+                        </div>
                     </div>
                 </div>
-                <div class="analysis-panel">
-                    <h3>분석 진행상황</h3>
-                    <div class="analysis-steps">
-                        <div class="step">1. 얼굴 감지</div>
-                        <div class="step">2. 피부 영역 추출</div>
-                        <div class="step">3. 색상 분석</div>
-                        <div class="step">4. 계절 분류</div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- 드래이핑 모드 섹션 -->
-        <section class="section" id="draping-mode">
-            <h2>🎭 전문가 드래이핑 모드</h2>
-            <div class="draping-container">
-                <div class="draping-workspace">
-                    <div class="draping-placeholder">
-                        <div class="draping-icon">🎨</div>
-                        <p>드래이핑 도구를 시작하려면 아래 버튼을 눌러주세요</p>
-                        <button class="mode-btn" onclick="startDraping()">드래이핑 시작</button>
+                <!-- 결과 표시 영역 -->
+                <div class="results-container" id="analysis-results" style="display: none;">
+                    <div class="result-header">
+                        <div class="result-season" id="result-season">봄 웜톤</div>
+                        <div class="result-confidence">정확도: <span id="confidence-score">92%</span></div>
                     </div>
-                </div>
-                <div class="color-palette-panel">
-                    <h3>색상 팔레트</h3>
-                    <div class="season-colors">
-                        <div class="season-group">봄 웜톤</div>
-                        <div class="season-group">여름 쿨톤</div>
-                        <div class="season-group">가을 웜톤</div>
-                        <div class="season-group">겨울 쿨톤</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 고객 관리 섹션 -->
-        <section class="section" id="customer-management">
-            <h2>👥 고객 관리</h2>
-            <div class="customer-container">
-                <div class="customer-list">
-                    <div class="customer-placeholder">
-                        <p>등록된 고객이 없습니다.</p>
-                        <button class="mode-btn" onclick="addNewCustomer()">새 고객 등록</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 결과 섹션 -->
-        <section class="section" id="results-section">
-            <h2>📊 진단 결과</h2>
-            <div class="results-container">
-                <div class="results-placeholder">
-                    <p>아직 진단 결과가 없습니다.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-</div>
-
-<!-- JavaScript 코드 -->
-<script>
-    console.log('Personal Color Pro 시작...');
-    
-    // 전역 상태 관리
-    let currentMode = 'selection';
-    let isLoading = false;
-    
-    // DOM이 로드되면 실행
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM 로드 완료');
-        
-        // 로딩 완료 처리
-        setTimeout(function() {
-            const loadingScreen = document.getElementById('loading-screen');
-            const mainApp = document.getElementById('main-app');
-            
-            if (loadingScreen) {
-                loadingScreen.style.opacity = '0';
-                setTimeout(function() {
-                    loadingScreen.style.display = 'none';
-                }, 300);
-            }
-            
-            if (mainApp) {
-                mainApp.classList.add('loaded');
-            }
-            
-            // 이벤트 리스너 설정
-            setupEventListeners();
-            
-            showToast('시스템이 준비되었습니다!', 'success');
-            
-        }, 2000);
-    });
-    
-    // 이벤트 리스너 설정
-    function setupEventListeners() {
-        console.log('이벤트 리스너 설정 중...');
-        
-        // 헤더 버튼들
-        const headerButtons = {
-            'photo-analysis-btn': 'photo',
-            'draping-mode-btn': 'draping', 
-            'customer-management-btn': 'customer',
-            'system-status-btn': 'status'
-        };
-        
-        Object.keys(headerButtons).forEach(function(buttonId) {
-            const button = document.getElementById(buttonId);
-            if (button) {
-                button.addEventListener('click', function() {
-                    const mode = headerButtons[buttonId];
-                    console.log('버튼 클릭:', buttonId, '모드:', mode);
                     
-                    if (mode === 'status') {
-                        showSystemStatus();
-                    } else {
-                        switchMode(mode);
-                    }
-                });
-                console.log('✅ 이벤트 연결됨:', buttonId);
-            } else {
-                console.warn('❌ 버튼을 찾을 수 없음:', buttonId);
-            }
-        });
-        
-        // 모드 카드들
-        const modeCards = document.querySelectorAll('.mode-card');
-        modeCards.forEach(function(card) {
-            card.addEventListener('click', function() {
-                const mode = card.getAttribute('data-mode');
-                if (mode) {
-                    console.log('모드 카드 클릭:', mode);
-                    selectModeCard(card);
-                    switchMode(mode);
-                }
-            });
-        });
-        
-        console.log('✅ 이벤트 리스너 설정 완료');
-    }
-    
-    // 모드 전환 함수
-    function switchMode(mode) {
-        console.log('🔄 모드 전환:', currentMode, '→', mode);
-        
-        if (isLoading) {
-            showToast('처리 중입니다. 잠시만 기다려주세요.', 'warning');
-            return;
-        }
-        
-        // 현재 섹션 숨기기
-        const sections = document.querySelectorAll('.section');
-        sections.forEach(function(section) {
-            section.classList.remove('active');
-        });
-        
-        // 헤더 버튼 상태 업데이트
-        const headerButtons = document.querySelectorAll('.header-btn');
-        headerButtons.forEach(function(btn) {
-            btn.classList.remove('active');
-        });
-        
-        // 새 섹션 표시 및 버튼 활성화
-        switch(mode) {
-            case 'photo':
-                document.getElementById('ai-analysis').classList.add('active');
-                document.getElementById('photo-analysis-btn').classList.add('active');
-                showToast('AI 사진 분석 모드가 활성화되었습니다.', 'success');
-                break;
-                
-            case 'draping':
-                document.getElementById('draping-mode').classList.add('active');
-                document.getElementById('draping-mode-btn').classList.add('active');
-                showToast('드래이핑 모드가 활성화되었습니다.', 'success');
-                break;
-                
-            case 'customer':
-                document.getElementById('customer-management').classList.add('active');
-                document.getElementById('customer-management-btn').classList.add('active');
-                showToast('고객 관리 모드가 활성화되었습니다.', 'success');
-                break;
-                
-            case 'selection':
-            default:
-                document.getElementById('mode-selection').classList.add('active');
-                showToast('모드 선택 화면입니다.', 'info');
-                break;
-        }
-        
-        currentMode = mode;
-        console.log('✅ 모드 전환 완료:', mode);
-    }
-    
-    // 모드 카드 선택
-    function selectModeCard(selectedCard) {
-        // 모든 카드 선택 해제
-        const modeCards = document.querySelectorAll('.mode-card');
-        modeCards.forEach(function(card) {
-            card.classList.remove('selected');
-        });
-        
-        // 선택된 카드 활성화
-        selectedCard.classList.add('selected');
-        
-        // 햅틱 피드백 (지원되는 경우)
-        if (navigator.vibrate) {
-            navigator.vibrate(50);
-        }
-    }
-    
-    // 기능 함수들
-    function startCamera() {
-        showToast('카메라 기능을 시작합니다...', 'info');
-        console.log('카메라 시작');
-        // 카메라 로직은 여기에 추가
-    }
-    
-    function startDraping() {
-        showToast('드래이핑 도구를 시작합니다...', 'info');
-        console.log('드래이핑 시작');
-        // 드래이핑 로직은 여기에 추가
-    }
-    
-    function addNewCustomer() {
-        showToast('새 고객 등록 기능을 시작합니다...', 'info');
-        console.log('새 고객 등록');
-        // 고객 등록 로직은 여기에 추가
-    }
-    
-    function showSystemStatus() {
-        const statusInfo = `
-```
+                    <div class="result-details">
+                        <div class="result-card">
+                            <h4>색상 분석 데이터</h4>
+                            <p>L: <span id="lab-l">65.2</span></p>
+                            <p>A: <span id="lab-a">12.8</span></p>
+                            <p>B: <span id="lab-b">15.4</span></p>
+                            <p>Delta E: <span id="delta-e">8.3</span></p>
+                        </div>
+                        
+                        <div class="result-card">
+                            <h4>전문가 분석</h4>
+                            <p id="expert-analysis">
+                                아이보리 피부톤에 따뜻한 언더톤이 감지되었습니다. 
+                                유이레 노하우에 따르면 코토리베이지 계열이 잘 어울립니다.
+                            </p>
+                        </div>
+                        
+                        <div class="result-card">
+                            <h4>추천 컬러</h4>
+                            <div class="recommended-colors" id="recommended-colors">
+                                <!-- 동적으로 생성 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-시스템 상태:
-• AI 엔진: 준비됨
-• Delta E 2000: 활성
-• 카메라: 사용 가능
-• 저장소: 정상
-• 현재 모드: ${currentMode}
-`;
+                <!-- 브랜드별 제품 추천 -->
+                <div class="product-recommendations" id="product-recommendations" style="display: none;">
+                    <h3 style="text-align: center; color: var(--primary-pink); margin-bottom: var(--spacing-lg);">
+                        브랜드별 제품 추천
+                    </h3>
+                    
+                    <div class="brand-tabs">
+                        <button class="brand-tab active" onclick="showBrandProducts('loreal')">로레알</button>
+                        <button class="brand-tab" onclick="showBrandProducts('wella')">웰라</button>
+                        <button class="brand-tab" onclick="showBrandProducts('milbon')">밀본</button>
+                    </div>
 
-```
-        alert(statusInfo);
-        console.log('시스템 상태 표시');
-    }
-    
-    // 토스트 메시지 표시
-    function showToast(message, type = 'info', duration = 3000) {
-        console.log('토스트:', message, type);
-        
-        // 기존 토스트 제거
-        const existingToast = document.querySelector('.toast');
-        if (existingToast) {
-            existingToast.remove();
-        }
-        
-        // 새 토스트 생성
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        
-        document.body.appendChild(toast);
-        
-        // 자동 제거
-        setTimeout(function() {
-            if (toast.parentNode) {
-                toast.style.opacity = '0';
-                setTimeout(function() {
-                    toast.remove();
-                }, 300);
-            }
-        }, duration);
-    }
-    
-    // 전역 오류 처리
-    window.addEventListener('error', function(event) {
-        console.error('전역 오류:', event.error);
-        showToast('예상치 못한 오류가 발생했습니다.', 'error');
-    });
-    
-    // 키보드 단축키
-    document.addEventListener('keydown', function(event) {
-        // Ctrl/Cmd + 숫자로 모드 전환
-        if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey) {
-            switch(event.key) {
-                case '1':
-                    event.preventDefault();
-                    switchMode('photo');
-                    break;
-                case '2':
-                    event.preventDefault();
-                    switchMode('draping');
-                    break;
-                case '3':
-                    event.preventDefault();
-                    switchMode('customer');
-                    break;
-                case '0':
-                    event.preventDefault();
-                    switchMode('selection');
-                    break;
-            }
-        }
-    });
-    
-    // PWA 설치 지원
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', function(e) {
-        e.preventDefault();
-        deferredPrompt = e;
-        console.log('PWA 설치 프롬프트 준비됨');
-    });
-    
-    // 디버그 정보 (개발용)
-    window.debugInfo = function() {
-        console.log('=== 디버그 정보 ===');
-        console.log('현재 모드:', currentMode);
-        console.log('로딩 상태:', isLoading);
-        console.log('활성 섹션:', document.querySelector('.section.active')?.id);
-        console.log('활성 헤더 버튼:', document.querySelector('.header-btn.active')?.id);
-    };
-    
-    console.log('Personal Color Pro 초기화 완료!');
-</script>
-```
+                    <div class="product-grid" id="product-grid">
+                        <!-- 동적으로 생성 -->
+                    </div>
+                </div>
+            </section>
 
+            <!-- 드래이핑 모드 섹션 -->
+            <section class="section" id="draping-mode">
+                <h2>전문가 드래이핑 진단</h2>
+                
+                <div class="draping-container">
+                    <!-- 이미지 업로드 및 드래이핑 영역 -->
+                    <div>
+                        <div class="image-upload-area" id="image-upload-area" onclick="document.getElementById('image-input').click()">
+                            <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                            <div class="upload-icon">📷</div>
+                            <h3>고객 사진 업로드</h3>
+                            <p>드래그 & 드롭 또는 클릭하여 이미지를 업로드하세요</p>
+                            <p style="font-size: 0.9rem; color: var(--accent-gray);">지원 형식: JPG, PNG, WEBP</p>
+                        </div>
+                        
+                        <canvas id="draping-canvas" style="display: none; width: 100%; border-radius: var(--radius); margin-top: var(--spacing-lg);"></canvas>
+                    </div>
+
+                    <!-- 색상 팔레트 -->
+                    <div class="color-palette-section">
+                        <h3 style="text-align: center; margin-bottom: var(--spacing-lg);">4계절 색상 팔레트</h3>
+                        
+                        <div class="season-tabs">
+                            <button class="season-tab active" onclick="showSeasonPalette('spring')">봄</button>
+                            <button class="season-tab" onclick="showSeasonPalette('summer')">여름</button>
+                            <button class="season-tab" onclick="showSeasonPalette('autumn')">가을</button>
+                            <button class="season-tab" onclick="showSeasonPalette('winter')">겨울</button>
+                        </div>
+
+                        <div class="color-palette" id="color-palette">
+                            <!-- 동적으로 생성 -->
+                        </div>
+
+                        <div style="margin-top: var(--spacing-lg);">
+                            <button class="mode-btn" onclick="applyVirtualHair()" style="width: 100%;">
+                                가상 헤어컬러 적용
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Before/After 비교 섹션 -->
+                <div class="before-after-container" id="before-after-section" style="display: none;">
+                    <div class="comparison-header">
+                        <h3>Before/After 비교</h3>
+                        <div class="comparison-controls">
+                            <button class="comparison-mode active" data-mode="slider" onclick="switchComparisonMode('slider')">슬라이더</button>
+                            <button class="comparison-mode" data-mode="split" onclick="switchComparisonMode('split')">분할</button>
+                            <button class="comparison-mode" data-mode="toggle" onclick="switchComparisonMode('toggle')">토글</button>
+                            <button class="comparison-mode" data-mode="overlay" onclick="switchComparisonMode('overlay')">오버레이</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 슬라이더 비교 뷰 -->
+                    <div class="slider-comparison active" id="slider-view">
+                        <div class="comparison-wrapper">
+                            <canvas id="before-canvas"></canvas>
+                            <canvas id="after-canvas"></canvas>
+                            <div class="slider-handle" id="slider-handle"></div>
+                        </div>
+                        <input type="range" class="comparison-slider" min="0" max="100" value="50" id="comparison-slider">
+                    </div>
+                    
+                    <!-- 분할 비교 뷰 -->
+                    <div class="split-comparison" id="split-view">
+                        <div class="before-section">
+                            <h4>Before</h4>
+                            <canvas id="before-split-canvas"></canvas>
+                        </div>
+                        <div class="after-section">
+                            <h4>After</h4>
+                            <canvas id="after-split-canvas"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 토글 비교 뷰 -->
+                    <div class="toggle-comparison" id="toggle-view">
+                        <canvas id="toggle-canvas"></canvas>
+                        <button class="toggle-btn" onclick="toggleBeforeAfter()">Before ↔ After</button>
+                    </div>
+                    
+                    <!-- 오버레이 비교 뷰 -->
+                    <div class="overlay-comparison" id="overlay-view">
+                        <div class="overlay-wrapper">
+                            <canvas id="overlay-before-canvas"></canvas>
+                            <canvas id="overlay-after-canvas"></canvas>
+                        </div>
+                        <input type="range" class="opacity-slider" min="0" max="100" value="50" id="opacity-slider">
+                        <p>투명도 조절</p>
+                    </div>
+                    
+                    <!-- 개선도 지표 -->
+                    <div class="improvement-metrics">
+                        <div class="metric">
+                            <span class="metric-label">피부톤 개선:</span>
+                            <span class="metric-value" id="skin-improvement">+15%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">전체 조화도:</span>
+                            <span class="metric-value" id="harmony-score">92점</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">전문가 추천:</span>
+                            <span class="metric-value" id="expert-rating">★★★★☆</span>
+                        </div>
+                    </div>
+                    
+                    <div class="export-options">
+                        <button class="export-btn" onclick="exportComparison()">📱 비교 이미지 저장</button>
+                        <button class="export-btn" onclick="generateReport()">📄 상담 리포트 생성</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript 파일들 -->
+    <script src="app.js"></script>
+    <script src="comparison.js"></script>
 </body>
 </html>
