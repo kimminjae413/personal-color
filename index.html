@@ -368,6 +368,20 @@ body {
     margin-bottom: var(--spacing-xl);
 }
 
+/* 드래이핑 모드 레이아웃 */
+.draping-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.draping-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
 .video-container {
     position: relative;
     width: 100%;
@@ -658,7 +672,8 @@ body {
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-    .analysis-grid {
+    .analysis-grid,
+    .draping-layout {
         grid-template-columns: 1fr;
     }
     .mode-cards {
@@ -764,7 +779,7 @@ body {
                             <li>얼굴 모양 기반 피부톤 추출</li>
                             <li>RGB→LAB 색공간 변환</li>
                             <li>Delta E 2000 색차 측정</li>
-                            <li>4계절 자동 판정</li>
+                            <li>120가지 세부 타입 분석</li>
                             <li>브랜드별 제품 추천</li>
                         </ul>
                         <button class="mode-btn">시작하기</button>
@@ -775,7 +790,7 @@ body {
                         <h3>전문가 드래이핑 모드</h3>
                         <p>전문가 노하우를 반영한 가상 드래이핑 진단</p>
                         <ul class="mode-features">
-                            <li>사진 업로드 & 오버레이</li>
+                            <li>실시간 카메라 드래이핑</li>
                             <li>4계절 색상 팔레트</li>
                             <li>유이레/빛날윤/블루미 노하우</li>
                             <li>Before/After 비교</li>
@@ -863,72 +878,76 @@ body {
                     </div>
                 </div>
                 
-                <div class="analysis-grid">
-                    <!-- 실시간 카메라 + 색상 오버레이 -->
-                    <div class="video-container">
-                        <video id="draping-camera" class="video-feed" autoplay muted playsinline></video>
-                        <canvas id="draping-overlay" class="face-overlay"></canvas>
-                        <div class="face-detection-guide" id="draping-guide">
-                            얼굴을 가이드라인에<br>맞춰주세요
+                <div class="draping-layout">
+                    <!-- 왼쪽: 카메라 + 사용법 -->
+                    <div class="draping-left">
+                        <!-- 실시간 카메라 + 색상 오버레이 -->
+                        <div class="video-container">
+                            <video id="draping-camera" class="video-feed" autoplay muted playsinline></video>
+                            <canvas id="draping-overlay" class="face-overlay"></canvas>
+                            <div class="face-detection-guide" id="draping-guide">
+                                얼굴을 가이드라인에<br>맞춰주세요
+                            </div>
+                            <div class="skin-analysis-regions" id="draping-regions"></div>
+                            
+                            <!-- AI 참고 정보 -->
+                            <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">
+                                <div>AI 분석: <span id="ai-reference">-</span></div>
+                                <div style="font-size: 0.75rem; opacity: 0.8;">(참고용)</div>
+                            </div>
+                            
+                            <!-- Before/After 토글 버튼 -->
+                            <div style="position: absolute; bottom: 10px; right: 10px;">
+                                <button onclick="toggleDrapingPreview()" style="background: var(--primary-pink); color: white; border: none; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer;">
+                                    원본/적용 (스페이스)
+                                </button>
+                            </div>
                         </div>
-                        <div class="skin-analysis-regions" id="draping-regions"></div>
-                        
-                        <!-- AI 참고 정보 -->
-                        <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">
-                            <div>AI 분석: <span id="ai-reference">-</span></div>
-                            <div style="font-size: 0.75rem; opacity: 0.8;">(참고용)</div>
-                        </div>
-                        
-                        <!-- Before/After 토글 버튼 -->
-                        <div style="position: absolute; bottom: 10px; right: 10px;">
-                            <button onclick="toggleDrapingPreview()" style="background: var(--primary-pink); color: white; border: none; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer;">
-                                원본/적용 (스페이스)
-                            </button>
+
+                        <!-- 사용법 안내 (카메라 바로 밑) -->
+                        <div style="background: linear-gradient(135deg, #FCE4EC, #F8BBD9); border: 2px solid var(--primary-pink); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.15);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                <div style="background: var(--primary-pink); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">?</div>
+                                <h3 style="color: var(--dark-rose); margin: 0; font-size: 1.2rem;">실시간 드래이핑 사용법</h3>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                                <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid var(--primary-pink);">
+                                    <div style="color: var(--primary-pink); font-weight: bold; margin-bottom: 0.5rem;">1️⃣ 카메라 준비</div>
+                                    <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">"카메라 시작" 버튼을 눌러 실시간 화면을 켜세요</div>
+                                </div>
+                                
+                                <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #FF9800;">
+                                    <div style="color: #FF9800; font-weight: bold; margin-bottom: 0.5rem;">2️⃣ AI 참고</div>
+                                    <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">화면 좌상단의 AI 분석 결과를 참고하세요</div>
+                                </div>
+                                
+                                <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #4CAF50;">
+                                    <div style="color: #4CAF50; font-weight: bold; margin-bottom: 0.5rem;">3️⃣ 색상 조정</div>
+                                    <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">4계절 탭과 슬라이더로 색상을 세밀하게 조정</div>
+                                </div>
+                                
+                                <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #9C27B0;">
+                                    <div style="color: #9C27B0; font-weight: bold; margin-bottom: 0.5rem;">4️⃣ 비교 확인</div>
+                                    <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">스페이스바를 눌러 원본/적용 비교하기</div>
+                                </div>
+                                
+                                <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #2196F3; grid-column: 1 / -1;">
+                                    <div style="color: #2196F3; font-weight: bold; margin-bottom: 0.5rem;">5️⃣ 제품 매칭</div>
+                                    <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">"현재 색상 저장" 버튼으로 로레알/웰라/밀본 제품과 자동 매칭됩니다</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: rgba(255, 255, 255, 0.8); padding: 0.75rem; border-radius: 8px; margin-top: 1rem; text-align: center; border: 1px dashed var(--primary-pink);">
+                                <div style="font-size: 0.85rem; color: var(--dark-rose);">
+                                    <strong>💡 팁:</strong> 명도/채도/온도감 슬라이더를 조정하며 실시간으로 변화를 확인하세요!
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 전문가 조정 패널 -->
-                  <!-- 사용법 안내 -->
-<div style="background: linear-gradient(135deg, #FCE4EC, #F8BBD9); border: 2px solid var(--primary-pink); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.15);">
-    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-        <div style="background: var(--primary-pink); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">?</div>
-        <h3 style="color: var(--dark-rose); margin: 0; font-size: 1.2rem;">실시간 드래이핑 사용법</h3>
-    </div>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid var(--primary-pink);">
-            <div style="color: var(--primary-pink); font-weight: bold; margin-bottom: 0.5rem;">1️⃣ 카메라 준비</div>
-            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">"카메라 시작" 버튼을 눌러 실시간 화면을 켜세요</div>
-        </div>
-        
-        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #FF9800;">
-            <div style="color: #FF9800; font-weight: bold; margin-bottom: 0.5rem;">2️⃣ AI 참고</div>
-            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">화면 좌상단의 AI 분석 결과를 참고하세요</div>
-        </div>
-        
-        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #4CAF50;">
-            <div style="color: #4CAF50; font-weight: bold; margin-bottom: 0.5rem;">3️⃣ 색상 조정</div>
-            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">4계절 탭과 슬라이더로 색상을 세밀하게 조정</div>
-        </div>
-        
-        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #9C27B0;">
-            <div style="color: #9C27B0; font-weight: bold; margin-bottom: 0.5rem;">4️⃣ 비교 확인</div>
-            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">스페이스바를 눌러 원본/적용 비교하기</div>
-        </div>
-        
-        <div style="background: white; padding: 1rem; border-radius: 12px; border-left: 4px solid #2196F3; grid-column: 1 / -1;">
-            <div style="color: #2196F3; font-weight: bold; margin-bottom: 0.5rem;">5️⃣ 제품 매칭</div>
-            <div style="font-size: 0.9rem; color: #555; line-height: 1.4;">"현재 색상 저장" 버튼으로 로레알/웰라/밀본 제품과 자동 매칭됩니다</div>
-        </div>
-    </div>
-    
-    <div style="background: rgba(255, 255, 255, 0.8); padding: 0.75rem; border-radius: 8px; margin-top: 1rem; text-align: center; border: 1px dashed var(--primary-pink);">
-        <div style="font-size: 0.85rem; color: var(--dark-rose);">
-            <strong>💡 팁:</strong> 명도/채도/온도감 슬라이더를 조정하며 실시간으로 변화를 확인하세요!
-        </div>
-    </div>
-</div>
-
+                    <!-- 오른쪽: 전문가 조정 패널 -->
+                    <div class="color-palette-container">
                         <h3 style="text-align: center; margin-bottom: 1rem;">전문가 색상 조정</h3>
                         
                         <!-- 4계절 대분류 -->
@@ -1004,7 +1023,7 @@ body {
 <script>
 // ==========================================
 // Personal Color Pro - 최종 완성 버전
-// 얼굴 모양 추적 및 오류 해결 완료
+// 120색 추천 시스템 포함
 // ==========================================
 
 // 전역 변수 및 상수
@@ -1071,7 +1090,7 @@ const seasonPalettes = {
 };
 
 // ==========================================
-// 로딩 및 초기화 함수들 (문제 해결됨)
+// 로딩 및 초기화 함수들
 // ==========================================
 
 // 로딩 진행률 업데이트
@@ -1082,37 +1101,35 @@ function updateLoadingProgress(percent, text) {
     if (loadingText) loadingText.textContent = text;
 }
 
-// MediaPipe 초기화 (WASM 오류 해결)
+// MediaPipe 초기화
 async function initializeMediaPipe() {
     try {
         updateLoadingProgress(30, 'MediaPipe 라이브러리 확인 중...');
         
         let mediapipeLoaded = false;
         let retryCount = 0;
-        const maxRetries = 3; // 재시도 횟수 감소
+        const maxRetries = 3;
         
         while (!mediapipeLoaded && retryCount < maxRetries) {
             await new Promise(resolve => setTimeout(resolve, 800));
             
             if (typeof FaceDetection !== 'undefined') {
                 try {
-                    // FaceDetection 인스턴스 생성 (오류 처리 강화)
                     faceDetection = new FaceDetection({
                         locateFile: (file) => {
                             return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
                         }
                     });
                     
-                    // 옵션 설정을 별도로 처리
                     await new Promise((resolve, reject) => {
                         try {
                             faceDetection.setOptions({
                                 model: 'short',
-                                minDetectionConfidence: 0.3, // 임계값 낮춤
+                                minDetectionConfidence: 0.3,
                             });
                             
                             faceDetection.onResults(onFaceDetectionResults);
-                            setTimeout(resolve, 500); // 초기화 시간 확보
+                            setTimeout(resolve, 500);
                         } catch (error) {
                             reject(error);
                         }
@@ -1150,18 +1167,15 @@ async function initializeMediaPipe() {
 
 // 앱 초기화
 function initializeApp() {
-    console.log('🚀 Personal Color Pro 앱 초기화...');
+    console.log('🎨 Personal Color Pro 앱 초기화...');
     
     try {
         updateLoadingProgress(95, '앱 초기화 완료');
         
-        // 기본 드래이핑 설정만 (showSeasonPalette 제거)
         currentDrapingSeason = 'spring';
         
-        // 완전한 로딩 완료
         updateLoadingProgress(100, '시스템 준비 완료!');
         
-        // 로딩 화면 숨기기 및 메인 앱 표시
         setTimeout(() => {
             const loadingScreen = document.getElementById('loading-screen');
             const mainApp = document.getElementById('main-app');
@@ -1182,7 +1196,6 @@ function initializeApp() {
     } catch (error) {
         console.error('❌ 앱 초기화 실패:', error);
         
-        // 실패해도 앱은 표시하기
         setTimeout(() => {
             const loadingScreen = document.getElementById('loading-screen');
             const mainApp = document.getElementById('main-app');
@@ -1199,32 +1212,27 @@ function initializeApp() {
 }
 
 // ==========================================
-// 색상 변환 및 분석 함수들
+// 색상 변환 및 분석 함수들 (120색 시스템)
 // ==========================================
 
 // RGB → LAB 변환 함수
 function rgbToLab(r, g, b) {
-    // RGB를 0-1 범위로 정규화
     let rNorm = r / 255;
     let gNorm = g / 255;
     let bNorm = b / 255;
     
-    // 감마 보정
     rNorm = rNorm > 0.04045 ? Math.pow((rNorm + 0.055) / 1.055, 2.4) : rNorm / 12.92;
     gNorm = gNorm > 0.04045 ? Math.pow((gNorm + 0.055) / 1.055, 2.4) : gNorm / 12.92;
     bNorm = bNorm > 0.04045 ? Math.pow((bNorm + 0.055) / 1.055, 2.4) : bNorm / 12.92;
     
-    // XYZ 색공간으로 변환
     let x = rNorm * 0.4124564 + gNorm * 0.3575761 + bNorm * 0.1804375;
     let y = rNorm * 0.2126729 + gNorm * 0.7151522 + bNorm * 0.0721750;
     let z = rNorm * 0.0193339 + gNorm * 0.1191920 + bNorm * 0.9503041;
     
-    // D65 표준 조명으로 정규화
     x = x / 0.95047;
     y = y / 1.00000;
     z = z / 1.08883;
     
-    // LAB 변환
     x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x + 16/116);
     y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y + 16/116);
     z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z + 16/116);
@@ -1258,11 +1266,10 @@ function calculateDeltaE2000(lab1, lab2) {
     return Math.min(deltaE, 100);
 }
 
-// 얼굴 모양 기반 피부톤 추출 (개선된 버전)
+// 얼굴 모양 기반 피부톤 추출
 function extractSkinColorFromFace(imageData, faceBox) {
     const { xCenter, yCenter, width, height } = faceBox;
     
-    // 더 다양한 샘플링 지점 (9개 지점으로 확대)
     const samplePoints = [
         { x: xCenter - width * 0.1, y: yCenter - height * 0.2, name: '좌상 이마' },
         { x: xCenter, y: yCenter - height * 0.25, name: '중앙 이마' },
@@ -1279,7 +1286,7 @@ function extractSkinColorFromFace(imageData, faceBox) {
     const regionColors = [];
     
     samplePoints.forEach(point => {
-        const sampleRadius = Math.min(width, height) * 0.025; // 샘플링 반경 축소
+        const sampleRadius = Math.min(width, height) * 0.025;
         let regionR = 0, regionG = 0, regionB = 0, regionPixels = 0;
         
         for (let dy = -sampleRadius; dy <= sampleRadius; dy += 1) {
@@ -1296,9 +1303,7 @@ function extractSkinColorFromFace(imageData, faceBox) {
                     const g = imageData.data[index + 1];
                     const b = imageData.data[index + 2];
                     
-                    // 더 엄격한 피부색 필터링
                     if (r > 70 && g > 50 && b > 30 && r < 235 && g < 210 && b < 190) {
-                        // 피부색 비율 검증 (R이 가장 높고, G가 중간, B가 가장 낮아야 함)
                         if (r >= g && g >= b && (r - b) > 15) {
                             regionR += r;
                             regionG += g;
@@ -1328,18 +1333,14 @@ function extractSkinColorFromFace(imageData, faceBox) {
         }
     });
     
-    // 디버깅 정보
-    console.log('지역별 피부색:', regionColors);
-    
     if (validPixels === 0) {
         return { r: 150, g: 120, b: 100 };
     }
     
-    // 가중 평균 계산 (픽셀 수가 많은 영역에 더 큰 가중치)
     let weightedR = 0, weightedG = 0, weightedB = 0, totalWeight = 0;
     
     regionColors.forEach(region => {
-        const weight = Math.sqrt(region.pixels); // 제곱근으로 가중치 조절
+        const weight = Math.sqrt(region.pixels);
         weightedR += region.r * weight;
         weightedG += region.g * weight;
         weightedB += region.b * weight;
@@ -1352,12 +1353,10 @@ function extractSkinColorFromFace(imageData, faceBox) {
         b: Math.round(weightedB / totalWeight)
     };
     
-    console.log(`피부색 추출 완료 - 유효 영역: ${validPixels}/9개`);
-    
     return finalColor;
 }
 
-// 퍼스널컬러 판정 (120가지 색상으로 확장)
+// 퍼스널컬러 판정 (120가지 색상 시스템)
 function analyzePersonalColor(skinRgb) {
     const skinLab = rgbToLab(skinRgb.r, skinRgb.g, skinRgb.b);
     
@@ -1546,8 +1545,6 @@ function analyzePersonalColor(skinRgb) {
     
     const expertAnalysis = generateExpertAnalysis(bestMatch, skinLab, skinRgb);
     
-    console.log(`분석 상세: ${bestSubType}, Delta E: ${lowestDelta.toFixed(1)}, 웜쿨지수: ${warmCoolScore.toFixed(3)}, 밝기: ${lightDarkScore.toFixed(2)}`);
-    
     return {
         season: bestSubType, // 세부 타입으로 변경
         confidence: finalConfidence,
@@ -1586,17 +1583,16 @@ function generateExpertAnalysis(season, labValues, rgbValues) {
 }
 
 // ==========================================
-// MediaPipe 얼굴 인식 함수들 (오류 해결됨)
+// MediaPipe 얼굴 인식 함수들
 // ==========================================
 
-// 얼굴 감지 상태 안정화 변수들
 let faceDetectionFrames = 0;
 let lastToastTime = 0;
 let stableDetectionCount = 0;
-const REQUIRED_STABLE_FRAMES = 5; // 5프레임 연속 감지 필요
-const TOAST_THROTTLE_MS = 3000; // 토스트 메시지 3초 간격 제한
+const REQUIRED_STABLE_FRAMES = 5;
+const TOAST_THROTTLE_MS = 3000;
 
-// MediaPipe 결과 처리 (안정화된 얼굴 모양 추적)
+// MediaPipe 결과 처리
 function onFaceDetectionResults(results) {
     if (!canvasCtx || !videoElement) return;
     
@@ -1608,7 +1604,6 @@ function onFaceDetectionResults(results) {
     if (hasDetection) {
         const detection = results.detections[0];
         
-        // boundingBox 안전 확인
         if (!detection.boundingBox) {
             stableDetectionCount = 0;
             return;
@@ -1621,13 +1616,9 @@ function onFaceDetectionResults(results) {
         const width = bbox.width * canvasElement.width;
         const height = bbox.height * canvasElement.height;
         
-        // 얼굴 모양 윤곽선 그리기
         drawFaceContour(x, y, width, height);
-        
-        // 피부톤 분석 영역 표시
         showSkinAnalysisRegions(x, y, width, height);
         
-        // 현재 얼굴 위치 저장
         currentFaceBox = {
             xCenter: bbox.xCenter * canvasElement.width,
             yCenter: bbox.yCenter * canvasElement.height,
@@ -1635,7 +1626,6 @@ function onFaceDetectionResults(results) {
             height: bbox.height * canvasElement.height
         };
         
-        // 상태 텍스트 표시
         canvasCtx.font = 'bold 16px Arial';
         canvasCtx.fillStyle = '#00FF88';
         canvasCtx.strokeStyle = '#000';
@@ -1648,7 +1638,6 @@ function onFaceDetectionResults(results) {
         canvasCtx.strokeText(text, textX, textY);
         canvasCtx.fillText(text, textX, textY);
         
-        // 신뢰도 표시
         if (detection.score && detection.score[0]) {
             const confidence = Math.round(detection.score[0] * 100);
             const confText = `${confidence}%`;
@@ -1656,10 +1645,8 @@ function onFaceDetectionResults(results) {
             canvasCtx.fillText(confText, x + width - 40, y + height + 20);
         }
         
-        // 안정된 감지 카운트 증가
         stableDetectionCount++;
         
-        // 처음 안정적으로 감지되었을 때만 단계 전환
         if (!faceDetected && currentStep === 1 && stableDetectionCount >= REQUIRED_STABLE_FRAMES) {
             faceDetected = true;
             goToStep(2);
@@ -1670,12 +1657,10 @@ function onFaceDetectionResults(results) {
         }
         
     } else {
-        // 얼굴 감지 실패
-        stableDetectionCount = Math.max(0, stableDetectionCount - 2); // 더 빨리 감소
+        stableDetectionCount = Math.max(0, stableDetectionCount - 2);
         currentFaceBox = null;
         clearSkinRegions();
         
-        // 계속해서 감지 실패할 때만 경고 (토스트 제한)
         if (faceDetected && currentStep === 2 && stableDetectionCount === 0) {
             if (currentTime - lastToastTime > TOAST_THROTTLE_MS) {
                 showToast('얼굴을 다시 카메라에 맞춰주세요', 'warning');
@@ -1695,45 +1680,40 @@ function drawFaceContour(x, y, width, height) {
     canvasCtx.lineWidth = 3;
     canvasCtx.setLineDash([]);
     
-    // 타원형 얼굴 윤곽선
     canvasCtx.beginPath();
     canvasCtx.ellipse(
-        x + width / 2,  // 중심 x
-        y + height / 2, // 중심 y
-        width / 2,      // 반지름 x
-        height / 2,     // 반지름 y
-        0,              // 회전
-        0,              // 시작 각도
-        2 * Math.PI     // 끝 각도
+        x + width / 2,
+        y + height / 2,
+        width / 2,
+        height / 2,
+        0,
+        0,
+        2 * Math.PI
     );
     canvasCtx.stroke();
     
-    // 모서리 강조선
     const cornerSize = 20;
     canvasCtx.lineWidth = 4;
     
-    // 좌상단
+    // 모서리 강조선들
     canvasCtx.beginPath();
     canvasCtx.moveTo(x, y + cornerSize);
     canvasCtx.lineTo(x, y);
     canvasCtx.lineTo(x + cornerSize, y);
     canvasCtx.stroke();
     
-    // 우상단
     canvasCtx.beginPath();
     canvasCtx.moveTo(x + width - cornerSize, y);
     canvasCtx.lineTo(x + width, y);
     canvasCtx.lineTo(x + width, y + cornerSize);
     canvasCtx.stroke();
     
-    // 좌하단
     canvasCtx.beginPath();
     canvasCtx.moveTo(x, y + height - cornerSize);
     canvasCtx.lineTo(x, y + height);
     canvasCtx.lineTo(x + cornerSize, y + height);
     canvasCtx.stroke();
     
-    // 우하단
     canvasCtx.beginPath();
     canvasCtx.moveTo(x + width - cornerSize, y + height);
     canvasCtx.lineTo(x + width, y + height);
@@ -1761,10 +1741,8 @@ function showSkinAnalysisRegions(faceX, faceY, faceWidth, faceHeight) {
     const regionsDiv = document.getElementById('skin-regions');
     if (!regionsDiv) return;
     
-    // 기존 영역 제거
     clearSkinRegions();
     
-    // 피부톤 분석 지점들 (얼굴 기준)
     const regions = [
         { x: faceX + faceWidth * 0.5, y: faceY + faceHeight * 0.2, name: '이마' },
         { x: faceX + faceWidth * 0.25, y: faceY + faceHeight * 0.5, name: '좌측 뺨' },
@@ -1829,7 +1807,7 @@ function startToneAnalysis() {
         'RGB 색상 데이터 추출 중...',
         'RGB → LAB 색공간 변환 중...',
         'Delta E 2000 정밀 계산 중...',
-        '4계절 매칭 분석 중...',
+        '120가지 세부 타입 매칭 중...',
         '전문가 노하우 적용 중...',
         '최종 결과 생성 중...'
     ];
@@ -1843,7 +1821,6 @@ function startToneAnalysis() {
             step++;
             setTimeout(updateProgress, 700);
         } else {
-            // MediaPipe가 있고 얼굴이 감지되면 실제 분석, 없으면 데모 분석
             if (currentFaceBox && faceDetection) {
                 performRealAnalysis();
             } else {
@@ -1855,20 +1832,15 @@ function startToneAnalysis() {
     updateProgress();
 }
 
-// 데모 분석 (MediaPipe 없을 때)
+// 데모 분석
 function performDemoAnalysis() {
     const demoSkinColor = { r: 156, g: 125, b: 103 };
-    
-    console.log('🎭 데모 피부색 RGB:', demoSkinColor);
-    
     const analysis = analyzePersonalColor(demoSkinColor);
-    console.log('📊 데모 분석 결과:', analysis);
-    
     showFinalResults(analysis);
     showToast('데모 분석이 완료되었습니다. 실제 분석은 카메라 권한 허용 후 가능합니다.', 'info');
 }
 
-// 실제 분석 수행 (얼굴 모양 기반)
+// 실제 분석 수행
 async function performRealAnalysis() {
     try {
         if (!currentFaceBox) {
@@ -1884,21 +1856,18 @@ async function performRealAnalysis() {
         const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
         
         const skinColor = extractSkinColorFromFace(imageData, currentFaceBox);
-        console.log('🎯 얼굴 기반 추출된 피부색 RGB:', skinColor);
-        
         const analysis = analyzePersonalColor(skinColor);
-        console.log('📊 실제 분석 결과:', analysis);
         
         showFinalResults(analysis);
         
     } catch (error) {
-        console.error('❌ 분석 실패:', error);
+        console.error('분석 실패:', error);
         showToast('분석 중 오류가 발생했습니다. 데모 모드로 전환합니다.', 'warning');
         performDemoAnalysis();
     }
 }
 
-// 최종 결과 표시 (구체적인 제품 추천 포함)
+// 최종 결과 표시
 function showFinalResults(analysis) {
     goToStep(4);
     
@@ -1908,7 +1877,6 @@ function showFinalResults(analysis) {
     if (seasonElement) seasonElement.textContent = analysis.season;
     if (confidenceElement) confidenceElement.textContent = analysis.confidence + '%';
     
-    // 브랜드별 제품 추천 데이터
     const productRecommendations = getProductRecommendations(analysis.season);
     
     const detailsDiv = document.getElementById('analysis-details');
@@ -1934,9 +1902,8 @@ function showFinalResults(analysis) {
                 Delta E 2000: ${analysis.deltaE}
             </div>
             
-            <!-- 브랜드별 헤어컬러 추천 -->
             <div style="background: #E3F2FD; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #2196F3;">
-                <h4 style="color: #1976D2; margin-bottom: 1rem; font-size: 1.2rem;">💎 추천 헤어컬러 제품</h4>
+                <h4 style="color: #1976D2; margin-bottom: 1rem; font-size: 1.2rem;">추천 헤어컬러 제품</h4>
                 ${productRecommendations.map(brand => `
                     <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #BBDEFB;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -1969,10 +1936,11 @@ function showFinalResults(analysis) {
     showToast(`퍼스널컬러 진단 완료: ${analysis.season}`, 'success');
 }
 
-// 브랜드별 제품 추천 함수 (실제 헤어컬러 제품)
+// 브랜드별 제품 추천 함수
 function getProductRecommendations(season) {
-    const recommendations = {
-        '봄 웜톤': [
+    // 계절별 제품 매칭 로직
+    if (season.includes('스프링') || season.includes('봄')) {
+        return [
             {
                 name: '로레알 프로페셔널',
                 products: [
@@ -1997,8 +1965,9 @@ function getProductRecommendations(season) {
                     { code: '6-GM', name: '골든 마호가니', color: '#CD853F' }
                 ]
             }
-        ],
-        '여름 쿨톤': [
+        ];
+    } else if (season.includes('서머') || season.includes('여름')) {
+        return [
             {
                 name: '로레알 프로페셔널',
                 products: [
@@ -2023,8 +1992,9 @@ function getProductRecommendations(season) {
                     { code: '9-P', name: '핑크 베이지', color: '#F0E68C' }
                 ]
             }
-        ],
-        '가을 웜톤': [
+        ];
+    } else if (season.includes('오텀') || season.includes('가을')) {
+        return [
             {
                 name: '로레알 프로페셔널',
                 products: [
@@ -2049,10 +2019,11 @@ function getProductRecommendations(season) {
                     { code: '7-OR', name: '오렌지', color: '#FF7F50' }
                 ]
             }
-        ],
-        '겨울 쿨톤': [
+        ];
+    } else { // 윈터
+        return [
             {
-                name: '로레일 프로페셔널',
+                name: '로레알 프로페셔널',
                 products: [
                     { code: '1.0', name: '블랙', color: '#000000' },
                     { code: '2.1', name: '브라운 애쉬', color: '#2F4F4F' },
@@ -2075,10 +2046,8 @@ function getProductRecommendations(season) {
                     { code: '6-A', name: '애쉬 브라운', color: '#708090' }
                 ]
             }
-        ]
-    };
-    
-    return recommendations[season] || recommendations['봄 웜톤'];
+        ];
+    }
 }
 
 // 분석 초기화
@@ -2087,7 +2056,6 @@ function resetAnalysis() {
     faceDetected = false;
     currentFaceBox = null;
     
-    // 카메라 스트림 정리
     if (videoElement && videoElement.srcObject) {
         const stream = videoElement.srcObject;
         const tracks = stream.getTracks();
@@ -2095,15 +2063,12 @@ function resetAnalysis() {
         videoElement.srcObject = null;
     }
     
-    // 캔버스 정리
     if (canvasElement && canvasCtx) {
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     }
     
-    // 피부톤 분석 영역 정리
     clearSkinRegions();
     
-    // 가이드 다시 표시
     const guide = document.getElementById('face-guide');
     if (guide) guide.style.display = 'flex';
     
@@ -2115,7 +2080,6 @@ function resetAnalysis() {
 // 네비게이션 및 UI 함수들
 // ==========================================
 
-// 홈으로 돌아가기
 function goHome() {
     resetAnalysis();
     resetDraping();
@@ -2123,33 +2087,15 @@ function goHome() {
     showToast('홈 화면으로 돌아갑니다', 'info');
 }
 
-// 드래이핑 초기화
 function resetDraping() {
     selectedColor = null;
     uploadedImage = null;
     beforeImage = null;
     afterImage = null;
-    
-    const preview = document.getElementById('uploaded-image-preview');
-    if (preview) preview.style.display = 'none';
-    
-    const comparisonContainer = document.getElementById('comparison-container');
-    if (comparisonContainer) comparisonContainer.style.display = 'none';
-    
-    document.querySelectorAll('.color-swatch').forEach(swatch => {
-        swatch.classList.remove('selected');
-    });
-    
-    const applyBtn = document.getElementById('apply-color-btn');
-    if (applyBtn) applyBtn.disabled = true;
-    
     showToast('드래이핑 모드가 초기화되었습니다', 'info');
 }
 
-// 모드 전환
 function switchMode(mode) {
-    console.log('모드 전환:', mode);
-    
     const sections = document.querySelectorAll('.section');
     sections.forEach(section => section.classList.remove('active'));
     
@@ -2173,28 +2119,23 @@ function switchMode(mode) {
     currentMode = mode;
 }
 
-// 모드 카드 선택
 function selectModeCard(card) {
     const cards = document.querySelectorAll('.mode-card');
     cards.forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
 }
 
-// AI 사진 분석 시작
 function startPhotoAnalysis() {
     switchMode('photo');
 }
 
-// 드래이핑 시작  
 function startDraping() {
     switchMode('draping');
 }
 
-// 실제 얼굴 인식 시작 (Canvas 크기 문제 해결)
+// 실제 얼굴 인식 시작
 async function startFaceDetection() {
     try {
-        console.log('카메라 시작...');
-        
         const stream = await navigator.mediaDevices.getUserMedia({
             video: { 
                 width: { ideal: 640, max: 1280 },
@@ -2206,11 +2147,9 @@ async function startFaceDetection() {
         videoElement = document.getElementById('camera-feed');
         videoElement.srcObject = stream;
         
-        // 가이드 숨기기
         const guide = document.getElementById('face-guide');
         if (guide) guide.style.display = 'none';
         
-        // 오버레이 캔버스 설정
         canvasElement = document.getElementById('face-overlay');
         if (!canvasElement) {
             console.error('Face overlay canvas not found');
@@ -2219,17 +2158,13 @@ async function startFaceDetection() {
         
         canvasCtx = canvasElement.getContext('2d');
         
-        // 비디오 메타데이터 로드 완료를 기다림
         await new Promise((resolve) => {
             const handleLoadedMetadata = () => {
-                // Canvas 크기를 비디오 실제 크기로 설정
                 const rect = videoElement.getBoundingClientRect();
                 canvasElement.width = rect.width;
                 canvasElement.height = rect.height;
                 canvasElement.style.width = rect.width + 'px';
                 canvasElement.style.height = rect.height + 'px';
-                
-                console.log(`Canvas 크기 설정: ${canvasElement.width}x${canvasElement.height}`);
                 
                 videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
                 resolve();
@@ -2242,7 +2177,6 @@ async function startFaceDetection() {
             }
         });
         
-        // MediaPipe가 있으면 사용, 없으면 기본 분석 모드
         if (faceDetection && typeof Camera !== 'undefined') {
             try {
                 camera = new Camera(videoElement, {
@@ -2275,11 +2209,10 @@ async function startFaceDetection() {
     }
 }
 
-// 기본 모드 시작 (MediaPipe 없이)
+// 기본 모드 시작
 function startBasicMode() {
     showToast('카메라가 시작되었습니다. 기본 분석 모드로 동작합니다.', 'info');
     
-    // 3초 후 자동으로 2단계로 이동
     setTimeout(() => {
         stableDetectionCount = REQUIRED_STABLE_FRAMES;
         faceDetected = true;
@@ -2316,23 +2249,17 @@ async function startDrapingCamera() {
         drapingVideoElement = document.getElementById('draping-camera');
         drapingVideoElement.srcObject = stream;
         
-        // 가이드 숨기기
         const guide = document.getElementById('draping-guide');
         if (guide) guide.style.display = 'none';
         
-        // 오버레이 캔버스 설정
         drapingCanvasElement = document.getElementById('draping-overlay');
         drapingCanvasCtx = drapingCanvasElement.getContext('2d');
         
-        // 비디오 메타데이터 로드 시 캔버스 크기 설정
         drapingVideoElement.addEventListener('loadedmetadata', () => {
             drapingCanvasElement.width = drapingVideoElement.videoWidth || 640;
             drapingCanvasElement.height = drapingVideoElement.videoHeight || 480;
             
-            // AI 참고 분석 시작
             performAIReference();
-            
-            // 기본 색상 설정
             setDrapingSeason('spring');
             
             showToast('드래이핑 카메라가 시작되었습니다', 'success');
@@ -2349,7 +2276,6 @@ async function performAIReference() {
     if (!drapingVideoElement) return;
     
     try {
-        // 현재 프레임에서 피부톤 추출 (간단한 버전)
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = drapingVideoElement.videoWidth;
         tempCanvas.height = drapingVideoElement.videoHeight;
@@ -2357,7 +2283,6 @@ async function performAIReference() {
         
         tempCtx.drawImage(drapingVideoElement, 0, 0);
         
-        // 중앙 영역에서 대략적인 피부색 추출
         const centerX = tempCanvas.width / 2;
         const centerY = tempCanvas.height / 2;
         const sampleSize = 20;
@@ -2405,18 +2330,16 @@ async function performAIReference() {
 function setDrapingSeason(season) {
     currentDrapingSeason = season;
     
-    // 탭 활성화
     document.querySelectorAll('#draping-mode .season-tab').forEach(tab => {
         tab.classList.remove('active');
     });
     document.getElementById(`draping-${season}`).classList.add('active');
     
-    // 기본 색상 설정
     const baseColors = {
-        spring: '#FFB347', // 밝은 오렌지
-        summer: '#B19CD9', // 부드러운 퍼플
-        autumn: '#CD853F', // 깊은 브라운
-        winter: '#4B0082'  // 진한 퍼플
+        spring: '#FFB347',
+        summer: '#B19CD9',
+        autumn: '#CD853F',
+        winter: '#4B0082'
     };
     
     currentDrapingColor = baseColors[season];
@@ -2425,7 +2348,7 @@ function setDrapingSeason(season) {
     showToast(`${season} 계절 선택됨`, 'info');
 }
 
-// 드래이핑 색상 업데이트 (안전성 검사 추가)
+// 드래이핑 색상 업데이트
 function updateDrapingColor() {
     if (!currentDrapingColor) return;
     
@@ -2434,7 +2357,6 @@ function updateDrapingColor() {
     const warmthSlider = document.getElementById('warmth-slider');
     
     if (!lightnessSlider || !saturationSlider || !warmthSlider) {
-        console.warn('드래이핑 슬라이더 요소들을 찾을 수 없습니다');
         return;
     }
     
@@ -2442,7 +2364,6 @@ function updateDrapingColor() {
     const saturation = parseInt(saturationSlider.value);
     const warmth = parseInt(warmthSlider.value);
     
-    // 슬라이더 값 표시 업데이트
     const lightnessValue = document.getElementById('lightness-value');
     const saturationValue = document.getElementById('saturation-value');
     const warmthValue = document.getElementById('warmth-value');
@@ -2451,7 +2372,6 @@ function updateDrapingColor() {
     if (saturationValue) saturationValue.textContent = saturation;
     if (warmthValue) warmthValue.textContent = warmth;
     
-    // RGB 색상 조정
     const baseRgb = hexToRgb(currentDrapingColor);
     
     let { r, g, b } = adjustColor(baseRgb, lightness, saturation, warmth);
@@ -2459,14 +2379,12 @@ function updateDrapingColor() {
     const adjustedColor = `rgb(${r}, ${g}, ${b})`;
     const adjustedHex = rgbToHex(r, g, b);
     
-    // 현재 색상 표시 업데이트
     const colorDisplay = document.getElementById('current-draping-color');
     const colorInfo = document.getElementById('current-color-info');
     
     if (colorDisplay) colorDisplay.style.backgroundColor = adjustedColor;
     if (colorInfo) colorInfo.textContent = adjustedHex;
     
-    // 실시간 오버레이 적용 (카메라가 시작된 경우에만)
     if (drapingVideoElement && drapingCanvasCtx && !isShowingOriginal) {
         applyColorOverlay(adjustedColor);
     }
@@ -2482,7 +2400,7 @@ function adjustColor(rgb, lightness, saturation, warmth) {
     g = Math.min(255, Math.max(0, g * lightnessFactor));
     b = Math.min(255, Math.max(0, b * lightnessFactor));
     
-    // 채도 조정 (회색과의 블렌딩)
+    // 채도 조정
     const gray = (r + g + b) / 3;
     const saturationFactor = 1 + (saturation / 100);
     r = Math.min(255, Math.max(0, gray + (r - gray) * saturationFactor));
@@ -2490,11 +2408,11 @@ function adjustColor(rgb, lightness, saturation, warmth) {
     b = Math.min(255, Math.max(0, gray + (b - gray) * saturationFactor));
     
     // 온도감 조정
-    if (warmth > 0) { // 웜톤으로
+    if (warmth > 0) {
         r = Math.min(255, r + warmth * 0.8);
         g = Math.min(255, r + warmth * 0.4);
         b = Math.max(0, b - warmth * 0.6);
-    } else if (warmth < 0) { // 쿨톤으로
+    } else if (warmth < 0) {
         r = Math.max(0, r + warmth * 0.6);
         g = Math.max(0, g + warmth * 0.4);
         b = Math.min(255, b - warmth * 0.8);
@@ -2513,7 +2431,6 @@ function applyColorOverlay(color) {
     
     drapingCanvasCtx.clearRect(0, 0, drapingCanvasElement.width, drapingCanvasElement.height);
     
-    // 헤어 영역 (상단 30%)에 색상 적용
     drapingCanvasCtx.globalCompositeOperation = 'multiply';
     drapingCanvasCtx.fillStyle = color;
     drapingCanvasCtx.globalAlpha = 0.4;
@@ -2523,7 +2440,7 @@ function applyColorOverlay(color) {
     drapingCanvasCtx.globalAlpha = 1.0;
 }
 
-// Before/After 토글 (안전성 검사 추가)
+// Before/After 토글
 function toggleDrapingPreview() {
     if (!drapingCanvasCtx || !drapingCanvasElement) {
         showToast('먼저 드래이핑 카메라를 시작하세요', 'warning');
@@ -2533,15 +2450,13 @@ function toggleDrapingPreview() {
     isShowingOriginal = !isShowingOriginal;
     
     if (isShowingOriginal) {
-        // 원본 표시 (오버레이 숨기기)
         drapingCanvasCtx.clearRect(0, 0, drapingCanvasElement.width, drapingCanvasElement.height);
     } else {
-        // 색상 적용 표시
         updateDrapingColor();
     }
 }
 
-// 즐겨찾기 색상 저장 (브랜드 제품 매칭 추가)
+// 즐겨찾기 색상 저장
 function saveFavoriteColor() {
     if (!currentDrapingColor) {
         showToast('먼저 색상을 선택하세요', 'warning');
@@ -2552,12 +2467,10 @@ function saveFavoriteColor() {
     const saturation = parseInt(document.getElementById('saturation-slider').value);
     const warmth = parseInt(document.getElementById('warmth-slider').value);
     
-    // 최종 조정된 색상 계산
     const baseRgb = hexToRgb(currentDrapingColor);
     const adjustedRgb = adjustColor(baseRgb, lightness, saturation, warmth);
     const finalHex = rgbToHex(adjustedRgb.r, adjustedRgb.g, adjustedRgb.b);
     
-    // 브랜드 제품과 매칭
     const matchedProducts = findMatchingProducts(adjustedRgb);
     
     const favoriteColor = {
@@ -2573,7 +2486,6 @@ function saveFavoriteColor() {
     favoriteColors.push(favoriteColor);
     updateFavoriteColorsList();
     
-    // 매칭된 제품 정보 표시
     showProductRecommendations(matchedProducts, finalHex);
     
     showToast('색상이 저장되고 제품이 매칭되었습니다', 'success');
@@ -2582,38 +2494,19 @@ function saveFavoriteColor() {
 // 브랜드 제품과 색상 매칭
 function findMatchingProducts(targetRgb) {
     const allProducts = [
-        // 로레알 프로페셔널
         { brand: '로레알', code: '7.3', name: '골든 블론드', rgb: { r: 212, g: 175, b: 55 } },
         { brand: '로레알', code: '8.34', name: '라이트 골든 코퍼', rgb: { r: 205, g: 133, b: 63 } },
         { brand: '로레알', code: '6.35', name: '다크 골든 마호가니', rgb: { r: 139, g: 69, b: 19 } },
         { brand: '로레알', code: '8.1', name: '라이트 애쉬 블론드', rgb: { r: 192, g: 192, b: 192 } },
         { brand: '로레알', code: '7.11', name: '인텐스 애쉬 블론드', rgb: { r: 169, g: 169, b: 169 } },
-        { brand: '로레알', code: '6.3', name: '다크 골든 블론드', rgb: { r: 184, g: 134, b: 11 } },
-        { brand: '로레알', code: '1.0', name: '블랙', rgb: { r: 0, g: 0, b: 0 } },
-        { brand: '로레알', code: '2.1', name: '브라운 애쉬', rgb: { r: 47, g: 79, b: 79 } },
-        
-        // 웰라 프로페셔널  
         { brand: '웰라', code: '7/3', name: '미디움 골든 블론드', rgb: { r: 218, g: 165, b: 32 } },
         { brand: '웰라', code: '8/03', name: '라이트 내추럴 골든', rgb: { r: 240, g: 230, b: 140 } },
-        { brand: '웰라', code: '6/73', name: '다크 브라운 골든', rgb: { r: 160, g: 82, b: 45 } },
         { brand: '웰라', code: '8/1', name: '라이트 애쉬 블론드', rgb: { r: 211, g: 211, b: 211 } },
-        { brand: '웰라', code: '7/1', name: '미디움 애쉬 블론드', rgb: { r: 176, g: 196, b: 222 } },
-        { brand: '웰라', code: '5/7', name: '라이트 브라운 미디움', rgb: { r: 205, g: 133, b: 63 } },
-        { brand: '웰라', code: '2/0', name: '블랙', rgb: { r: 0, g: 0, b: 0 } },
-        { brand: '웰라', code: '4/0', name: '미디움 브라운', rgb: { r: 47, g: 79, b: 79 } },
-        
-        // 밀본 오르디브
         { brand: '밀본', code: '7-CG', name: '코퍼 골든', rgb: { r: 184, g: 115, b: 51 } },
         { brand: '밀본', code: '8-CB', name: '코퍼 베이지', rgb: { r: 222, g: 184, b: 135 } },
-        { brand: '밀본', code: '6-GM', name: '골든 마호가니', rgb: { r: 205, g: 133, b: 63 } },
-        { brand: '밀본', code: '8-A', name: '애쉬', rgb: { r: 192, g: 192, b: 192 } },
-        { brand: '밀본', code: '7-MT', name: '마트 베이지', rgb: { r: 245, g: 245, b: 220 } },
-        { brand: '밀본', code: '6-CB', name: '코퍼 베이지', rgb: { r: 222, g: 184, b: 135 } },
-        { brand: '밀본', code: '2-N', name: '내추럴 블랙', rgb: { r: 0, g: 0, b: 0 } },
-        { brand: '밀본', code: '4-N', name: '내추럴 브라운', rgb: { r: 47, g: 47, b: 47 } }
+        { brand: '밀본', code: '8-A', name: '애쉬', rgb: { r: 192, g: 192, b: 192 } }
     ];
     
-    // 각 제품과의 색차 계산
     const productMatches = allProducts.map(product => {
         const deltaE = calculateColorDistance(targetRgb, product.rgb);
         const similarity = Math.max(0, Math.min(100, 100 - deltaE * 2));
@@ -2625,19 +2518,18 @@ function findMatchingProducts(targetRgb) {
         };
     });
     
-    // 유사도 순으로 정렬하여 상위 5개 반환
     return productMatches
         .sort((a, b) => parseFloat(a.deltaE) - parseFloat(b.deltaE))
         .slice(0, 5);
 }
 
-// 색상 거리 계산 (간단한 유클리드 거리)
+// 색상 거리 계산
 function calculateColorDistance(rgb1, rgb2) {
     const rDiff = rgb1.r - rgb2.r;
     const gDiff = rgb1.g - rgb2.g;
     const bDiff = rgb1.b - rgb2.b;
     
-    return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff) / 4.41; // 정규화
+    return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff) / 4.41;
 }
 
 // 제품 추천 표시
@@ -2769,7 +2661,6 @@ function updateFavoriteColorsList() {
             colorElement.title = `${color.season} - ${new Date(color.timestamp).toLocaleTimeString()}`;
             
             colorElement.onclick = () => {
-                // 저장된 색상 적용
                 setDrapingSeason(color.season);
                 document.getElementById('lightness-slider').value = color.adjustments.lightness;
                 document.getElementById('saturation-slider').value = color.adjustments.saturation;
@@ -2840,16 +2731,16 @@ Personal Color Pro - 퍼스널컬러 진단 시스템
 • Delta E 2000: ✅ 구현됨
 • Before/After 비교: ✅ 구현됨
 • 얼굴 모양 추적: ✅ 구현됨
+• 120색 분석 시스템: ✅ 구현됨
     `;
     
     alert(status);
 }
 
-// 토스트 메시지 (중복 방지 및 스로틀링)
+// 토스트 메시지
 function showToast(message, type = 'info', duration = 3000) {
     const currentTime = Date.now();
     
-    // 기존 동일한 메시지 토스트 제거
     const existingToasts = document.querySelectorAll('.toast');
     existingToasts.forEach(toast => {
         if (toast.textContent === message) {
@@ -2857,7 +2748,6 @@ function showToast(message, type = 'info', duration = 3000) {
         }
     });
     
-    // 너무 빈번한 토스트 방지 (같은 타입)
     if (window.lastToastType === type && currentTime - (window.lastToastTime || 0) < 1500) {
         return;
     }
@@ -2868,7 +2758,6 @@ function showToast(message, type = 'info', duration = 3000) {
     
     document.body.appendChild(toast);
     
-    // 토스트 기록 업데이트
     window.lastToastType = type;
     window.lastToastTime = currentTime;
     
@@ -2901,7 +2790,7 @@ document.addEventListener('keydown', function(event) {
 });
 
 // ==========================================
-// 메인 초기화 실행 (완전 해결)
+// 메인 초기화 실행
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -2922,7 +2811,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }, 2000);
 });
 
-console.log('✅ Personal Color Pro 얼굴 모양 추적 완성 버전 로드 완료!');
+console.log('✅ Personal Color Pro - 120색 추천 시스템 최종 완성 버전!');
 </script>
 </body>
 </html>
