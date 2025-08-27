@@ -2263,18 +2263,31 @@ function setDrapingSeason(season) {
     showToast(`${season} 계절 선택됨`, 'info');
 }
 
-// 드래이핑 색상 업데이트
+// 드래이핑 색상 업데이트 (안전성 검사 추가)
 function updateDrapingColor() {
     if (!currentDrapingColor) return;
     
-    const lightness = parseInt(document.getElementById('lightness-slider').value);
-    const saturation = parseInt(document.getElementById('saturation-slider').value);
-    const warmth = parseInt(document.getElementById('warmth-slider').value);
+    const lightnessSlider = document.getElementById('lightness-slider');
+    const saturationSlider = document.getElementById('saturation-slider');
+    const warmthSlider = document.getElementById('warmth-slider');
+    
+    if (!lightnessSlider || !saturationSlider || !warmthSlider) {
+        console.warn('드래이핑 슬라이더 요소들을 찾을 수 없습니다');
+        return;
+    }
+    
+    const lightness = parseInt(lightnessSlider.value);
+    const saturation = parseInt(saturationSlider.value);
+    const warmth = parseInt(warmthSlider.value);
     
     // 슬라이더 값 표시 업데이트
-    document.getElementById('lightness-value').textContent = lightness;
-    document.getElementById('saturation-value').textContent = saturation;
-    document.getElementById('warmth-value').textContent = warmth;
+    const lightnessValue = document.getElementById('lightness-value');
+    const saturationValue = document.getElementById('saturation-value');
+    const warmthValue = document.getElementById('warmth-value');
+    
+    if (lightnessValue) lightnessValue.textContent = lightness;
+    if (saturationValue) saturationValue.textContent = saturation;
+    if (warmthValue) warmthValue.textContent = warmth;
     
     // RGB 색상 조정
     const baseRgb = hexToRgb(currentDrapingColor);
@@ -2291,7 +2304,7 @@ function updateDrapingColor() {
     if (colorDisplay) colorDisplay.style.backgroundColor = adjustedColor;
     if (colorInfo) colorInfo.textContent = adjustedHex;
     
-    // 실시간 오버레이 적용
+    // 실시간 오버레이 적용 (카메라가 시작된 경우에만)
     if (drapingVideoElement && drapingCanvasCtx && !isShowingOriginal) {
         applyColorOverlay(adjustedColor);
     }
@@ -2348,8 +2361,13 @@ function applyColorOverlay(color) {
     drapingCanvasCtx.globalAlpha = 1.0;
 }
 
-// Before/After 토글
+// Before/After 토글 (안전성 검사 추가)
 function toggleDrapingPreview() {
+    if (!drapingCanvasCtx || !drapingCanvasElement) {
+        showToast('먼저 드래이핑 카메라를 시작하세요', 'warning');
+        return;
+    }
+    
     isShowingOriginal = !isShowingOriginal;
     
     if (isShowingOriginal) {
