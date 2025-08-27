@@ -2,17 +2,19 @@
 // Before/After 비교 전용 모듈
 // ==========================================
 
-// 비교 상태 변수들
-let currentComparisonMode = 'slider';
-let isToggleShowingBefore = true;
-let beforeAfterInitialized = false;
+// 비교 상태 변수들 (전역 충돌 방지를 위해 네임스페이스 사용)
+const ComparisonState = {
+    currentMode: 'slider',
+    isToggleShowingBefore: true,
+    initialized: false
+};
 
 // ==========================================
 // Before/After 비교 초기화
 // ==========================================
 
 function initializeBeforeAfterComparison() {
-    if (beforeAfterInitialized) return;
+    if (ComparisonState.initialized) return;
     
     console.log('🖼️ Before/After 비교 시스템 초기화...');
     
@@ -28,7 +30,7 @@ function initializeBeforeAfterComparison() {
     // 개선도 지표 계산 및 표시
     calculateAndDisplayMetrics();
     
-    beforeAfterInitialized = true;
+    ComparisonState.initialized = true;
     console.log('✅ Before/After 비교 시스템 초기화 완료');
 }
 
@@ -188,7 +190,7 @@ function setupComparisonEventListeners() {
 // ==========================================
 
 function switchComparisonMode(mode) {
-    console.log('🔄 비교 모드 전환:', currentComparisonMode, '→', mode);
+    console.log('🔄 비교 모드 전환:', ComparisonState.currentMode, '→', mode);
     
     // 모든 비교 모드 버튼 비활성화
     const modeButtons = document.querySelectorAll('.comparison-mode');
@@ -205,7 +207,7 @@ function switchComparisonMode(mode) {
     if (activeButton) activeButton.classList.add('active');
     if (activeView) activeView.classList.add('active');
     
-    currentComparisonMode = mode;
+    ComparisonState.currentMode = mode;
     
     // 모드별 추가 설정
     switch (mode) {
@@ -258,16 +260,16 @@ function toggleBeforeAfter() {
     
     const ctx = canvas.getContext('2d');
     
-    if (isToggleShowingBefore) {
+    if (ComparisonState.isToggleShowingBefore) {
         // After 이미지 표시
         ctx.putImageData(window.afterImageData, 0, 0);
         button.textContent = 'After → Before';
-        isToggleShowingBefore = false;
+        ComparisonState.isToggleShowingBefore = false;
     } else {
         // Before 이미지 표시
         ctx.putImageData(window.beforeImageData, 0, 0);
         button.textContent = 'Before → After';
-        isToggleShowingBefore = true;
+        ComparisonState.isToggleShowingBefore = true;
     }
     
     // 버튼 애니메이션
@@ -288,11 +290,11 @@ function showToggleImage(showBefore) {
     if (showBefore) {
         ctx.putImageData(window.beforeImageData, 0, 0);
         button.textContent = 'Before → After';
-        isToggleShowingBefore = true;
+        ComparisonState.isToggleShowingBefore = true;
     } else {
         ctx.putImageData(window.afterImageData, 0, 0);
         button.textContent = 'After → Before';
-        isToggleShowingBefore = false;
+        ComparisonState.isToggleShowingBefore = false;
     }
 }
 
@@ -430,7 +432,7 @@ function generateReport() {
     const reportData = {
         timestamp: new Date().toLocaleString('ko-KR'),
         selectedColor: selectedColor || '선택되지 않음',
-        currentMode: currentComparisonMode,
+        currentMode: ComparisonState.currentMode,
         metrics: {
             skinImprovement: document.getElementById('skin-improvement')?.textContent || 'N/A',
             harmonyScore: document.getElementById('harmony-score')?.textContent || 'N/A',
@@ -486,9 +488,9 @@ function scrollToComparison() {
 
 // 비교 데이터 초기화
 function resetComparison() {
-    beforeAfterInitialized = false;
-    currentComparisonMode = 'slider';
-    isToggleShowingBefore = true;
+    ComparisonState.initialized = false;
+    ComparisonState.currentMode = 'slider';
+    ComparisonState.isToggleShowingBefore = true;
     
     console.log('🔄 Before/After 비교 시스템 초기화됨');
 }
