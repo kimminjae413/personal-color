@@ -1273,7 +1273,7 @@ function generateExpertAnalysis(season, labValues, rgbValues) {
 // MediaPipe 얼굴 인식 함수들
 // ==========================================
 
-// MediaPipe 결과 처리
+// MediaPipe 결과 처리 (전문적인 얼굴 인식 UI)
 function onFaceDetectionResults(results) {
     if (!canvasCtx || !videoElement) return;
     
@@ -1283,15 +1283,80 @@ function onFaceDetectionResults(results) {
         const detection = results.detections[0];
         const bbox = detection.boundingBox;
         
-        // 얼굴 바운딩 박스 그리기
-        canvasCtx.strokeStyle = '#E91E63';
+        const x = bbox.xCenter * canvasElement.width - (bbox.width * canvasElement.width) / 2;
+        const y = bbox.yCenter * canvasElement.height - (bbox.height * canvasElement.height) / 2;
+        const width = bbox.width * canvasElement.width;
+        const height = bbox.height * canvasElement.height;
+        
+        // 전문적인 얼굴 인식 프레임 그리기
+        canvasCtx.strokeStyle = '#00FF88';
         canvasCtx.lineWidth = 3;
-        canvasCtx.strokeRect(
-            bbox.xCenter * canvasElement.width - (bbox.width * canvasElement.width) / 2,
-            bbox.yCenter * canvasElement.height - (bbox.height * canvasElement.height) / 2,
-            bbox.width * canvasElement.width,
-            bbox.height * canvasElement.height
-        );
+        canvasCtx.setLineDash([]);
+        
+        // 모서리 프레임 그리기 (전문적인 스캐너 느낌)
+        const cornerSize = 30;
+        
+        // 좌상단
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(x, y + cornerSize);
+        canvasCtx.lineTo(x, y);
+        canvasCtx.lineTo(x + cornerSize, y);
+        canvasCtx.stroke();
+        
+        // 우상단
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(x + width - cornerSize, y);
+        canvasCtx.lineTo(x + width, y);
+        canvasCtx.lineTo(x + width, y + cornerSize);
+        canvasCtx.stroke();
+        
+        // 좌하단
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(x, y + height - cornerSize);
+        canvasCtx.lineTo(x, y + height);
+        canvasCtx.lineTo(x + cornerSize, y + height);
+        canvasCtx.stroke();
+        
+        // 우하단
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(x + width - cornerSize, y + height);
+        canvasCtx.lineTo(x + width, y + height);
+        canvasCtx.lineTo(x + width, y + height - cornerSize);
+        canvasCtx.stroke();
+        
+        // 중앙 스캔 라인 (애니메이션 효과)
+        canvasCtx.strokeStyle = '#00FF88';
+        canvasCtx.lineWidth = 2;
+        canvasCtx.setLineDash([5, 5]);
+        canvasCtx.globalAlpha = 0.8;
+        
+        const scanY = y + height/2 + Math.sin(Date.now() * 0.01) * 10;
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(x + 20, scanY);
+        canvasCtx.lineTo(x + width - 20, scanY);
+        canvasCtx.stroke();
+        
+        canvasCtx.globalAlpha = 1.0;
+        canvasCtx.setLineDash([]);
+        
+        // 상태 텍스트 표시
+        canvasCtx.font = 'bold 16px Arial';
+        canvasCtx.fillStyle = '#00FF88';
+        canvasCtx.strokeStyle = '#000';
+        canvasCtx.lineWidth = 1;
+        
+        const text = 'FACE DETECTED';
+        const textX = x + width/2 - 70;
+        const textY = y - 10;
+        
+        canvasCtx.strokeText(text, textX, textY);
+        canvasCtx.fillText(text, textX, textY);
+        
+        // 신뢰도 표시
+        const confidence = Math.round(detection.score[0] * 100);
+        const confText = `${confidence}%`;
+        canvasCtx.font = '14px Arial';
+        canvasCtx.fillText(confText, x + width - 40, y + height + 20);
         
         if (!faceDetected && currentStep === 1) {
             faceDetected = true;
@@ -1414,7 +1479,7 @@ async function performRealAnalysis() {
     }
 }
 
-// 최종 결과 표시
+// 최종 결과 표시 (구체적인 제품 추천 포함)
 function showFinalResults(analysis) {
     goToStep(4);
     
@@ -1423,6 +1488,9 @@ function showFinalResults(analysis) {
     
     if (seasonElement) seasonElement.textContent = analysis.season;
     if (confidenceElement) confidenceElement.textContent = analysis.confidence + '%';
+    
+    // 브랜드별 제품 추천 데이터
+    const productRecommendations = getProductRecommendations(analysis.season);
     
     const detailsDiv = document.getElementById('analysis-details');
     if (detailsDiv) {
@@ -1446,6 +1514,31 @@ function showFinalResults(analysis) {
                 <strong>색차 측정값</strong><br>
                 Delta E 2000: ${analysis.deltaE}
             </div>
+            
+            <!-- 브랜드별 헤어컬러 추천 -->
+            <div style="background: #E3F2FD; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #2196F3;">
+                <h4 style="color: #1976D2; margin-bottom: 1rem; font-size: 1.2rem;">💎 추천 헤어컬러 제품</h4>
+                ${productRecommendations.map(brand => `
+                    <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #BBDEFB;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <strong style="color: #1976D2; font-size: 1.1rem;">${brand.name}</strong>
+                            <span style="background: #4CAF50; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem;">추천</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.5rem;">
+                            ${brand.products.map(product => `
+                                <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #F5F5F5; border-radius: 6px;">
+                                    <div style="width: 20px; height: 20px; background: ${product.color}; border-radius: 50%; border: 1px solid #ddd;"></div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">${product.code}</div>
+                                        <div style="font-size: 0.8rem; color: #666;">${product.name}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            
             <div style="background: #FCE4EC; padding: 1rem; border-radius: 8px;">
                 <strong>전문가 분석</strong><br>
                 ${analysis.expertAnalysis}
@@ -1455,6 +1548,118 @@ function showFinalResults(analysis) {
     
     analysisCount++;
     showToast(`퍼스널컬러 진단 완료: ${analysis.season}`, 'success');
+}
+
+// 브랜드별 제품 추천 함수 (실제 헤어컬러 제품)
+function getProductRecommendations(season) {
+    const recommendations = {
+        '봄 웜톤': [
+            {
+                name: '로레알 프로페셔널',
+                products: [
+                    { code: '7.3', name: '골든 블론드', color: '#D4AF37' },
+                    { code: '8.34', name: '라이트 골든 코퍼', color: '#CD853F' },
+                    { code: '6.35', name: '다크 골든 마호가니', color: '#8B4513' }
+                ]
+            },
+            {
+                name: '웰라 프로페셔널',
+                products: [
+                    { code: '7/3', name: '미디움 골든 블론드', color: '#DAA520' },
+                    { code: '8/03', name: '라이트 내추럴 골든', color: '#F0E68C' },
+                    { code: '6/73', name: '다크 브라운 골든', color: '#A0522D' }
+                ]
+            },
+            {
+                name: '밀본 오르디브',
+                products: [
+                    { code: '7-CG', name: '코퍼 골든', color: '#B87333' },
+                    { code: '8-CB', name: '코퍼 베이지', color: '#DEB887' },
+                    { code: '6-GM', name: '골든 마호가니', color: '#CD853F' }
+                ]
+            }
+        ],
+        '여름 쿨톤': [
+            {
+                name: '로레알 프로페셔널',
+                products: [
+                    { code: '8.1', name: '라이트 애쉬 블론드', color: '#C0C0C0' },
+                    { code: '7.11', name: '인텐스 애쉬 블론드', color: '#A9A9A9' },
+                    { code: '9.1', name: '베리 라이트 애쉬', color: '#E6E6FA' }
+                ]
+            },
+            {
+                name: '웰라 프로페셔널',
+                products: [
+                    { code: '8/1', name: '라이트 애쉬 블론드', color: '#D3D3D3' },
+                    { code: '7/1', name: '미디움 애쉬 블론드', color: '#B0C4DE' },
+                    { code: '6/1', name: '다크 애쉬 블론드', color: '#778899' }
+                ]
+            },
+            {
+                name: '밀본 오르디브',
+                products: [
+                    { code: '8-A', name: '애쉬', color: '#C0C0C0' },
+                    { code: '7-MT', name: '마트 베이지', color: '#F5F5DC' },
+                    { code: '9-P', name: '핑크 베이지', color: '#F0E68C' }
+                ]
+            }
+        ],
+        '가을 웜톤': [
+            {
+                name: '로레알 프로페셔널',
+                products: [
+                    { code: '6.3', name: '다크 골든 블론드', color: '#B8860B' },
+                    { code: '5.35', name: '라이트 골든 마호가니', color: '#8B4513' },
+                    { code: '4.35', name: '골든 마호가니 브라운', color: '#A0522D' }
+                ]
+            },
+            {
+                name: '웰라 프로페셔널', 
+                products: [
+                    { code: '6/73', name: '다크 브라운 골든', color: '#8B4513' },
+                    { code: '5/7', name: '라이트 브라운 미디움', color: '#CD853F' },
+                    { code: '4/77', name: '미디움 브라운 인텐스', color: '#8B4513' }
+                ]
+            },
+            {
+                name: '밀본 오르디브',
+                products: [
+                    { code: '6-CB', name: '코퍼 베이지', color: '#DEB887' },
+                    { code: '5-GM', name: '골든 마호가니', color: '#A0522D' },
+                    { code: '7-OR', name: '오렌지', color: '#FF7F50' }
+                ]
+            }
+        ],
+        '겨울 쿨톤': [
+            {
+                name: '로레일 프로페셔널',
+                products: [
+                    { code: '1.0', name: '블랙', color: '#000000' },
+                    { code: '2.1', name: '브라운 애쉬', color: '#2F4F4F' },
+                    { code: '6.11', name: '다크 인텐스 애쉬', color: '#696969' }
+                ]
+            },
+            {
+                name: '웰라 프로페셔널',
+                products: [
+                    { code: '2/0', name: '블랙', color: '#000000' },
+                    { code: '4/0', name: '미디움 브라운', color: '#2F4F4F' },
+                    { code: '6/0', name: '다크 블론드', color: '#696969' }
+                ]
+            },
+            {
+                name: '밀본 오르디브',
+                products: [
+                    { code: '2-N', name: '내추럴 블랙', color: '#000000' },
+                    { code: '4-N', name: '내추럴 브라운', color: '#2F2F2F' },
+                    { code: '6-A', name: '애쉬 브라운', color: '#708090' }
+                ]
+            }
+        ]
+    };
+    
+    return recommendations[season] || recommendations['봄 웜톤'];
 }
 
 // 분석 초기화
