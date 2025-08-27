@@ -1,4 +1,132 @@
-<!DOCTYPE html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/color-convert/2.0.1/color-convert.min.js"></script>
+    
+    <style>
+/* ==========================================
+   CSS 리셋 및 기본 설정
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* 핑크/로즈 색상 팔레트 */
+    --primary-pink: #E91E63;
+    --secondary-rose: #F8BBD9;
+    --accent-gray: #757575;
+    --light-pink: #FCE4EC;
+    --dark-rose: #AD1457;
+    
+    /* 추가 시스템 색상 */
+    --success: #4CAF50;
+    --warning: #FF9800;
+    --error: #F44336;
+    --info: #2196F3;
+    
+    /* 간격 및 크기 */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    --radius: 8px;
+    --radius-lg: 16px;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --shadow-lg: 0 4px 20px rgba(0,0,0,0.15);
+    
+    /* 타이포그래피 */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background: linear-gradient(135deg, var(--light-pink) 0%, #fff 50%, var(--secondary-rose) 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* ==========================================
+   로딩 화면
+   ========================================== */
+.loading-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, var(--primary-pink) 0%, var(--dark-rose) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 9999;
+    flex-direction: column;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-logo {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-lg);
+    animation: pulse 2s infinite;
+}
+
+.loading-content h2 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+}
+
+.loading-content p {
+    opacity: 0.9;
+    margin-bottom: var(--spacing-xl);
+}
+
+.loading-bar {
+    width: 300px;
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-md);
+}
+
+.loading-progress {
+    height: 100%;
+    background: white;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.loading-message {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ==========================================
+   메인 애플리케이션
+   ========================================== */
+.main-app {
+    display: none;
+    min-height: 100vh;
+}
+
+.main-app.loaded {
+    display: block;
+}
+
+/* ==========================================
+   헤더
+   ========================================== */
+.app-header {
+    background: white<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +139,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-convert/2.0.1/color-convert.min.js"></script>
     
     <!-- CSS 파일 -->
     <link rel="stylesheet" href="styles.css">
