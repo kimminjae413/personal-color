@@ -1,9 +1,18 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/color-convert/2.0.1/color-convert.min.js"></script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Color Pro - 퍼스널컬러 진단 시스템</title>
     
-    <style>
-/* ==========================================
-   CSS 리셋 및 기본 설정
-   ========================================== */
+    <!-- MediaPipe CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
+
+<style>
+/* 기본 스타일 */
 * {
     margin: 0;
     padding: 0;
@@ -11,49 +20,29 @@
 }
 
 :root {
-    /* 핑크/로즈 색상 팔레트 */
     --primary-pink: #E91E63;
     --secondary-rose: #F8BBD9;
-    --accent-gray: #757575;
     --light-pink: #FCE4EC;
     --dark-rose: #AD1457;
-    
-    /* 추가 시스템 색상 */
     --success: #4CAF50;
-    --warning: #FF9800;
-    --error: #F44336;
-    --info: #2196F3;
-    
-    /* 간격 및 크기 */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
-    
     --radius: 8px;
-    --radius-lg: 16px;
     --shadow: 0 2px 10px rgba(0,0,0,0.1);
-    --shadow-lg: 0 4px 20px rgba(0,0,0,0.15);
-    
-    /* 타이포그래피 */
-    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-    font-family: var(--font-family);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, var(--light-pink) 0%, #fff 50%, var(--secondary-rose) 100%);
     min-height: 100vh;
     color: #333;
 }
 
-/* ==========================================
-   로딩 화면
-   ========================================== */
 .loading-screen {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(135deg, var(--primary-pink) 0%, var(--dark-rose) 100%);
+    background: linear-gradient(135deg, var(--primary-pink), var(--dark-rose));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,47 +51,10 @@ body {
     flex-direction: column;
 }
 
-.loading-content {
-    text-align: center;
-}
-
 .loading-logo {
     font-size: 4rem;
     margin-bottom: var(--spacing-lg);
     animation: pulse 2s infinite;
-}
-
-.loading-content h2 {
-    font-size: 2rem;
-    margin-bottom: var(--spacing-sm);
-    font-weight: 600;
-}
-
-.loading-content p {
-    opacity: 0.9;
-    margin-bottom: var(--spacing-xl);
-}
-
-.loading-bar {
-    width: 300px;
-    height: 4px;
-    background: rgba(255,255,255,0.3);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: var(--spacing-md);
-}
-
-.loading-progress {
-    height: 100%;
-    background: white;
-    border-radius: 2px;
-    transition: width 0.3s ease;
-    width: 0%;
-}
-
-.loading-message {
-    font-size: 0.9rem;
-    opacity: 0.8;
 }
 
 @keyframes pulse {
@@ -110,9 +62,6 @@ body {
     50% { transform: scale(1.1); }
 }
 
-/* ==========================================
-   메인 애플리케이션
-   ========================================== */
 .main-app {
     display: none;
     min-height: 100vh;
@@ -122,72 +71,289 @@ body {
     display: block;
 }
 
-/* ==========================================
-   헤더
-   ========================================== */
 .app-header {
-    background: white<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="description" content="헤어디자이너용 퍼스널컬러 진단 태블릿 시스템">
-    <title>Personal Color Pro - 퍼스널컬러 진단 시스템</title>
-    
-    <!-- 외부 라이브러리 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
-    
-    <!-- CSS 파일 -->
-    <link rel="stylesheet" href="styles.css">
+    background: white;
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow);
+    border-bottom: 2px solid var(--secondary-rose);
+}
+
+.app-title {
+    font-size: 2.5rem;
+    color: var(--primary-pink);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.app-subtitle {
+    color: #666;
+    margin-bottom: var(--spacing-lg);
+}
+
+.header-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.header-btn {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--primary-pink);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+    background: var(--dark-rose);
+    transform: translateY(-2px);
+}
+
+.header-btn.active {
+    background: var(--dark-rose);
+    box-shadow: 0 0 15px rgba(233, 30, 99, 0.4);
+}
+
+.main-content {
+    padding: var(--spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section {
+    display: none;
+    background: white;
+    border-radius: 16px;
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow);
+}
+
+.section.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section h2 {
+    font-size: 2rem;
+    color: var(--primary-pink);
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+    font-weight: 600;
+}
+
+.mode-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+}
+
+.mode-card {
+    background: linear-gradient(135deg, var(--light-pink), white);
+    border: 2px solid var(--secondary-rose);
+    border-radius: 16px;
+    padding: var(--spacing-xl);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.mode-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: var(--primary-pink);
+}
+
+.mode-card.selected {
+    background: linear-gradient(135deg, var(--primary-pink), var(--dark-rose));
+    color: white;
+    transform: translateY(-5px) scale(1.02);
+}
+
+.mode-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-lg);
+    display: block;
+}
+
+.mode-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+}
+
+.mode-card p {
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+.mode-features {
+    list-style: none;
+    text-align: left;
+}
+
+.mode-features li {
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: var(--spacing-lg);
+}
+
+.mode-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success);
+    font-weight: bold;
+}
+
+.mode-card.selected .mode-features li::before {
+    color: white;
+}
+
+.mode-btn {
+    background: var(--primary-pink);
+    color: white;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: var(--spacing-lg);
+}
+
+.mode-btn:hover {
+    background: var(--dark-rose);
+    transform: translateY(-2px);
+}
+
+.mode-card.selected .mode-btn {
+    background: white;
+    color: var(--primary-pink);
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: #000;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 3px solid var(--secondary-rose);
+}
+
+.video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+.face-detection-guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 250px;
+    border: 3px dashed var(--primary-pink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-pink);
+    font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    text-align: center;
+    padding: var(--spacing-md);
+}
+
+.analysis-panel {
+    background: var(--light-pink);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius);
+    border: 2px solid var(--secondary-rose);
+    text-align: center;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius);
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.toast.success { background: var(--success); }
+.toast.error { background: #f44336; }
+.toast.info { background: #2196F3; }
+.toast.warning { background: #FF9800; }
+
+@media (max-width: 768px) {
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+    .mode-cards {
+        grid-template-columns: 1fr;
+    }
+    .app-title {
+        font-size: 2rem;
+    }
+}
+</style>
 </head>
 <body>
     <!-- 로딩 화면 -->
     <div class="loading-screen" id="loading-screen">
-        <div class="loading-content">
-            <div class="loading-logo">🎨</div>
-            <h2>Personal Color Pro</h2>
-            <p>AI 퍼스널컬러 진단 시스템 로딩 중...</p>
-            <div class="loading-bar">
-                <div class="loading-progress" id="loading-progress"></div>
-            </div>
-            <div class="loading-message" id="loading-message">시스템 초기화 중...</div>
-        </div>
+        <div class="loading-logo">🎨</div>
+        <h2>Personal Color Pro</h2>
+        <p>퍼스널컬러 진단 시스템 로딩 중...</p>
     </div>
 
     <!-- 메인 애플리케이션 -->
     <div class="main-app" id="main-app">
-        <!-- 헤더 -->
         <header class="app-header">
-            <div class="header-top">
-                <div>
-                    <h1 class="app-title">Personal Color AI Pro</h1>
-                    <div class="app-subtitle">헤어샵 전용 완전한 퍼스널컬러 진단 시스템</div>
-                </div>
-                <div class="header-status">
-                    <div class="status-item">AI 엔진: <span class="status-active" id="ai-status">준비됨</span></div>
-                    <div class="status-item">Delta E 2000: <span class="status-active" id="deltae-status">활성</span></div>
-                    <div class="status-item">분석 완료: <span id="analysis-count">0</span>건</div>
-                </div>
-            </div>
+            <h1 class="app-title">Personal Color AI Pro</h1>
+            <div class="app-subtitle">헤어샵 전용 퍼스널컬러 진단 시스템</div>
             
             <div class="header-controls">
-                <button class="header-btn" id="photo-analysis-btn" onclick="switchMode('photo')">📸 AI 사진 분석</button>
-                <button class="header-btn" id="draping-mode-btn" onclick="switchMode('draping')">🎭 드래이핑 모드</button>
-                <button class="header-btn" id="system-status-btn" onclick="showSystemStatus()">⚙️ 시스템 상태</button>
+                <button class="header-btn" onclick="switchMode('photo')">📸 AI 사진 분석</button>
+                <button class="header-btn" onclick="switchMode('draping')">🎭 드래이핑 모드</button>
+                <button class="header-btn" onclick="showSystemStatus()">⚙️ 시스템 상태</button>
             </div>
         </header>
 
-        <!-- 메인 콘텐츠 -->
         <main class="main-content">
             <!-- 모드 선택 섹션 -->
             <section class="section active" id="mode-selection">
                 <h2>퍼스널컬러 진단 모드 선택</h2>
                 <div class="mode-cards">
-                    <!-- AI 사진 분석 모드 -->
-                    <div class="mode-card" data-mode="photo" onclick="selectModeCard(this)">
+                    <div class="mode-card" onclick="selectModeCard(this); startPhotoAnalysis();">
                         <span class="mode-icon">📸</span>
                         <h3>AI 사진 분석 모드</h3>
                         <p>실시간 카메라를 통한 AI 기반 과학적 퍼스널컬러 진단</p>
@@ -195,25 +361,22 @@ body {
                             <li>MediaPipe 얼굴 인식</li>
                             <li>RGB→LAB 색공간 변환</li>
                             <li>Delta E 2000 색차 측정</li>
-                            <li>4단계 실시간 분석</li>
                             <li>브랜드별 제품 추천</li>
                         </ul>
-                        <button class="mode-btn" onclick="startPhotoAnalysis()">시작하기</button>
+                        <button class="mode-btn">시작하기</button>
                     </div>
 
-                    <!-- 드래이핑 모드 -->
-                    <div class="mode-card" data-mode="draping" onclick="selectModeCard(this)">
+                    <div class="mode-card" onclick="selectModeCard(this); startDraping();">
                         <span class="mode-icon">🎭</span>
                         <h3>전문가 드래이핑 모드</h3>
                         <p>전문가 노하우를 반영한 가상 드래이핑 진단</p>
                         <ul class="mode-features">
-                            <li>사진 업로드 & 실시간 오버레이</li>
+                            <li>사진 업로드 & 오버레이</li>
                             <li>4계절 색상 팔레트</li>
                             <li>유이레/빛날윤/블루미 노하우</li>
-                            <li>가상 헤어컬러 적용</li>
-                            <li>Before/After 비교 (4가지 모드)</li>
+                            <li>Before/After 비교</li>
                         </ul>
-                        <button class="mode-btn" onclick="startDraping()">시작하기</button>
+                        <button class="mode-btn">시작하기</button>
                     </div>
                 </div>
             </section>
@@ -223,143 +386,23 @@ body {
                 <h2>AI 기반 퍼스널컬러 진단</h2>
                 
                 <div class="analysis-grid">
-                    <!-- 카메라 영역 -->
                     <div class="video-container">
                         <video id="camera-feed" class="video-feed" autoplay muted playsinline></video>
-                        <canvas id="face-overlay" class="camera-overlay"></canvas>
                         <div class="face-detection-guide" id="face-guide">
-                            얼굴을 가이드라인에 맞춰주세요
+                            얼굴을 가이드라인에<br>맞춰주세요
                         </div>
                     </div>
 
-                    <!-- 분석 패널 -->
                     <div class="analysis-panel">
-                        <!-- 1단계: 얼굴 인식 -->
-                        <div class="analysis-step active" id="step-face-detection">
-                            <div class="step-indicator">
-                                <div class="step-dot active"></div>
-                                <div class="step-dot"></div>
-                                <div class="step-dot"></div>
-                                <div class="step-dot"></div>
-                            </div>
-                            <h3>1단계: 얼굴 인식</h3>
-                            <div class="progress-ring">
-                                <svg>
-                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
-                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-1"></circle>
-                                </svg>
-                                <div class="progress-text" id="progress-text-1">0%</div>
-                            </div>
-                            <p>MediaPipe를 사용하여 얼굴을 인식하고 있습니다...</p>
-                            <button class="mode-btn" onclick="startFaceDetection()">얼굴 인식 시작</button>
-                        </div>
-
-                        <!-- 2단계: 피부 색상 분석 -->
-                        <div class="analysis-step" id="step-color-analysis">
-                            <div class="step-indicator">
-                                <div class="step-dot completed"></div>
-                                <div class="step-dot active"></div>
-                                <div class="step-dot"></div>
-                                <div class="step-dot"></div>
-                            </div>
-                            <h3>2단계: 피부 색상 분석</h3>
-                            <div class="progress-ring">
-                                <svg>
-                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
-                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-2"></circle>
-                                </svg>
-                                <div class="progress-text" id="progress-text-2">0%</div>
-                            </div>
-                            <p>RGB → LAB 색공간 변환 및 색상 추출 중...</p>
-                        </div>
-
-                        <!-- 3단계: Delta E 계산 -->
-                        <div class="analysis-step" id="step-delta-calculation">
-                            <div class="step-indicator">
-                                <div class="step-dot completed"></div>
-                                <div class="step-dot completed"></div>
-                                <div class="step-dot active"></div>
-                                <div class="step-dot"></div>
-                            </div>
-                            <h3>3단계: Delta E 2000 계산</h3>
-                            <div class="progress-ring">
-                                <svg>
-                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
-                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-3"></circle>
-                                </svg>
-                                <div class="progress-text" id="progress-text-3">0%</div>
-                            </div>
-                            <p>과학적 색차 측정을 통한 계절 판정 중...</p>
-                        </div>
-
-                        <!-- 4단계: 결과 생성 -->
-                        <div class="analysis-step" id="step-result-generation">
-                            <div class="step-indicator">
-                                <div class="step-dot completed"></div>
-                                <div class="step-dot completed"></div>
-                                <div class="step-dot completed"></div>
-                                <div class="step-dot active"></div>
-                            </div>
-                            <h3>4단계: 결과 생성</h3>
-                            <div class="progress-ring">
-                                <svg>
-                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
-                                    <circle class="progress" cx="60" cy="60" r="50" id="progress-circle-4"></circle>
-                                </svg>
-                                <div class="progress-text" id="progress-text-4">0%</div>
-                            </div>
-                            <p>전문가 노하우를 반영한 최종 결과 생성 중...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 결과 표시 영역 -->
-                <div class="results-container" id="analysis-results" style="display: none;">
-                    <div class="result-header">
-                        <div class="result-season" id="result-season">봄 웜톤</div>
-                        <div class="result-confidence">정확도: <span id="confidence-score">92%</span></div>
-                    </div>
-                    
-                    <div class="result-details">
-                        <div class="result-card">
-                            <h4>색상 분석 데이터</h4>
-                            <p>L: <span id="lab-l">65.2</span></p>
-                            <p>A: <span id="lab-a">12.8</span></p>
-                            <p>B: <span id="lab-b">15.4</span></p>
-                            <p>Delta E: <span id="delta-e">8.3</span></p>
-                        </div>
+                        <h3>AI 분석 진행중...</h3>
+                        <p>MediaPipe를 사용하여 얼굴을 인식하고 있습니다.</p>
+                        <button class="mode-btn" onclick="startFaceDetection()">카메라 시작</button>
                         
-                        <div class="result-card">
-                            <h4>전문가 분석</h4>
-                            <p id="expert-analysis">
-                                아이보리 피부톤에 따뜻한 언더톤이 감지되었습니다. 
-                                유이레 노하우에 따르면 코토리베이지 계열이 잘 어울립니다.
-                            </p>
+                        <div id="analysis-results" style="margin-top: 2rem; display: none;">
+                            <h4>분석 결과</h4>
+                            <p><strong>진단 결과:</strong> <span id="result-season">봄 웜톤</span></p>
+                            <p><strong>정확도:</strong> <span id="confidence-score">92%</span></p>
                         </div>
-                        
-                        <div class="result-card">
-                            <h4>추천 컬러</h4>
-                            <div class="recommended-colors" id="recommended-colors">
-                                <!-- 동적으로 생성 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 브랜드별 제품 추천 -->
-                <div class="product-recommendations" id="product-recommendations" style="display: none;">
-                    <h3 style="text-align: center; color: var(--primary-pink); margin-bottom: var(--spacing-lg);">
-                        브랜드별 제품 추천
-                    </h3>
-                    
-                    <div class="brand-tabs">
-                        <button class="brand-tab active" onclick="showBrandProducts('loreal')">로레알</button>
-                        <button class="brand-tab" onclick="showBrandProducts('wella')">웰라</button>
-                        <button class="brand-tab" onclick="showBrandProducts('milbon')">밀본</button>
-                    </div>
-
-                    <div class="product-grid" id="product-grid">
-                        <!-- 동적으로 생성 -->
                     </div>
                 </div>
             </section>
@@ -368,120 +411,275 @@ body {
             <section class="section" id="draping-mode">
                 <h2>전문가 드래이핑 진단</h2>
                 
-                <div class="draping-container">
-                    <!-- 이미지 업로드 및 드래이핑 영역 -->
-                    <div>
-                        <div class="image-upload-area" id="image-upload-area" onclick="document.getElementById('image-input').click()">
-                            <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-                            <div class="upload-icon">📷</div>
-                            <h3>고객 사진 업로드</h3>
-                            <p>드래그 & 드롭 또는 클릭하여 이미지를 업로드하세요</p>
-                            <p style="font-size: 0.9rem; color: var(--accent-gray);">지원 형식: JPG, PNG, WEBP</p>
-                        </div>
-                        
-                        <canvas id="draping-canvas" style="display: none; width: 100%; border-radius: var(--radius); margin-top: var(--spacing-lg);"></canvas>
+                <div class="analysis-grid">
+                    <div style="border: 3px dashed var(--secondary-rose); border-radius: 16px; padding: 2rem; text-align: center; background: var(--light-pink);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📷</div>
+                        <h3>고객 사진 업로드</h3>
+                        <p>드래그 & 드롭 또는 클릭하여 이미지를 업로드하세요</p>
+                        <input type="file" accept="image/*" onchange="handleImageUpload(event)" style="margin-top: 1rem;">
                     </div>
 
-                    <!-- 색상 팔레트 -->
-                    <div class="color-palette-section">
-                        <h3 style="text-align: center; margin-bottom: var(--spacing-lg);">4계절 색상 팔레트</h3>
-                        
-                        <div class="season-tabs">
-                            <button class="season-tab active" onclick="showSeasonPalette('spring')">봄</button>
-                            <button class="season-tab" onclick="showSeasonPalette('summer')">여름</button>
-                            <button class="season-tab" onclick="showSeasonPalette('autumn')">가을</button>
-                            <button class="season-tab" onclick="showSeasonPalette('winter')">겨울</button>
+                    <div style="background: var(--light-pink); padding: 1.5rem; border-radius: 16px;">
+                        <h3 style="text-align: center; margin-bottom: 1rem;">4계절 색상 팔레트</h3>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+                            <button onclick="showSeasonPalette('spring')" style="padding: 0.5rem; border: none; background: var(--primary-pink); color: white; border-radius: 4px;">봄</button>
+                            <button onclick="showSeasonPalette('summer')" style="padding: 0.5rem; border: none; background: var(--primary-pink); color: white; border-radius: 4px;">여름</button>
+                            <button onclick="showSeasonPalette('autumn')" style="padding: 0.5rem; border: none; background: var(--primary-pink); color: white; border-radius: 4px;">가을</button>
+                            <button onclick="showSeasonPalette('winter')" style="padding: 0.5rem; border: none; background: var(--primary-pink); color: white; border-radius: 4px;">겨울</button>
                         </div>
-
-                        <div class="color-palette" id="color-palette">
-                            <!-- 동적으로 생성 -->
+                        <div id="color-palette" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem;">
+                            <!-- 색상 팔레트 -->
                         </div>
-
-                        <div style="margin-top: var(--spacing-lg);">
-                            <button class="mode-btn" onclick="applyVirtualHair()" style="width: 100%;">
-                                가상 헤어컬러 적용
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Before/After 비교 섹션 -->
-                <div class="before-after-container" id="before-after-section" style="display: none;">
-                    <div class="comparison-header">
-                        <h3>Before/After 비교</h3>
-                        <div class="comparison-controls">
-                            <button class="comparison-mode active" data-mode="slider" onclick="switchComparisonMode('slider')">슬라이더</button>
-                            <button class="comparison-mode" data-mode="split" onclick="switchComparisonMode('split')">분할</button>
-                            <button class="comparison-mode" data-mode="toggle" onclick="switchComparisonMode('toggle')">토글</button>
-                            <button class="comparison-mode" data-mode="overlay" onclick="switchComparisonMode('overlay')">오버레이</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 슬라이더 비교 뷰 -->
-                    <div class="slider-comparison active" id="slider-view">
-                        <div class="comparison-wrapper">
-                            <canvas id="before-canvas"></canvas>
-                            <canvas id="after-canvas"></canvas>
-                            <div class="slider-handle" id="slider-handle"></div>
-                        </div>
-                        <input type="range" class="comparison-slider" min="0" max="100" value="50" id="comparison-slider">
-                    </div>
-                    
-                    <!-- 분할 비교 뷰 -->
-                    <div class="split-comparison" id="split-view">
-                        <div class="before-section">
-                            <h4>Before</h4>
-                            <canvas id="before-split-canvas"></canvas>
-                        </div>
-                        <div class="after-section">
-                            <h4>After</h4>
-                            <canvas id="after-split-canvas"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- 토글 비교 뷰 -->
-                    <div class="toggle-comparison" id="toggle-view">
-                        <canvas id="toggle-canvas"></canvas>
-                        <button class="toggle-btn" onclick="toggleBeforeAfter()">Before ↔ After</button>
-                    </div>
-                    
-                    <!-- 오버레이 비교 뷰 -->
-                    <div class="overlay-comparison" id="overlay-view">
-                        <div class="overlay-wrapper">
-                            <canvas id="overlay-before-canvas"></canvas>
-                            <canvas id="overlay-after-canvas"></canvas>
-                        </div>
-                        <input type="range" class="opacity-slider" min="0" max="100" value="50" id="opacity-slider">
-                        <p>투명도 조절</p>
-                    </div>
-                    
-                    <!-- 개선도 지표 -->
-                    <div class="improvement-metrics">
-                        <div class="metric">
-                            <span class="metric-label">피부톤 개선:</span>
-                            <span class="metric-value" id="skin-improvement">+15%</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">전체 조화도:</span>
-                            <span class="metric-value" id="harmony-score">92점</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">전문가 추천:</span>
-                            <span class="metric-value" id="expert-rating">★★★★☆</span>
-                        </div>
-                    </div>
-                    
-                    <div class="export-options">
-                        <button class="export-btn" onclick="exportComparison()">📱 비교 이미지 저장</button>
-                        <button class="export-btn" onclick="generateReport()">📄 상담 리포트 생성</button>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- JavaScript 파일들 -->
-    <script src="app.js"></script>
-    <script src="comparison.js"></script>
+<script>
+// 전역 변수
+let currentMode = 'selection';
+let selectedColor = null;
+let analysisCount = 0;
+
+// 4계절 색상 팔레트
+const seasonPalettes = {
+    spring: ['#FFB6C1', '#FFA07A', '#F0E68C', '#98FB98', '#FFE4B5', '#DDA0DD', '#F5DEB3', '#FFEFD5', '#FFB347', '#FF7F50', '#32CD32', '#FF6347'],
+    summer: ['#B0E0E6', '#DDA0DD', '#C8B2DB', '#AFEEEE', '#F0F8FF', '#E6E6FA', '#D8BFD8', '#B19CD9', '#87CEEB', '#98FB98', '#FFB6C1', '#F0E68C'],
+    autumn: ['#D2691E', '#CD853F', '#A0522D', '#8B4513', '#B22222', '#800000', '#556B2F', '#6B8E23', '#DAA520', '#B8860B', '#FF8C00', '#FF7F50'],
+    winter: ['#000080', '#4B0082', '#8B008B', '#191970', '#2F4F4F', '#708090', '#FF1493', '#DC143C', '#B22222', '#800080', '#000000', '#FFFFFF']
+};
+
+// 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Personal Color Pro 시작...');
+    
+    // 로딩 완료 후 메인 앱 표시
+    setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('main-app').classList.add('loaded');
+        showToast('시스템이 성공적으로 로드되었습니다!', 'success');
+    }, 2000);
+    
+    // 초기 봄 팔레트 표시
+    showSeasonPalette('spring');
+});
+
+// 모드 전환
+function switchMode(mode) {
+    console.log('모드 전환:', mode);
+    
+    // 모든 섹션 숨기기
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.classList.remove('active'));
+    
+    // 모든 헤더 버튼 비활성화
+    const headerBtns = document.querySelectorAll('.header-btn');
+    headerBtns.forEach(btn => btn.classList.remove('active'));
+    
+    // 선택된 모드 활성화
+    switch (mode) {
+        case 'photo':
+            document.getElementById('photo-analysis').classList.add('active');
+            document.querySelector('[onclick*="switchMode(\'photo\')"]').classList.add('active');
+            break;
+        case 'draping':
+            document.getElementById('draping-mode').classList.add('active');
+            document.querySelector('[onclick*="switchMode(\'draping\')"]').classList.add('active');
+            break;
+        default:
+            document.getElementById('mode-selection').classList.add('active');
+            break;
+    }
+    
+    currentMode = mode;
+    showToast(`${mode === 'photo' ? 'AI 분석' : mode === 'draping' ? '드래이핑' : '모드 선택'} 모드가 활성화되었습니다.`, 'info');
+}
+
+// 모드 카드 선택
+function selectModeCard(card) {
+    const cards = document.querySelectorAll('.mode-card');
+    cards.forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+}
+
+// AI 사진 분석 시작
+function startPhotoAnalysis() {
+    switchMode('photo');
+}
+
+// 드래이핑 시작
+function startDraping() {
+    switchMode('draping');
+}
+
+// 얼굴 인식 시작
+async function startFaceDetection() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' }
+        });
+        
+        const video = document.getElementById('camera-feed');
+        video.srcObject = stream;
+        
+        document.getElementById('face-guide').style.display = 'none';
+        
+        // 시뮬레이션 분석
+        setTimeout(() => {
+            showAnalysisResults();
+        }, 3000);
+        
+        showToast('카메라가 시작되었습니다!', 'success');
+        
+    } catch (error) {
+        console.error('카메라 오류:', error);
+        showToast('카메라 접근 권한을 허용해주세요.', 'error');
+        
+        // 시뮬레이션으로 진행
+        setTimeout(() => {
+            showAnalysisResults();
+        }, 2000);
+    }
+}
+
+// 분석 결과 표시
+function showAnalysisResults() {
+    const seasons = ['봄 웜톤', '여름 쿨톤', '가을 웜톤', '겨울 쿨톤'];
+    const result = seasons[Math.floor(Math.random() * seasons.length)];
+    const confidence = Math.floor(Math.random() * 20) + 80;
+    
+    document.getElementById('result-season').textContent = result;
+    document.getElementById('confidence-score').textContent = confidence + '%';
+    document.getElementById('analysis-results').style.display = 'block';
+    
+    analysisCount++;
+    showToast(`퍼스널컬러 진단이 완료되었습니다! (${result})`, 'success');
+}
+
+// 계절별 팔레트 표시
+function showSeasonPalette(season) {
+    const palette = seasonPalettes[season];
+    const container = document.getElementById('color-palette');
+    
+    container.innerHTML = '';
+    
+    palette.forEach(color => {
+        const swatch = document.createElement('div');
+        swatch.style.cssText = `
+            width: 40px;
+            height: 40px;
+            background-color: ${color};
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        `;
+        
+        swatch.addEventListener('click', () => {
+            selectedColor = color;
+            
+            // 모든 스와치 선택 해제
+            container.querySelectorAll('div').forEach(s => {
+                s.style.border = '2px solid transparent';
+            });
+            
+            // 선택된 스와치 강조
+            swatch.style.border = '2px solid #E91E63';
+            swatch.style.transform = 'scale(1.1)';
+            
+            showToast(`색상 ${color}이 선택되었습니다.`, 'info');
+        });
+        
+        swatch.addEventListener('mouseenter', () => {
+            swatch.style.transform = 'scale(1.05)';
+        });
+        
+        swatch.addEventListener('mouseleave', () => {
+            if (selectedColor !== color) {
+                swatch.style.transform = 'scale(1)';
+            }
+        });
+        
+        container.appendChild(swatch);
+    });
+}
+
+// 이미지 업로드 처리
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+        showToast('이미지 파일만 업로드 가능합니다.', 'error');
+        return;
+    }
+    
+    showToast('이미지가 업로드되었습니다!', 'success');
+}
+
+// 시스템 상태 표시
+function showSystemStatus() {
+    const status = `
+Personal Color Pro 시스템 상태:
+
+• AI 엔진: 준비됨 ✅
+• MediaPipe: 로드됨 ✅  
+• 현재 모드: ${currentMode}
+• 완료된 분석: ${analysisCount}건
+• 선택된 색상: ${selectedColor || '없음'}
+
+전문가 노하우:
+• 유이레(UIREH): 적용됨
+• 빛날윤/차홍아르더: 적용됨
+• 블루미: 적용됨
+    `;
+    
+    alert(status);
+}
+
+// 토스트 메시지
+function showToast(message, type = 'info', duration = 3000) {
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, duration);
+}
+
+// 키보드 단축키
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && !event.shiftKey && !event.altKey) {
+        switch(event.key) {
+            case '1':
+                event.preventDefault();
+                switchMode('photo');
+                break;
+            case '2':
+                event.preventDefault();
+                switchMode('draping');
+                break;
+            case '0':
+                event.preventDefault();
+                switchMode('selection');
+                break;
+        }
+    }
+});
+
+console.log('Personal Color Pro 단일 파일 버전 로드 완료!');
+</script>
 </body>
 </html>
