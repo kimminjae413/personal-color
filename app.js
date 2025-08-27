@@ -537,15 +537,22 @@ function showBrandProducts(brand, season) {
     });
 }
 
-// CMYK → HEX 변환 함수
+// CMYK → HEX 변환 함수 (외부 라이브러리 불필요)
 function cmykToHex(cmyk) {
     const { c, m, y, k } = cmyk;
     
+    // CMYK를 RGB로 변환
     const r = Math.round(255 * (1 - c/100) * (1 - k/100));
     const g = Math.round(255 * (1 - m/100) * (1 - k/100));
     const b = Math.round(255 * (1 - y/100) * (1 - k/100));
     
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    // RGB를 HEX로 변환
+    const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
 // ==========================================
