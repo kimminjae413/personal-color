@@ -855,7 +855,7 @@ body {
             <!-- 드래이핑 모드 섹션 -->
             <section class="section" id="draping-mode">
                 <div class="section-nav">
-                    <div class="nav-title">전문가 드래이핑 진단</div>
+                    <div class="nav-title">실시간 드래이핑 진단</div>
                     <div class="nav-controls">
                         <button class="nav-btn" onclick="goHome()">홈으로</button>
                         <button class="nav-btn" onclick="switchMode('photo')">AI 분석 모드</button>
@@ -864,107 +864,97 @@ body {
                 </div>
                 
                 <div class="analysis-grid">
-                    <div style="border: 3px dashed var(--secondary-rose); border-radius: 12px; padding: 1.5rem; text-align: center; background: var(--light-pink);">
-                        <div style="font-size: 2.5rem; margin-bottom: 1rem;">📷</div>
-                        <h3>고객 사진 업로드</h3>
-                        <p style="margin-bottom: 1rem;">드래그 & 드롭 또는 클릭하여 이미지를 업로드하세요</p>
-                        <input type="file" id="image-upload" accept="image/*" onchange="handleImageUpload(event)" style="margin-bottom: 1rem;">
-                        <div id="uploaded-image-preview" style="display: none;">
-                            <img id="preview-image" style="max-width: 100%; max-height: 180px; border-radius: 8px; border: 2px solid var(--secondary-rose);">
+                    <!-- 실시간 카메라 + 색상 오버레이 -->
+                    <div class="video-container">
+                        <video id="draping-camera" class="video-feed" autoplay muted playsinline></video>
+                        <canvas id="draping-overlay" class="face-overlay"></canvas>
+                        <div class="face-detection-guide" id="draping-guide">
+                            얼굴을 가이드라인에<br>맞춰주세요
+                        </div>
+                        <div class="skin-analysis-regions" id="draping-regions"></div>
+                        
+                        <!-- AI 참고 정보 -->
+                        <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">
+                            <div>AI 분석: <span id="ai-reference">-</span></div>
+                            <div style="font-size: 0.75rem; opacity: 0.8;">(참고용)</div>
+                        </div>
+                        
+                        <!-- Before/After 토글 버튼 -->
+                        <div style="position: absolute; bottom: 10px; right: 10px;">
+                            <button onclick="toggleDrapingPreview()" style="background: var(--primary-pink); color: white; border: none; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer;">
+                                원본/적용 (스페이스)
+                            </button>
                         </div>
                     </div>
 
+                    <!-- 전문가 조정 패널 -->
                     <div class="color-palette-container">
-                        <h3 style="text-align: center; margin-bottom: 1rem;">4계절 색상 팔레트</h3>
+                        <h3 style="text-align: center; margin-bottom: 1rem;">전문가 색상 조정</h3>
                         
+                        <!-- 4계절 대분류 -->
                         <div class="season-tabs">
-                            <button class="season-tab active" onclick="showSeasonPalette('spring')">봄</button>
-                            <button class="season-tab" onclick="showSeasonPalette('summer')">여름</button>
-                            <button class="season-tab" onclick="showSeasonPalette('autumn')">가을</button>
-                            <button class="season-tab" onclick="showSeasonPalette('winter')">겨울</button>
+                            <button class="season-tab active" onclick="setDrapingSeason('spring')" id="draping-spring">봄</button>
+                            <button class="season-tab" onclick="setDrapingSeason('summer')" id="draping-summer">여름</button>
+                            <button class="season-tab" onclick="setDrapingSeason('autumn')" id="draping-autumn">가을</button>
+                            <button class="season-tab" onclick="setDrapingSeason('winter')" id="draping-winter">겨울</button>
                         </div>
 
-                        <div class="pccs-tone-info" id="tone-info">
-                            <strong>봄 (Spring) 계절 특성</strong><br>
-                            따뜻한 언더톤, 밝고 선명한 색상<br>
-                            <small>12개 대표 색상</small>
+                        <!-- 세부 조정 슬라이더들 -->
+                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-weight: 600; color: #333;">명도 조정</label>
+                                <input type="range" id="lightness-slider" min="-30" max="30" value="0" 
+                                       style="width: 100%; margin-top: 0.5rem;" oninput="updateDrapingColor()">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
+                                    <span>어둡게</span>
+                                    <span id="lightness-value">0</span>
+                                    <span>밝게</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-weight: 600; color: #333;">채도 조정</label>
+                                <input type="range" id="saturation-slider" min="-50" max="50" value="0" 
+                                       style="width: 100%; margin-top: 0.5rem;" oninput="updateDrapingColor()">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
+                                    <span>차분하게</span>
+                                    <span id="saturation-value">0</span>
+                                    <span>선명하게</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-weight: 600; color: #333;">온도감 조정</label>
+                                <input type="range" id="warmth-slider" min="-40" max="40" value="0" 
+                                       style="width: 100%; margin-top: 0.5rem;" oninput="updateDrapingColor()">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
+                                    <span>쿨톤</span>
+                                    <span id="warmth-value">0</span>
+                                    <span>웜톤</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 현재 적용된 색상 표시 -->
+                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">현재 색상</div>
+                            <div style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; border: 3px solid #ddd;" id="current-draping-color"></div>
+                            <div style="font-size: 0.9rem; margin-top: 0.5rem; color: #666;" id="current-color-info">색상을 조정해보세요</div>
+                        </div>
+
+                        <!-- 즐겨찾기 색상 저장 -->
+                        <div style="text-align: center;">
+                            <button class="mode-btn" onclick="saveFavoriteColor()" style="margin-right: 0.5rem;">
+                                현재 색상 저장
+                            </button>
+                            <button class="mode-btn" onclick="startDrapingCamera()">카메라 시작</button>
                         </div>
                         
-                        <div class="color-palette" id="color-palette">
-                            <!-- 동적 색상 팔레트 -->
+                        <!-- 저장된 색상들 -->
+                        <div id="favorite-colors" style="margin-top: 1rem; display: none;">
+                            <h4 style="margin-bottom: 0.5rem;">저장된 색상</h4>
+                            <div id="favorite-colors-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
-
-                        <div style="text-align: center; margin-top: 1rem;">
-                            <button class="mode-btn" onclick="applySelectedColor()" id="apply-color-btn" disabled>
-                                선택한 색상 적용하기
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Before/After 비교 섹션 -->
-                <div class="comparison-container" id="comparison-container" style="display: none;">
-                    <div class="comparison-header">
-                        <h3>Before/After 비교</h3>
-                        <div class="comparison-controls">
-                            <button class="comparison-mode-btn active" onclick="switchComparisonMode('slider')">슬라이더</button>
-                            <button class="comparison-mode-btn" onclick="switchComparisonMode('split')">분할</button>
-                            <button class="comparison-mode-btn" onclick="switchComparisonMode('toggle')">토글</button>
-                        </div>
-                    </div>
-
-                    <!-- 슬라이더 비교 -->
-                    <div class="comparison-viewer active" id="slider-view">
-                        <div style="position: relative; width: 100%; height: 100%; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                            <canvas id="before-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;"></canvas>
-                            <canvas id="after-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; clip-path: inset(0 50% 0 0);"></canvas>
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 1rem; border-radius: 8px; text-align: center;">
-                                Before/After 이미지를 생성하려면<br>먼저 이미지를 업로드하고 색상을 선택하세요
-                            </div>
-                        </div>
-                        <input type="range" style="width: 100%; margin-top: 1rem;" id="comparison-slider" min="0" max="100" value="50">
-                    </div>
-
-                    <!-- 분할 비교 -->
-                    <div class="comparison-viewer" id="split-view">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; height: 100%;">
-                            <div style="background: #f5f5f5; display: flex; align-items: center; justify-content: center; text-align: center; color: #666;">
-                                <div>Before<br><small>원본 이미지</small></div>
-                            </div>
-                            <div style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; text-align: center; color: #666; border-left: 2px solid var(--secondary-rose);">
-                                <div>After<br><small>색상 적용 후</small></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 토글 비교 -->
-                    <div class="comparison-viewer" id="toggle-view">
-                        <div style="position: relative; width: 100%; height: 100%; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                            <button onclick="toggleBeforeAfter()" style="background: var(--primary-pink); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
-                                Before/After 토글하기
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 개선도 지표 -->
-                    <div class="improvement-metrics">
-                        <div class="metric">
-                            <span class="metric-label">피부톤 개선</span>
-                            <span class="metric-value" id="skin-improvement">+0%</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">전체 조화도</span>
-                            <span class="metric-value" id="harmony-score">0점</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">전문가 추천</span>
-                            <span class="metric-value" id="expert-rating">☆☆☆☆☆</span>
-                        </div>
-                    </div>
-
-                    <div style="text-align: center; margin-top: var(--spacing-lg);">
-                        <button class="mode-btn" onclick="exportComparison()" style="margin-right: 0.5rem;">📱 비교 이미지 저장</button>
-                        <button class="mode-btn" onclick="generateReport()">📄 상담 리포트</button>
                     </div>
                 </div>
             </section>
@@ -2137,317 +2127,321 @@ function startBasicMode() {
 }
 
 // ==========================================
-// 드래이핑 모드 함수들
+// 실시간 드래이핑 모드 함수들
 // ==========================================
 
-// 계절별 팔레트 표시
-function showSeasonPalette(season) {
-    selectedSeason = season;
-    
-    document.querySelectorAll('.season-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelector(`[onclick*="${season}"]`).classList.add('active');
-    
-    const palette = seasonPalettes[season];
-    const toneInfoDiv = document.getElementById('tone-info');
-    const seasonNames = {
-        spring: '봄 (Spring)',
-        summer: '여름 (Summer)', 
-        autumn: '가을 (Autumn)',
-        winter: '겨울 (Winter)'
-    };
-    
-    toneInfoDiv.innerHTML = `
-        <strong>${seasonNames[season]} 계절 특성</strong><br>
-        ${palette.characteristics.join(', ')}<br>
-        <small>${palette.colors.length}개 대표 색상</small>
-    `;
-    
-    const paletteDiv = document.getElementById('color-palette');
-    paletteDiv.innerHTML = '';
-    
-    palette.colors.forEach((color, index) => {
-        const swatch = document.createElement('div');
-        swatch.className = 'color-swatch';
-        swatch.style.backgroundColor = color;
-        swatch.title = `${season} - ${color}`;
-        swatch.dataset.color = color;
-        swatch.dataset.season = season;
-        
-        swatch.addEventListener('click', () => {
-            document.querySelectorAll('.color-swatch').forEach(s => {
-                s.classList.remove('selected');
-            });
-            
-            swatch.classList.add('selected');
-            selectedColor = color;
-            
-            document.getElementById('apply-color-btn').disabled = false;
-            
-            showToast(`${season} 계절 색상 ${color} 선택됨`, 'info');
+let drapingVideoElement = null;
+let drapingCanvasElement = null;
+let drapingCanvasCtx = null;
+let drapingCamera = null;
+let currentDrapingSeason = 'spring';
+let currentDrapingColor = null;
+let isShowingOriginal = false;
+let aiReferenceResult = null;
+let favoriteColors = [];
+
+// 드래이핑 카메라 시작
+async function startDrapingCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+                width: 640,
+                height: 480,
+                facingMode: 'user'
+            }
         });
         
-        paletteDiv.appendChild(swatch);
-    });
-    
-    showToast(`${seasonNames[season]} 팔레트 로드됨`, 'info');
-}
-
-// 이미지 업로드 처리
-function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-        showToast('이미지 파일만 업로드 가능합니다.', 'error');
-        return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            uploadedImage = img;
-            beforeImage = img;
-            
-            const preview = document.getElementById('preview-image');
-            const previewContainer = document.getElementById('uploaded-image-preview');
-            preview.src = e.target.result;
-            previewContainer.style.display = 'block';
-            
-            showToast(`이미지 업로드 완료! (${img.width}x${img.height})`, 'success');
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-// 선택한 색상 적용
-function applySelectedColor() {
-    if (!selectedColor || !uploadedImage) {
-        showToast('먼저 이미지를 업로드하고 색상을 선택하세요', 'error');
-        return;
-    }
-    
-    createAfterImage(uploadedImage, selectedColor);
-    document.getElementById('comparison-container').style.display = 'block';
-    
-    showToast(`${selectedColor} 색상이 적용되었습니다`, 'success');
-}
-
-// After 이미지 생성
-function createAfterImage(originalImage, hairColor) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = originalImage.width;
-    canvas.height = originalImage.height;
-    
-    ctx.drawImage(originalImage, 0, 0);
-    
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.fillStyle = hairColor;
-    ctx.globalAlpha = 0.3;
-    
-    ctx.fillRect(0, 0, canvas.width, canvas.height * 0.3);
-    
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1.0;
-    
-    afterImage = new Image();
-    afterImage.onload = () => {
-        setupBeforeAfterComparison();
-        calculateImprovementMetrics();
-    };
-    afterImage.src = canvas.toDataURL();
-}
-
-// Before/After 비교 설정
-function setupBeforeAfterComparison() {
-    const beforeCanvas = document.getElementById('before-canvas');
-    const afterCanvas = document.getElementById('after-canvas');
-    
-    if (beforeCanvas && afterCanvas && beforeImage && afterImage) {
-        beforeCanvas.width = 300;
-        beforeCanvas.height = 200;
-        const beforeCtx = beforeCanvas.getContext('2d');
-        beforeCtx.drawImage(beforeImage, 0, 0, 300, 200);
+        drapingVideoElement = document.getElementById('draping-camera');
+        drapingVideoElement.srcObject = stream;
         
-        afterCanvas.width = 300;
-        afterCanvas.height = 200;
-        const afterCtx = afterCanvas.getContext('2d');
-        afterCtx.drawImage(afterImage, 0, 0, 300, 200);
+        // 가이드 숨기기
+        const guide = document.getElementById('draping-guide');
+        if (guide) guide.style.display = 'none';
         
-        const slider = document.getElementById('comparison-slider');
-        if (slider) {
-            slider.addEventListener('input', updateSliderComparison);
+        // 오버레이 캔버스 설정
+        drapingCanvasElement = document.getElementById('draping-overlay');
+        drapingCanvasCtx = drapingCanvasElement.getContext('2d');
+        
+        // 비디오 메타데이터 로드 시 캔버스 크기 설정
+        drapingVideoElement.addEventListener('loadedmetadata', () => {
+            drapingCanvasElement.width = drapingVideoElement.videoWidth || 640;
+            drapingCanvasElement.height = drapingVideoElement.videoHeight || 480;
+            
+            // AI 참고 분석 시작
+            performAIReference();
+            
+            // 기본 색상 설정
+            setDrapingSeason('spring');
+            
+            showToast('드래이핑 카메라가 시작되었습니다', 'success');
+        });
+        
+    } catch (error) {
+        console.error('드래이핑 카메라 실패:', error);
+        showToast('카메라 권한을 허용해주세요', 'error');
+    }
+}
+
+// AI 참고 분석 수행
+async function performAIReference() {
+    if (!drapingVideoElement) return;
+    
+    try {
+        // 현재 프레임에서 피부톤 추출 (간단한 버전)
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = drapingVideoElement.videoWidth;
+        tempCanvas.height = drapingVideoElement.videoHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        tempCtx.drawImage(drapingVideoElement, 0, 0);
+        
+        // 중앙 영역에서 대략적인 피부색 추출
+        const centerX = tempCanvas.width / 2;
+        const centerY = tempCanvas.height / 2;
+        const sampleSize = 20;
+        
+        let totalR = 0, totalG = 0, totalB = 0, pixels = 0;
+        
+        for (let y = centerY - sampleSize; y < centerY + sampleSize; y++) {
+            for (let x = centerX - sampleSize; x < centerX + sampleSize; x++) {
+                if (x >= 0 && x < tempCanvas.width && y >= 0 && y < tempCanvas.height) {
+                    const imageData = tempCtx.getImageData(x, y, 1, 1);
+                    const r = imageData.data[0];
+                    const g = imageData.data[1];
+                    const b = imageData.data[2];
+                    
+                    if (r > 80 && g > 60 && b > 40 && r < 230 && g < 200 && b < 180) {
+                        totalR += r;
+                        totalG += g;
+                        totalB += b;
+                        pixels++;
+                    }
+                }
+            }
         }
         
-        showToast('Before/After 비교 준비 완료', 'success');
+        if (pixels > 0) {
+            const avgSkin = {
+                r: Math.round(totalR / pixels),
+                g: Math.round(totalG / pixels),
+                b: Math.round(totalB / pixels)
+            };
+            
+            aiReferenceResult = analyzePersonalColor(avgSkin);
+            
+            const refElement = document.getElementById('ai-reference');
+            if (refElement) {
+                refElement.textContent = aiReferenceResult.season;
+            }
+        }
+    } catch (error) {
+        console.warn('AI 참고 분석 실패:', error);
     }
 }
 
-// 슬라이더 비교 업데이트
-function updateSliderComparison() {
-    const slider = document.getElementById('comparison-slider');
-    const afterCanvas = document.getElementById('after-canvas');
-    if (!slider || !afterCanvas) return;
+// 드래이핑 계절 설정
+function setDrapingSeason(season) {
+    currentDrapingSeason = season;
     
-    const value = slider.value;
-    afterCanvas.style.clipPath = `inset(0 ${100 - value}% 0 0)`;
+    // 탭 활성화
+    document.querySelectorAll('#draping-mode .season-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.getElementById(`draping-${season}`).classList.add('active');
+    
+    // 기본 색상 설정
+    const baseColors = {
+        spring: '#FFB347', // 밝은 오렌지
+        summer: '#B19CD9', // 부드러운 퍼플
+        autumn: '#CD853F', // 깊은 브라운
+        winter: '#4B0082'  // 진한 퍼플
+    };
+    
+    currentDrapingColor = baseColors[season];
+    updateDrapingColor();
+    
+    showToast(`${season} 계절 선택됨`, 'info');
 }
 
-// 비교 모드 전환
-function switchComparisonMode(mode) {
-    currentComparisonMode = mode;
+// 드래이핑 색상 업데이트
+function updateDrapingColor() {
+    if (!currentDrapingColor) return;
     
-    document.querySelectorAll('.comparison-mode-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    const lightness = parseInt(document.getElementById('lightness-slider').value);
+    const saturation = parseInt(document.getElementById('saturation-slider').value);
+    const warmth = parseInt(document.getElementById('warmth-slider').value);
     
-    document.querySelector(`[onclick*="${mode}"]`).classList.add('active');
+    // 슬라이더 값 표시 업데이트
+    document.getElementById('lightness-value').textContent = lightness;
+    document.getElementById('saturation-value').textContent = saturation;
+    document.getElementById('warmth-value').textContent = warmth;
     
-    document.querySelectorAll('.comparison-viewer').forEach(viewer => {
-        viewer.classList.remove('active');
-    });
+    // RGB 색상 조정
+    const baseRgb = hexToRgb(currentDrapingColor);
     
-    const targetViewer = document.getElementById(`${mode}-view`);
-    if (targetViewer) {
-        targetViewer.classList.add('active');
+    let { r, g, b } = adjustColor(baseRgb, lightness, saturation, warmth);
+    
+    const adjustedColor = `rgb(${r}, ${g}, ${b})`;
+    const adjustedHex = rgbToHex(r, g, b);
+    
+    // 현재 색상 표시 업데이트
+    const colorDisplay = document.getElementById('current-draping-color');
+    const colorInfo = document.getElementById('current-color-info');
+    
+    if (colorDisplay) colorDisplay.style.backgroundColor = adjustedColor;
+    if (colorInfo) colorInfo.textContent = adjustedHex;
+    
+    // 실시간 오버레이 적용
+    if (drapingVideoElement && drapingCanvasCtx && !isShowingOriginal) {
+        applyColorOverlay(adjustedColor);
+    }
+}
+
+// 색상 조정 함수
+function adjustColor(rgb, lightness, saturation, warmth) {
+    let { r, g, b } = rgb;
+    
+    // 명도 조정
+    const lightnessFactor = 1 + (lightness / 100);
+    r = Math.min(255, Math.max(0, r * lightnessFactor));
+    g = Math.min(255, Math.max(0, g * lightnessFactor));
+    b = Math.min(255, Math.max(0, b * lightnessFactor));
+    
+    // 채도 조정 (회색과의 블렌딩)
+    const gray = (r + g + b) / 3;
+    const saturationFactor = 1 + (saturation / 100);
+    r = Math.min(255, Math.max(0, gray + (r - gray) * saturationFactor));
+    g = Math.min(255, Math.max(0, gray + (g - gray) * saturationFactor));
+    b = Math.min(255, Math.max(0, gray + (b - gray) * saturationFactor));
+    
+    // 온도감 조정
+    if (warmth > 0) { // 웜톤으로
+        r = Math.min(255, r + warmth * 0.8);
+        g = Math.min(255, r + warmth * 0.4);
+        b = Math.max(0, b - warmth * 0.6);
+    } else if (warmth < 0) { // 쿨톤으로
+        r = Math.max(0, r + warmth * 0.6);
+        g = Math.max(0, g + warmth * 0.4);
+        b = Math.min(255, b - warmth * 0.8);
     }
     
-    showToast(`${mode} 비교 모드 활성화`, 'info');
+    return {
+        r: Math.round(r),
+        g: Math.round(g),
+        b: Math.round(b)
+    };
+}
+
+// 실시간 색상 오버레이 적용
+function applyColorOverlay(color) {
+    if (!drapingCanvasCtx || !drapingVideoElement) return;
+    
+    drapingCanvasCtx.clearRect(0, 0, drapingCanvasElement.width, drapingCanvasElement.height);
+    
+    // 헤어 영역 (상단 30%)에 색상 적용
+    drapingCanvasCtx.globalCompositeOperation = 'multiply';
+    drapingCanvasCtx.fillStyle = color;
+    drapingCanvasCtx.globalAlpha = 0.4;
+    drapingCanvasCtx.fillRect(0, 0, drapingCanvasElement.width, drapingCanvasElement.height * 0.35);
+    
+    drapingCanvasCtx.globalCompositeOperation = 'source-over';
+    drapingCanvasCtx.globalAlpha = 1.0;
 }
 
 // Before/After 토글
-let isShowingBefore = true;
-function toggleBeforeAfter() {
-    const toggleView = document.getElementById('toggle-view');
-    if (!toggleView || !beforeImage || !afterImage) return;
+function toggleDrapingPreview() {
+    isShowingOriginal = !isShowingOriginal;
     
-    isShowingBefore = !isShowingBefore;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 300;
-    canvas.height = 200;
-    
-    if (isShowingBefore) {
-        ctx.drawImage(beforeImage, 0, 0, 300, 200);
+    if (isShowingOriginal) {
+        // 원본 표시 (오버레이 숨기기)
+        drapingCanvasCtx.clearRect(0, 0, drapingCanvasElement.width, drapingCanvasElement.height);
     } else {
-        ctx.drawImage(afterImage, 0, 0, 300, 200);
+        // 색상 적용 표시
+        updateDrapingColor();
     }
-    
-    toggleView.style.backgroundImage = `url(${canvas.toDataURL()})`;
-    toggleView.style.backgroundSize = 'contain';
-    toggleView.style.backgroundRepeat = 'no-repeat';
-    toggleView.style.backgroundPosition = 'center';
 }
 
-// 개선도 지표 계산
-function calculateImprovementMetrics() {
-    const skinImprovement = Math.floor(Math.random() * 25) + 10;
-    const harmonyScore = Math.floor(Math.random() * 20) + 80;
-    const expertRating = Math.floor(Math.random() * 2) + 4;
-    
-    document.getElementById('skin-improvement').textContent = `+${skinImprovement}%`;
-    document.getElementById('harmony-score').textContent = `${harmonyScore}점`;
-    document.getElementById('expert-rating').textContent = '★'.repeat(expertRating) + '☆'.repeat(5 - expertRating);
-}
-
-// 비교 이미지 내보내기
-function exportComparison() {
-    if (!beforeImage || !afterImage) {
-        showToast('먼저 Before/After 이미지를 생성하세요', 'error');
+// 즐겨찾기 색상 저장
+function saveFavoriteColor() {
+    if (!currentDrapingColor) {
+        showToast('먼저 색상을 선택하세요', 'warning');
         return;
     }
     
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const lightness = parseInt(document.getElementById('lightness-slider').value);
+    const saturation = parseInt(document.getElementById('saturation-slider').value);
+    const warmth = parseInt(document.getElementById('warmth-slider').value);
     
-    canvas.width = beforeImage.width * 2;
-    canvas.height = beforeImage.height;
-    
-    ctx.drawImage(beforeImage, 0, 0);
-    
-    ctx.strokeStyle = '#E91E63';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(beforeImage.width, 0);
-    ctx.lineTo(beforeImage.width, beforeImage.height);
-    ctx.stroke();
-    
-    ctx.drawImage(afterImage, beforeImage.width, 0);
-    
-    ctx.font = 'bold 24px Arial';
-    ctx.fillStyle = 'white';
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2;
-    
-    ctx.strokeText('Before', 20, 40);
-    ctx.fillText('Before', 20, 40);
-    ctx.strokeText('After', beforeImage.width + 20, 40);
-    ctx.fillText('After', beforeImage.width + 20, 40);
-    
-    canvas.toBlob(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `personal_color_comparison_${Date.now()}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showToast('비교 이미지가 저장되었습니다', 'success');
-    });
-}
-
-// 상담 리포트 생성
-function generateReport() {
-    const reportData = {
-        timestamp: new Date().toLocaleString('ko-KR'),
-        season: selectedSeason,
-        selectedColor: selectedColor,
-        improvementMetrics: {
-            skinImprovement: document.getElementById('skin-improvement').textContent,
-            harmonyScore: document.getElementById('harmony-score').textContent,
-            expertRating: document.getElementById('expert-rating').textContent
-        }
+    const favoriteColor = {
+        base: currentDrapingColor,
+        season: currentDrapingSeason,
+        adjustments: { lightness, saturation, warmth },
+        timestamp: Date.now()
     };
     
-    const reportContent = `
-퍼스널컬러 진단 리포트
-
-진단 일시: ${reportData.timestamp}
-진단된 계절: ${reportData.season}
-적용된 색상: ${reportData.selectedColor}
-
-개선 지표:
-- 피부톤 개선: ${reportData.improvementMetrics.skinImprovement}
-- 전체 조화도: ${reportData.improvementMetrics.harmonyScore}
-- 전문가 추천: ${reportData.improvementMetrics.expertRating}
-
-전문가 노하우 적용:
-- 유이레(UIREH): ${ExpertKnowledge.uireh.colorSpectrum}
-- 빛날윤/차홍아르더: ${ExpertKnowledge.bitnalyun.principle}
-- 블루미: ${ExpertKnowledge.blume.specificTypes.warm}
-
-Personal Color Pro - 헤어샵 전용 퍼스널컬러 진단 시스템
-    `.trim();
+    favoriteColors.push(favoriteColor);
+    updateFavoriteColorsList();
     
-    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `personal_color_report_${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showToast('상담 리포트가 생성되었습니다', 'success');
+    showToast('색상이 저장되었습니다', 'success');
 }
+
+// 즐겨찾기 색상 목록 업데이트
+function updateFavoriteColorsList() {
+    const container = document.getElementById('favorite-colors');
+    const list = document.getElementById('favorite-colors-list');
+    
+    if (favoriteColors.length > 0) {
+        container.style.display = 'block';
+        list.innerHTML = '';
+        
+        favoriteColors.forEach((color, index) => {
+            const baseRgb = hexToRgb(color.base);
+            const { r, g, b } = adjustColor(baseRgb, color.adjustments.lightness, color.adjustments.saturation, color.adjustments.warmth);
+            const adjustedColor = `rgb(${r}, ${g}, ${b})`;
+            
+            const colorElement = document.createElement('div');
+            colorElement.style.cssText = `
+                width: 40px; height: 40px; border-radius: 50%; 
+                background: ${adjustedColor}; cursor: pointer; 
+                border: 2px solid #ddd; position: relative;
+            `;
+            colorElement.title = `${color.season} - ${new Date(color.timestamp).toLocaleTimeString()}`;
+            
+            colorElement.onclick = () => {
+                // 저장된 색상 적용
+                setDrapingSeason(color.season);
+                document.getElementById('lightness-slider').value = color.adjustments.lightness;
+                document.getElementById('saturation-slider').value = color.adjustments.saturation;
+                document.getElementById('warmth-slider').value = color.adjustments.warmth;
+                currentDrapingColor = color.base;
+                updateDrapingColor();
+                showToast('저장된 색상을 적용했습니다', 'info');
+            };
+            
+            list.appendChild(colorElement);
+        });
+    }
+}
+
+// 유틸리티 함수들
+function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return { r, g, b };
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+// 키보드 단축키 (스페이스바로 Before/After 토글)
+document.addEventListener('keydown', function(event) {
+    if (currentMode === 'draping' && event.code === 'Space' && !event.ctrlKey) {
+        event.preventDefault();
+        toggleDrapingPreview();
+    }
+});
 
 // ==========================================
 // 시스템 상태 및 유틸리티 함수들
