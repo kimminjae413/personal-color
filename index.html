@@ -1052,56 +1052,67 @@ function updateLoadingProgress(percent, text) {
     if (loadingText) loadingText.textContent = text;
 }
 
-// MediaPipe 초기화 (오류 처리 개선)
+// MediaPipe 초기화 (WASM 오류 해결)
 async function initializeMediaPipe() {
     try {
         updateLoadingProgress(30, 'MediaPipe 라이브러리 확인 중...');
         
-        // MediaPipe 라이브러리 로드 확인 (타임아웃 적용)
         let mediapipeLoaded = false;
         let retryCount = 0;
-        const maxRetries = 5;
+        const maxRetries = 3; // 재시도 횟수 감소
         
         while (!mediapipeLoaded && retryCount < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 800));
             
             if (typeof FaceDetection !== 'undefined') {
-                mediapipeLoaded = true;
-                console.log('✅ MediaPipe 초기화 성공');
-                break;
+                try {
+                    // FaceDetection 인스턴스 생성 (오류 처리 강화)
+                    faceDetection = new FaceDetection({
+                        locateFile: (file) => {
+                            return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
+                        }
+                    });
+                    
+                    // 옵션 설정을 별도로 처리
+                    await new Promise((resolve, reject) => {
+                        try {
+                            faceDetection.setOptions({
+                                model: 'short',
+                                minDetectionConfidence: 0.3, // 임계값 낮춤
+                            });
+                            
+                            faceDetection.onResults(onFaceDetectionResults);
+                            setTimeout(resolve, 500); // 초기화 시간 확보
+                        } catch (error) {
+                            reject(error);
+                        }
+                    });
+                    
+                    mediapipeLoaded = true;
+                    console.log('MediaPipe 초기화 성공');
+                    break;
+                } catch (error) {
+                    console.warn(`MediaPipe 초기화 시도 ${retryCount + 1} 실패:`, error);
+                    faceDetection = null;
+                }
             }
             
             retryCount++;
-            updateLoadingProgress(30 + (retryCount * 8), `MediaPipe 로딩 확인 중... (${retryCount}/${maxRetries})`);
+            updateLoadingProgress(30 + (retryCount * 15), `MediaPipe 초기화 중... (${retryCount}/${maxRetries})`);
         }
         
         if (!mediapipeLoaded) {
-            console.warn('⚠️ MediaPipe 로드 실패 - 기본 모드로 동작');
+            console.warn('MediaPipe 로드 실패 - 기본 모드로 동작');
             updateLoadingProgress(80, 'MediaPipe 로드 실패 - 기본 모드로 동작');
             return false;
         }
-        
-        updateLoadingProgress(70, 'MediaPipe 모델 초기화 중...');
-        
-        // FaceDetection 인스턴스 생성
-        faceDetection = new FaceDetection({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
-            }
-        });
-        
-        faceDetection.setOptions({
-            model: 'short',
-            minDetectionConfidence: 0.5,
-        });
-        
-        faceDetection.onResults(onFaceDetectionResults);
         
         updateLoadingProgress(90, 'MediaPipe 초기화 완료');
         return true;
         
     } catch (error) {
-        console.error('❌ MediaPipe 초기화 실패:', error);
+        console.error('MediaPipe 초기화 실패:', error);
+        faceDetection = null;
         updateLoadingProgress(80, 'MediaPipe 초기화 실패 - 기본 모드로 동작');
         return false;
     }
@@ -1933,15 +1944,15 @@ function startDraping() {
     switchMode('draping');
 }
 
-// 실제 얼굴 인식 시작 (강화된 버전)
+// 실제 얼굴 인식 시작 (Canvas 크기 문제 해결)
 async function startFaceDetection() {
     try {
         console.log('카메라 시작...');
         
         const stream = await navigator.mediaDevices.getUserMedia({
             video: { 
-                width: { ideal: 1280, max: 1920 },
-                height: { ideal: 720, max: 1080 },
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
                 facingMode: 'user'
             }
         });
@@ -1962,41 +1973,73 @@ async function startFaceDetection() {
         
         canvasCtx = canvasElement.getContext('2d');
         
-        // 비디오 메타데이터 로드 시 캔버스 크기 설정
-        videoElement.addEventListener('loadedmetadata', () => {
-            canvasElement.width = videoElement.clientWidth;
-            canvasElement.height = videoElement.clientHeight;
+        // 비디오 메타데이터 로드 완료를 기다림
+        await new Promise((resolve) => {
+            const handleLoadedMetadata = () => {
+                // Canvas 크기를 비디오 실제 크기로 설정
+                const rect = videoElement.getBoundingClientRect();
+                canvasElement.width = rect.width;
+                canvasElement.height = rect.height;
+                canvasElement.style.width = rect.width + 'px';
+                canvasElement.style.height = rect.height + 'px';
+                
+                console.log(`Canvas 크기 설정: ${canvasElement.width}x${canvasElement.height}`);
+                
+                videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                resolve();
+            };
             
-            // MediaPipe가 있으면 사용, 없으면 기본 분석 모드
-            if (faceDetection && typeof Camera !== 'undefined') {
+            if (videoElement.readyState >= 1) {
+                handleLoadedMetadata();
+            } else {
+                videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+            }
+        });
+        
+        // MediaPipe가 있으면 사용, 없으면 기본 분석 모드
+        if (faceDetection && typeof Camera !== 'undefined') {
+            try {
                 camera = new Camera(videoElement, {
                     onFrame: async () => {
-                        if (faceDetection) {
-                            await faceDetection.send({ image: videoElement });
+                        try {
+                            if (faceDetection && videoElement.readyState === 4) {
+                                await faceDetection.send({ image: videoElement });
+                            }
+                        } catch (error) {
+                            console.warn('MediaPipe 프레임 처리 실패:', error);
                         }
                     },
                     width: 640,
                     height: 480
                 });
-                camera.start();
                 
-                showToast('MediaPipe 얼굴 추적이 시작되었습니다!', 'success');
-            } else {
-                showToast('카메라가 시작되었습니다. 기본 분석 모드로 동작합니다.', 'info');
-                
-                // 3초 후 자동으로 2단계로 이동
-                setTimeout(() => {
-                    faceDetected = true;
-                    goToStep(2);
-                    showToast('얼굴이 감지되었습니다! (기본 모드)', 'success');
-                }, 3000);
+                await camera.start();
+                showToast('MediaPipe 얼굴 추적이 시작되었습니다', 'success');
+            } catch (error) {
+                console.warn('Camera 시작 실패, 기본 모드로 전환:', error);
+                startBasicMode();
             }
-        });
+        } else {
+            startBasicMode();
+        }
         
     } catch (error) {
         console.error('카메라 접근 실패:', error);
         showToast('카메라 권한을 허용해주세요. 또는 HTTPS 환경에서 실행하세요.', 'error');
     }
+}
+
+// 기본 모드 시작 (MediaPipe 없이)
+function startBasicMode() {
+    showToast('카메라가 시작되었습니다. 기본 분석 모드로 동작합니다.', 'info');
+    
+    // 3초 후 자동으로 2단계로 이동
+    setTimeout(() => {
+        stableDetectionCount = REQUIRED_STABLE_FRAMES;
+        faceDetected = true;
+        goToStep(2);
+        showToast('얼굴이 감지되었습니다 (기본 모드)', 'success');
+    }, 3000);
 }
 
 // ==========================================
