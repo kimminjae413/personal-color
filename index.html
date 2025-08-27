@@ -1115,8 +1115,8 @@ function initializeApp() {
     try {
         updateLoadingProgress(95, '앱 초기화 완료');
         
-        // 기본 봄 팔레트 표시
-        showSeasonPalette('spring');
+        // 기본 드래이핑 설정만 (showSeasonPalette 제거)
+        currentDrapingSeason = 'spring';
         
         // 완전한 로딩 완료
         updateLoadingProgress(100, '시스템 준비 완료!');
