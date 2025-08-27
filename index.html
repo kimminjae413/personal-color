@@ -1332,19 +1332,28 @@ function generateExpertAnalysis(season, labValues, rgbValues) {
 // MediaPipe 얼굴 인식 함수들 (오류 해결됨)
 // ==========================================
 
-// MediaPipe 결과 처리 (얼굴 모양 추적)
+// 얼굴 감지 상태 안정화 변수들
+let faceDetectionFrames = 0;
+let lastToastTime = 0;
+let stableDetectionCount = 0;
+const REQUIRED_STABLE_FRAMES = 5; // 5프레임 연속 감지 필요
+const TOAST_THROTTLE_MS = 3000; // 토스트 메시지 3초 간격 제한
+
+// MediaPipe 결과 처리 (안정화된 얼굴 모양 추적)
 function onFaceDetectionResults(results) {
     if (!canvasCtx || !videoElement) return;
     
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    clearSkinRegions();
     
-    if (results.detections && results.detections.length > 0) {
+    const currentTime = Date.now();
+    const hasDetection = results.detections && results.detections.length > 0;
+    
+    if (hasDetection) {
         const detection = results.detections[0];
         
         // boundingBox 안전 확인
         if (!detection.boundingBox) {
-            console.warn('⚠️ BoundingBox 데이터 없음');
+            stableDetectionCount = 0;
             return;
         }
         
@@ -1390,18 +1399,35 @@ function onFaceDetectionResults(results) {
             canvasCtx.fillText(confText, x + width - 40, y + height + 20);
         }
         
-        if (!faceDetected && currentStep === 1) {
+        // 안정된 감지 카운트 증가
+        stableDetectionCount++;
+        
+        // 처음 안정적으로 감지되었을 때만 단계 전환
+        if (!faceDetected && currentStep === 1 && stableDetectionCount >= REQUIRED_STABLE_FRAMES) {
             faceDetected = true;
             goToStep(2);
-            showToast('얼굴 추적이 시작되었습니다!', 'success');
+            if (currentTime - lastToastTime > TOAST_THROTTLE_MS) {
+                showToast('얼굴 추적이 시작되었습니다!', 'success');
+                lastToastTime = currentTime;
+            }
         }
         
     } else {
+        // 얼굴 감지 실패
+        stableDetectionCount = Math.max(0, stableDetectionCount - 2); // 더 빨리 감소
         currentFaceBox = null;
-        if (faceDetected && currentStep === 2) {
-            showToast('얼굴을 다시 카메라에 맞춰주세요', 'warning');
+        clearSkinRegions();
+        
+        // 계속해서 감지 실패할 때만 경고 (토스트 제한)
+        if (faceDetected && currentStep === 2 && stableDetectionCount === 0) {
+            if (currentTime - lastToastTime > TOAST_THROTTLE_MS) {
+                showToast('얼굴을 다시 카메라에 맞춰주세요', 'warning');
+                lastToastTime = currentTime;
+            }
         }
     }
+    
+    faceDetectionFrames++;
 }
 
 // 얼굴 윤곽선 그리기
@@ -2327,11 +2353,21 @@ Personal Color Pro - 퍼스널컬러 진단 시스템
     alert(status);
 }
 
-// 토스트 메시지
+// 토스트 메시지 (중복 방지 및 스로틀링)
 function showToast(message, type = 'info', duration = 3000) {
-    const existingToast = document.querySelector('.toast');
-    if (existingToast) {
-        existingToast.remove();
+    const currentTime = Date.now();
+    
+    // 기존 동일한 메시지 토스트 제거
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => {
+        if (toast.textContent === message) {
+            toast.remove();
+        }
+    });
+    
+    // 너무 빈번한 토스트 방지 (같은 타입)
+    if (window.lastToastType === type && currentTime - (window.lastToastTime || 0) < 1500) {
+        return;
     }
     
     const toast = document.createElement('div');
@@ -2339,6 +2375,10 @@ function showToast(message, type = 'info', duration = 3000) {
     toast.textContent = message;
     
     document.body.appendChild(toast);
+    
+    // 토스트 기록 업데이트
+    window.lastToastType = type;
+    window.lastToastTime = currentTime;
     
     setTimeout(() => {
         if (toast.parentNode) {
