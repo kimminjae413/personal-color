@@ -1327,34 +1327,78 @@ function extractSkinColorFromFace(imageData, faceBox) {
     return finalColor;
 }
 
-// 퍼스널컬러 판정
+// 퍼스널컬러 판정 (개선된 버전)
 function analyzePersonalColor(skinRgb) {
     const skinLab = rgbToLab(skinRgb.r, skinRgb.g, skinRgb.b);
     
+    // 더 정교한 4계절 기준값들
     const seasonReferences = {
-        spring: { L: 70, A: 15, B: 25 },
-        summer: { L: 65, A: 5, B: -10 },
-        autumn: { L: 50, A: 20, B: 30 },
-        winter: { L: 45, A: -5, B: -15 }
+        spring: [
+            { L: 75, A: 12, B: 22 }, // 밝은 웜톤
+            { L: 68, A: 15, B: 28 }, // 중간 웜톤
+            { L: 72, A: 10, B: 25 }  // 선명한 웜톤
+        ],
+        summer: [
+            { L: 70, A: 3, B: -5 },  // 밝은 쿨톤
+            { L: 65, A: 8, B: -8 },  // 부드러운 쿨톤
+            { L: 68, A: 5, B: -12 }  // 파스텔 쿨톤
+        ],
+        autumn: [
+            { L: 55, A: 18, B: 30 }, // 깊은 웜톤
+            { L: 50, A: 22, B: 35 }, // 리치 웜톤
+            { L: 58, A: 15, B: 28 }  // 어스 웜톤
+        ],
+        winter: [
+            { L: 45, A: -2, B: -18 }, // 깊은 쿨톤
+            { L: 48, A: 2, B: -15 },  // 선명한 쿨톤
+            { L: 42, A: -5, B: -20 }  // 다크 쿨톤
+        ]
     };
     
     let bestMatch = null;
     let lowestDelta = Infinity;
+    let matchedVariant = 0;
     
-    for (const [season, refLab] of Object.entries(seasonReferences)) {
-        const deltaE = calculateDeltaE2000(skinLab, refLab);
-        if (deltaE < lowestDelta) {
-            lowestDelta = deltaE;
-            bestMatch = season;
-        }
+    // 각 계절의 모든 변형과 비교
+    for (const [season, variants] of Object.entries(seasonReferences)) {
+        variants.forEach((refLab, index) => {
+            const deltaE = calculateDeltaE2000(skinLab, refLab);
+            if (deltaE < lowestDelta) {
+                lowestDelta = deltaE;
+                bestMatch = season;
+                matchedVariant = index;
+            }
+        });
     }
     
-    const confidence = Math.max(70, Math.min(98, 100 - lowestDelta * 2));
+    // RGB 기반 추가 분석
+    const { r, g, b } = skinRgb;
+    const warmCoolScore = (r - b) / Math.max(r + g + b, 1); // 웜/쿨 지수
+    const lightDarkScore = (r + g + b) / (3 * 255); // 밝기 지수
+    
+    // 웜/쿨 보정
+    if (warmCoolScore > 0.08 && (bestMatch === 'summer' || bestMatch === 'winter')) {
+        bestMatch = warmCoolScore > 0.15 ? 'autumn' : 'spring';
+        lowestDelta *= 0.8; // 보정된 매칭이므로 신뢰도 향상
+    } else if (warmCoolScore < -0.02 && (bestMatch === 'spring' || bestMatch === 'autumn')) {
+        bestMatch = lightDarkScore > 0.6 ? 'summer' : 'winter';
+        lowestDelta *= 0.8;
+    }
+    
+    // 신뢰도 계산 (더 정교하게)
+    const baseConfidence = Math.max(60, Math.min(95, 100 - lowestDelta * 1.8));
+    const rgbVariance = Math.abs(r - g) + Math.abs(g - b) + Math.abs(r - b);
+    const varianceBonus = Math.min(10, rgbVariance / 5); // RGB 차이가 클수록 신뢰도 증가
+    
+    const finalConfidence = Math.round(baseConfidence + varianceBonus);
+    
     const expertAnalysis = generateExpertAnalysis(bestMatch, skinLab, skinRgb);
+    
+    console.log(`분석 상세: ${bestMatch}, Delta E: ${lowestDelta.toFixed(1)}, 웜쿨지수: ${warmCoolScore.toFixed(3)}, 밝기: ${lightDarkScore.toFixed(2)}`);
     
     return {
         season: getSeasonName(bestMatch),
-        confidence: Math.round(confidence),
+        confidence: finalConfidence,
         lab: {
             L: skinLab.L.toFixed(1),
             A: skinLab.A.toFixed(1), 
@@ -1362,7 +1406,9 @@ function analyzePersonalColor(skinRgb) {
         },
         deltaE: lowestDelta.toFixed(1),
         rgb: skinRgb,
-        expertAnalysis
+        expertAnalysis,
+        warmCoolScore: warmCoolScore.toFixed(3),
+        lightDarkScore: lightDarkScore.toFixed(2)
     };
 }
 
