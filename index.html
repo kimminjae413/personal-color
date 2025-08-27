@@ -875,7 +875,7 @@ body {
                         
                         <!-- AI 참고 정보 -->
                         <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">
-                            <div>AI 분석: <span id="ai-reference">-</span></div>
+                            <div>드래이프: <span id="ai-reference">-</span></div>
                             <div style="font-size: 0.75rem; opacity: 0.8;">(참고용)</div>
                         </div>
                         
@@ -2379,7 +2379,7 @@ function toggleDrapingPreview() {
     }
 }
 
-// 즐겨찾기 색상 저장
+// 즐겨찾기 색상 저장 (브랜드 제품 매칭 추가)
 function saveFavoriteColor() {
     if (!currentDrapingColor) {
         showToast('먼저 색상을 선택하세요', 'warning');
@@ -2390,17 +2390,198 @@ function saveFavoriteColor() {
     const saturation = parseInt(document.getElementById('saturation-slider').value);
     const warmth = parseInt(document.getElementById('warmth-slider').value);
     
+    // 최종 조정된 색상 계산
+    const baseRgb = hexToRgb(currentDrapingColor);
+    const adjustedRgb = adjustColor(baseRgb, lightness, saturation, warmth);
+    const finalHex = rgbToHex(adjustedRgb.r, adjustedRgb.g, adjustedRgb.b);
+    
+    // 브랜드 제품과 매칭
+    const matchedProducts = findMatchingProducts(adjustedRgb);
+    
     const favoriteColor = {
         base: currentDrapingColor,
         season: currentDrapingSeason,
         adjustments: { lightness, saturation, warmth },
+        finalColor: finalHex,
+        finalRgb: adjustedRgb,
+        matchedProducts: matchedProducts,
         timestamp: Date.now()
     };
     
     favoriteColors.push(favoriteColor);
     updateFavoriteColorsList();
     
-    showToast('색상이 저장되었습니다', 'success');
+    // 매칭된 제품 정보 표시
+    showProductRecommendations(matchedProducts, finalHex);
+    
+    showToast('색상이 저장되고 제품이 매칭되었습니다', 'success');
+}
+
+// 브랜드 제품과 색상 매칭
+function findMatchingProducts(targetRgb) {
+    const allProducts = [
+        // 로레알 프로페셔널
+        { brand: '로레알', code: '7.3', name: '골든 블론드', rgb: { r: 212, g: 175, b: 55 } },
+        { brand: '로레알', code: '8.34', name: '라이트 골든 코퍼', rgb: { r: 205, g: 133, b: 63 } },
+        { brand: '로레알', code: '6.35', name: '다크 골든 마호가니', rgb: { r: 139, g: 69, b: 19 } },
+        { brand: '로레알', code: '8.1', name: '라이트 애쉬 블론드', rgb: { r: 192, g: 192, b: 192 } },
+        { brand: '로레알', code: '7.11', name: '인텐스 애쉬 블론드', rgb: { r: 169, g: 169, b: 169 } },
+        { brand: '로레알', code: '6.3', name: '다크 골든 블론드', rgb: { r: 184, g: 134, b: 11 } },
+        { brand: '로레알', code: '1.0', name: '블랙', rgb: { r: 0, g: 0, b: 0 } },
+        { brand: '로레알', code: '2.1', name: '브라운 애쉬', rgb: { r: 47, g: 79, b: 79 } },
+        
+        // 웰라 프로페셔널  
+        { brand: '웰라', code: '7/3', name: '미디움 골든 블론드', rgb: { r: 218, g: 165, b: 32 } },
+        { brand: '웰라', code: '8/03', name: '라이트 내추럴 골든', rgb: { r: 240, g: 230, b: 140 } },
+        { brand: '웰라', code: '6/73', name: '다크 브라운 골든', rgb: { r: 160, g: 82, b: 45 } },
+        { brand: '웰라', code: '8/1', name: '라이트 애쉬 블론드', rgb: { r: 211, g: 211, b: 211 } },
+        { brand: '웰라', code: '7/1', name: '미디움 애쉬 블론드', rgb: { r: 176, g: 196, b: 222 } },
+        { brand: '웰라', code: '5/7', name: '라이트 브라운 미디움', rgb: { r: 205, g: 133, b: 63 } },
+        { brand: '웰라', code: '2/0', name: '블랙', rgb: { r: 0, g: 0, b: 0 } },
+        { brand: '웰라', code: '4/0', name: '미디움 브라운', rgb: { r: 47, g: 79, b: 79 } },
+        
+        // 밀본 오르디브
+        { brand: '밀본', code: '7-CG', name: '코퍼 골든', rgb: { r: 184, g: 115, b: 51 } },
+        { brand: '밀본', code: '8-CB', name: '코퍼 베이지', rgb: { r: 222, g: 184, b: 135 } },
+        { brand: '밀본', code: '6-GM', name: '골든 마호가니', rgb: { r: 205, g: 133, b: 63 } },
+        { brand: '밀본', code: '8-A', name: '애쉬', rgb: { r: 192, g: 192, b: 192 } },
+        { brand: '밀본', code: '7-MT', name: '마트 베이지', rgb: { r: 245, g: 245, b: 220 } },
+        { brand: '밀본', code: '6-CB', name: '코퍼 베이지', rgb: { r: 222, g: 184, b: 135 } },
+        { brand: '밀본', code: '2-N', name: '내추럴 블랙', rgb: { r: 0, g: 0, b: 0 } },
+        { brand: '밀본', code: '4-N', name: '내추럴 브라운', rgb: { r: 47, g: 47, b: 47 } }
+    ];
+    
+    // 각 제품과의 색차 계산
+    const productMatches = allProducts.map(product => {
+        const deltaE = calculateColorDistance(targetRgb, product.rgb);
+        const similarity = Math.max(0, Math.min(100, 100 - deltaE * 2));
+        
+        return {
+            ...product,
+            deltaE: deltaE.toFixed(1),
+            similarity: Math.round(similarity)
+        };
+    });
+    
+    // 유사도 순으로 정렬하여 상위 5개 반환
+    return productMatches
+        .sort((a, b) => parseFloat(a.deltaE) - parseFloat(b.deltaE))
+        .slice(0, 5);
+}
+
+// 색상 거리 계산 (간단한 유클리드 거리)
+function calculateColorDistance(rgb1, rgb2) {
+    const rDiff = rgb1.r - rgb2.r;
+    const gDiff = rgb1.g - rgb2.g;
+    const bDiff = rgb1.b - rgb2.b;
+    
+    return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff) / 4.41; // 정규화
+}
+
+// 제품 추천 표시
+function showProductRecommendations(products, targetColor) {
+    const recommendationsHtml = `
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                    background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); 
+                    z-index: 10000; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--primary-pink); margin: 0;">매칭된 헤어컬러 제품</h3>
+                <button onclick="closeProductRecommendations()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="display: inline-block; width: 60px; height: 60px; background: ${targetColor}; 
+                           border-radius: 50%; border: 3px solid #ddd; margin-bottom: 0.5rem;"></div>
+                <div style="font-weight: 600;">선택한 색상: ${targetColor}</div>
+            </div>
+            
+            <div style="display: grid; gap: 1rem;">
+                ${products.map((product, index) => `
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; 
+                               background: ${index === 0 ? '#E8F5E8' : '#f9f9f9'}; border-radius: 8px;
+                               border: ${index === 0 ? '2px solid #4CAF50' : '1px solid #ddd'};">
+                        <div style="width: 40px; height: 40px; background: rgb(${product.rgb.r}, ${product.rgb.g}, ${product.rgb.b}); 
+                                   border-radius: 50%; border: 2px solid #ddd; flex-shrink: 0;"></div>
+                        <div style="flex-grow: 1;">
+                            <div style="font-weight: 600; color: #333; margin-bottom: 0.2rem;">
+                                ${product.brand} ${product.code} ${index === 0 ? '⭐ 최고 매칭' : ''}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.2rem;">${product.name}</div>
+                            <div style="font-size: 0.8rem; color: #888;">
+                                유사도: ${product.similarity}% | 색차: ${product.deltaE}
+                            </div>
+                        </div>
+                        <div style="text-align: center; flex-shrink: 0;">
+                            <div style="background: var(--primary-pink); color: white; padding: 0.3rem 0.6rem; 
+                                       border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                ${product.similarity}%
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button onclick="exportProductList('${targetColor}', ${JSON.stringify(products).replace(/"/g, '&quot;')})" 
+                        style="background: var(--primary-pink); color: white; border: none; padding: 0.75rem 1.5rem; 
+                               border-radius: 8px; cursor: pointer; margin-right: 0.5rem;">
+                    제품 리스트 저장
+                </button>
+                <button onclick="closeProductRecommendations()" 
+                        style="background: #666; color: white; border: none; padding: 0.75rem 1.5rem; 
+                               border-radius: 8px; cursor: pointer;">
+                    닫기
+                </button>
+            </div>
+        </div>
+        <div id="recommendation-backdrop" onclick="closeProductRecommendations()" 
+             style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                    background: rgba(0,0,0,0.5); z-index: 9999;"></div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', recommendationsHtml);
+}
+
+// 제품 추천 닫기
+function closeProductRecommendations() {
+    const recommendations = document.querySelector('[style*="position: fixed"][style*="transform: translate(-50%, -50%)"]');
+    const backdrop = document.getElementById('recommendation-backdrop');
+    
+    if (recommendations) recommendations.remove();
+    if (backdrop) backdrop.remove();
+}
+
+// 제품 리스트 내보내기
+function exportProductList(targetColor, products) {
+    const productData = typeof products === 'string' ? JSON.parse(products.replace(/&quot;/g, '"')) : products;
+    
+    const exportContent = `
+퍼스널컬러 드래이핑 - 매칭 제품 리스트
+
+선택한 색상: ${targetColor}
+매칭 일시: ${new Date().toLocaleString('ko-KR')}
+
+추천 제품 (유사도 순):
+${productData.map((product, index) => `
+${index + 1}. ${product.brand} ${product.code} - ${product.name}
+   유사도: ${product.similarity}% | 색차: ${product.deltaE}
+   ${index === 0 ? '⭐ 최고 매칭 제품' : ''}
+`).join('')}
+
+Personal Color Pro - 실시간 드래이핑 진단 시스템
+    `.trim();
+    
+    const blob = new Blob([exportContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `product_matching_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('제품 리스트가 저장되었습니다', 'success');
 }
 
 // 즐겨찾기 색상 목록 업데이트
