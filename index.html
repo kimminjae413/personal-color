@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
     <title>Personal Color Pro - 퍼스널컬러 진단 시스템</title>
     
     <!-- 파비콘 404 오류 방지 -->
@@ -25,7 +25,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* 태블릿 터치 최적화 */
+    /* 태블릿 터치 최적화 - 텍스트 선택만 방지 */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -35,27 +35,28 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-/* 터치 스크롤 및 줌 방지 */
+/* 태블릿 스크롤 및 확대/축소 허용 */
 html, body {
-    touch-action: manipulation;
+    touch-action: pan-x pan-y pinch-zoom;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
     overflow-x: hidden;
-    position: fixed;
+    /* position: fixed 제거하여 스크롤 허용 */
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
 }
 
-/* 새로고침 방지 */
+/* 새로고침 방지만 유지 */
 body {
     overscroll-behavior-y: contain;
     -webkit-overscroll-behavior-y: contain;
 }
 
-/* 스크롤 영역만 스크롤 가능 */
+/* 스크롤 영역 최적화 */
 .scrollable {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
 }
 
 :root {
@@ -80,14 +81,11 @@ body {
     background: linear-gradient(135deg, var(--light-pink) 0%, #fff 50%, var(--secondary-rose) 100%);
     min-height: 100vh;
     color: #333;
-    /* 태블릿 최적화 */
-    touch-action: manipulation;
+    /* 태블릿 최적화 - 부드러운 터치 허용 */
+    touch-action: pan-x pan-y pinch-zoom;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
     overflow-x: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -141,8 +139,6 @@ body {
 .main-app {
     display: none;
     min-height: 100vh;
-    height: 100vh;
-    overflow: hidden;
     position: relative;
 }
 
@@ -281,9 +277,10 @@ body {
     padding: var(--spacing-lg);
     max-width: 1200px;
     margin: 0 auto;
-    height: calc(100vh - 120px);
+    /* 스크롤 허용을 위해 height 제한 제거 */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     flex: 1;
 }
 
@@ -793,7 +790,6 @@ body {
 /* 태블릿 세로 모드 최적화 */
 @media (max-width: 768px) and (orientation: portrait) {
     .main-content {
-        height: calc(100vh - 140px);
         padding: 1rem;
     }
     
@@ -819,10 +815,6 @@ body {
         gap: 1.5rem;
     }
     
-    .main-content {
-        height: calc(100vh - 100px);
-    }
-    
     .video-container {
         height: 320px;
     }
@@ -845,7 +837,6 @@ body {
     
     .main-content {
         padding: 0.8rem;
-        height: calc(100vh - 160px);
     }
     
     .section {
@@ -886,7 +877,7 @@ body {
             </div>
         </header>
 
-        <main class="main-content">
+        <main class="main-content scrollable">
             <!-- 모드 선택 섹션 -->
             <section class="section active" id="mode-selection">
                 <div class="section-nav">
@@ -1149,36 +1140,29 @@ body {
 
 <script>
 // ==========================================
-// 태블릿 터치 이벤트 방지 및 최적화
+// 태블릿 터치 이벤트 최적화 (수정됨)
 // ==========================================
 
 // 페이지 로드 시 터치 이벤트 설정
 document.addEventListener('DOMContentLoaded', function() {
-    // 줌, 스크롤, 새로고침 방지
+    // 과도한 줌 방지 (완전 차단 X, 적절한 제한)
     document.addEventListener('touchstart', function(e) {
-        if (e.touches.length > 1) {
-            e.preventDefault(); // 멀티터치 줌 방지
+        // 3개 이상 손가락 터치만 방지 (일반적인 핀치 줌은 허용)
+        if (e.touches.length > 2) {
+            e.preventDefault();
         }
     }, { passive: false });
 
+    // 상단 당기는 새로고침만 방지
     document.addEventListener('touchmove', function(e) {
-        if (e.touches.length > 1) {
-            e.preventDefault(); // 멀티터치 스크롤 방지
-        }
-        
-        // 상단 당겨서 새로고침 방지
-        if (e.touches[0].clientY > 0 && window.scrollY === 0) {
+        // 스크롤이 맨 위에 있을 때만 상단 당기기 방지
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop === 0 && e.touches[0].clientY > e.touches[0].pageY) {
             e.preventDefault();
         }
     }, { passive: false });
 
-    document.addEventListener('touchend', function(e) {
-        if (e.touches.length > 1) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-
-    // 더블탭 줌 방지
+    // 더블탭 줌만 방지 (일반 탭은 허용)
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function(e) {
         const now = (new Date()).getTime();
@@ -1188,6 +1172,13 @@ document.addEventListener('DOMContentLoaded', function() {
         lastTouchEnd = now;
     }, false);
 
+    // Ctrl+마우스 휠 줌만 방지
+    document.addEventListener('wheel', function(e) {
+        if (e.ctrlKey) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
     // 키보드 줌 방지
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0')) {
@@ -1195,24 +1186,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 마우스 휠 줌 방지
-    document.addEventListener('wheel', function(e) {
-        if (e.ctrlKey) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-
-    // 컨텍스트 메뉴 방지 (길게 눌렀을 때 뜨는 메뉴)
+    // 컨텍스트 메뉴 방지 (길게 누르기 메뉴)
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();
     });
 
-    // 드래그 방지
+    // 이미지 드래그 방지
     document.addEventListener('dragstart', function(e) {
-        e.preventDefault();
+        if (e.target.tagName === 'IMG') {
+            e.preventDefault();
+        }
     });
 
-    // 텍스트 선택 방지 (중요한 텍스트는 제외)
+    // 텍스트 선택 방지 (입력 필드 제외)
     document.addEventListener('selectstart', function(e) {
         if (!e.target.closest('input') && !e.target.closest('textarea')) {
             e.preventDefault();
