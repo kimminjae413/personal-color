@@ -718,6 +718,52 @@ body {
 .toast.info { background: var(--info); }
 .toast.warning { background: var(--warning); }
 
+/* 슬라이더 터치 최적화 스타일 */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: #ddd;
+    border-radius: 3px;
+    outline: none;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-pink);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--primary-pink);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input[type="range"]::-webkit-slider-track {
+    height: 6px;
+    background: #ddd;
+    border-radius: 3px;
+}
+
+input[type="range"]::-moz-range-track {
+    height: 6px;
+    background: #ddd;
+    border-radius: 3px;
+    border: none;
+}
+
 /* 반응형 디자인 - 태블릿 최적화 */
 @media (max-width: 768px) {
     .analysis-grid,
@@ -889,8 +935,27 @@ body {
 
                 <div class="mode-cards">
                     <div class="mode-card" onclick="selectModeCard(this); startPhotoAnalysis();">
-                        <span class="mode-icon">📸</span>
-                        <h3>AI 사진 분석 모드</h3>
+                        <div class="mode-icon">
+                            <svg width="80" height="80" viewBox="0 0 40 40" style="fill: var(--primary-pink);">
+                                <!-- 얼굴 윤곽 -->
+                                <ellipse cx="20" cy="18" rx="12" ry="14" fill="#F5C6A0" stroke="var(--primary-pink)" stroke-width="2"/>
+                                <!-- 눈 -->
+                                <circle cx="16" cy="15" r="2" fill="#333"/>
+                                <circle cx="24" cy="15" r="2" fill="#333"/>
+                                <circle cx="16.5" cy="14.5" r="0.8" fill="white"/>
+                                <circle cx="24.5" cy="14.5" r="0.8" fill="white"/>
+                                <!-- 코 -->
+                                <path d="M19 18 L20 20 L21 18" stroke="#D4A574" stroke-width="1.5" fill="none"/>
+                                <!-- 입 -->
+                                <path d="M17 23 Q20 25 23 23" stroke="#D4546F" stroke-width="2" fill="none"/>
+                                <!-- 분석 포인트들 -->
+                                <circle cx="13" cy="12" r="1.5" fill="none" stroke="var(--primary-pink)" stroke-width="1"/>
+                                <circle cx="27" cy="12" r="1.5" fill="none" stroke="var(--primary-pink)" stroke-width="1"/>
+                                <circle cx="13" cy="20" r="1.5" fill="none" stroke="var(--primary-pink)" stroke-width="1"/>
+                                <circle cx="27" cy="20" r="1.5" fill="none" stroke="var(--primary-pink)" stroke-width="1"/>
+                            </svg>
+                        </div>
+                        <h3>AI 분석 모드</h3>
                         <p>실시간 카메라를 통한 AI 기반 과학적 퍼스널컬러 진단</p>
                         <ul class="mode-features">
                             <li>MediaPipe 얼굴 형태 추적</li>
@@ -904,7 +969,23 @@ body {
                     </div>
 
                     <div class="mode-card" onclick="selectModeCard(this); startDraping();">
-                        <span class="mode-icon">🎭</span>
+                        <div class="mode-icon">
+                            <svg width="80" height="80" viewBox="0 0 40 40" style="fill: var(--primary-pink);">
+                                <!-- 얼굴 -->
+                                <ellipse cx="20" cy="16" rx="10" ry="12" fill="#F5C6A0" stroke="#DDD" stroke-width="1"/>
+                                <!-- 눈 -->
+                                <circle cx="17" cy="13" r="1.5" fill="#333"/>
+                                <circle cx="23" cy="13" r="1.5" fill="#333"/>
+                                <!-- 입 -->
+                                <path d="M17 19 Q20 21 23 19" stroke="#D4546F" stroke-width="1.5" fill="none"/>
+                                <!-- 드래이핑 천 - 무지개 색상 -->
+                                <path d="M8 25 Q12 22 16 24 Q20 26 24 24 Q28 22 32 25 L32 35 Q28 32 24 34 Q20 36 16 34 Q12 32 8 35 Z" fill="#FF6B6B"/>
+                                <path d="M8 27 Q12 24 16 26 Q20 28 24 26 Q28 24 32 27 L32 37 Q28 34 24 36 Q20 38 16 36 Q12 34 8 37 Z" fill="#FFD93D"/>
+                                <path d="M8 29 Q12 26 16 28 Q20 30 24 28 Q28 26 32 29 L32 39 Q28 36 24 38 Q20 40 16 38 Q12 36 8 39 Z" fill="#6BCF7F"/>
+                                <path d="M8 31 Q12 28 16 30 Q20 32 24 30 Q28 28 32 31 L32 38 Q28 35 24 37 Q20 39 16 37 Q12 35 8 38 Z" fill="#4D96FF"/>
+                                <path d="M8 33 Q12 30 16 32 Q20 34 24 32 Q28 30 32 33 L32 37 Q28 34 24 36 Q20 38 16 36 Q12 34 8 37 Z" fill="#9B59B6"/>
+                            </svg>
+                        </div>
                         <h3>전문가 드래이핑 모드</h3>
                         <p>전문가 노하우를 반영한 가상 드래이핑 진단</p>
                         <ul class="mode-features">
@@ -1081,7 +1162,10 @@ body {
                             <div style="margin-bottom: 1rem;">
                                 <label style="font-weight: 600; color: #333;">명도 조정</label>
                                 <input type="range" id="lightness-slider" min="-30" max="30" value="0" 
-                                       style="width: 100%; margin-top: 0.5rem;" oninput="updateDrapingColor()">
+                                       style="width: 100%; margin-top: 0.5rem;"
+                                       oninput="updateDrapingColor()" 
+                                       onchange="updateDrapingColor()"
+                                       ontouchmove="updateDrapingColor()">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
                                     <span>어둡게</span>
                                     <span id="lightness-value">0</span>
@@ -1092,7 +1176,10 @@ body {
                             <div style="margin-bottom: 1rem;">
                                 <label style="font-weight: 600; color: #333;">채도 조정</label>
                                 <input type="range" id="saturation-slider" min="-50" max="50" value="0" 
-                                       style="width: 100%; margin-top: 0.5rem;" oninput="updateDrapingColor()">
+                                       style="width: 100%; margin-top: 0.5rem;"
+                                       oninput="updateDrapingColor()" 
+                                       onchange="updateDrapingColor()"
+                                       ontouchmove="updateDrapingColor()">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
                                     <span>차분하게</span>
                                     <span id="saturation-value">0</span>
@@ -1103,7 +1190,10 @@ body {
                             <div style="margin-bottom: 1rem;">
                                 <label style="font-weight: 600; color: #333;">온도감 조정</label>
                                 <input type="range" id="warmth-slider" min="-40" max="40" value="0" 
-                                       style="width: 100%; margin-top: 0.5rem;" oninput="updateDrapingColor()">
+                                       style="width: 100%; margin-top: 0.5rem;"
+                                       oninput="updateDrapingColor()" 
+                                       onchange="updateDrapingColor()"
+                                       ontouchmove="updateDrapingColor()">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
                                     <span>쿨톤</span>
                                     <span id="warmth-value">0</span>
@@ -2549,6 +2639,7 @@ function updateDrapingColor() {
     const saturation = parseInt(saturationSlider.value);
     const warmth = parseInt(warmthSlider.value);
     
+    // 숫자 업데이트 강제 실행
     const lightnessValue = document.getElementById('lightness-value');
     const saturationValue = document.getElementById('saturation-value');
     const warmthValue = document.getElementById('warmth-value');
@@ -2556,6 +2647,8 @@ function updateDrapingColor() {
     if (lightnessValue) lightnessValue.textContent = lightness;
     if (saturationValue) saturationValue.textContent = saturation;
     if (warmthValue) warmthValue.textContent = warmth;
+    
+    console.log('슬라이더 값들:', { lightness, saturation, warmth }); // 디버깅용
     
     const baseRgb = hexToRgb(currentDrapingColor);
     
